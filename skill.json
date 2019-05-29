@@ -1,0 +1,150 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "cynthia's story game",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.PauseIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StartOverIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AnswerIntent",
+                    "slots": [
+                        {
+                            "name": "EMOTION",
+                            "type": "EMOTION"
+                        }
+                    ],
+                    "samples": [
+                        "{EMOTION}",
+                        "she felt {EMOTION}",
+                        "he felt {EMOTION}"
+                    ]
+                },
+                {
+                    "name": "LionQuizIntent",
+                    "slots": [],
+                    "samples": [
+                        "start a quiz on the Lion",
+                        "Mouse",
+                        "Lion",
+                        "Lion and Mouse",
+                        "Lion and the Mouse"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "FoxQuizIntent",
+                    "slots": [],
+                    "samples": [
+                        "Stork",
+                        "Fox",
+                        "Fox and Stork",
+                        "Fox and the Stork"
+                    ]
+                },
+                {
+                    "name": "LionAnswerIntent",
+                    "slots": [
+                        {
+                            "name": "EMOTION",
+                            "type": "EMOTION"
+                        }
+                    ],
+                    "samples": [
+                        "{EMOTION}"
+                    ]
+                }
+            ],
+            "types": [
+                {
+                    "name": "EMOTION",
+                    "values": [
+                        {
+                            "name": {
+                                "value": "grateful",
+                                "synonyms": [
+                                    "appreciative",
+                                    "thankful"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "amused",
+                                "synonyms": [
+                                    "entertained",
+                                    "generous",
+                                    "happy"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "calm",
+                                "synonyms": [
+                                    "peaceful",
+                                    "content"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "surprised"
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "scared",
+                                "synonyms": [
+                                    "frustrated",
+                                    "afraid"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "angry",
+                                "synonyms": [
+                                    "frustrated"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "happy",
+                                "synonyms": [
+                                    "generous"
+                                ]
+                            }
+                        },
+                        {
+                            "name": {
+                                "value": "sad"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
