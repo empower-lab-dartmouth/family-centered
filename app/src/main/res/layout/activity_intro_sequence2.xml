@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Thanks to Jarno Argillander, Gratzi, and Vlad Stefansecu from stack for the ideas on how to resize images
+    https://stackoverflow.com/questions/8232608/fit-image-into-imageview-keep-aspect-ratio-and-then-resize-imageview-to-image-d
+    https://stackoverflow.com/questions/2521959/how-to-scale-an-image-in-imageview-to-keep-the-aspect-ratio
+    https://stackoverflow.com/questions/9798392/imageview-have-height-match-width
+    Thanks to marapet from stack for the info on how to add landscape layouts
+    https://stackoverflow.com/questions/4858026/android-alternate-layout-xml-for-landscape-mode
+    Thanks to 'a fair player' and wiztrail from stack for how to align text
+    https://stackoverflow.com/questions/8969122/right-align-text-in-android-textview
+    Thanks to 'Noon Silk' from stack for how to write block comments in xml
+    https://stackoverflow.com/questions/2757396/how-do-i-comment-out-a-block-of-tags-in-xml
+    Thanks to 'Chris Rock' from stack for how to add images to drawable folder
+    https://stackoverflow.com/questions/29047902/how-to-add-an-image-to-the-drawable-folder-in-android-studio
+-->
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IntroSequenceActivity2">
+
+    <!--<include
+        layout="@layout/nav_layout"
+        Thanks to Ron Romero from stack for this syntax
+        https://stackoverflow.com/questions/1759099/how-to-specify-id-when-uses-include-in-layout-xml-file
+        />-->
+
+    <include layout="@layout/scrollable_chatbar"></include>
+
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="64dp"
+
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+
+        android:fontFamily="@font/actor"
+
+        android:onClick="sendMessage"
+
+        android:text="@string/button_cont"
+        android:typeface="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/imageView2" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+
+        android:layout_marginBottom="256dp"
+        android:adjustViewBounds="true"
+        android:maxWidth="448dp"
+
+        android:maxHeight="448dp"
+        android:scaleType="fitCenter"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/egg" />
+</android.support.constraint.ConstraintLayout>

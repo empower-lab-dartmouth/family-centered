@@ -1,0 +1,48 @@
+<resources>
+
+    <!--
+    Thanks to Zielony from stack for syntax for changing navbar color
+    https://stackoverflow.com/questions/27839105/android-lollipop-change-navigation-bar-color
+    Thanks to forgemo from stack for help on overriding button styles
+    https://stackoverflow.com/questions/13222858/android-default-button-style
+    Thanks to Luksprog from stack for how to use one style template
+    https://stackoverflow.com/questions/10903647/set-a-consistent-style-to-all-edittext-for-e-g
+    Thanks to Steven Byle from stack for how to specify font sizes
+    https://stackoverflow.com/questions/2025282/what-is-the-difference-between-px-dip-dp-and-sp
+    Thanks to HjK from stack for how to change font
+    https://stackoverflow.com/questions/2888508/how-to-change-the-font-on-the-textview
+    -->
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"> //C: DarkActionBar --> NoActionBar
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- Below are generic styles (which will automatically be applied) -->
+        <item name="android:gravity">left</item>
+        <item name="android:text">TextView</item>
+        <item name="android:textColor">@color/almostBlack</item> //recently altered
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/actor</item>
+
+        <!--<item name="android:windowBackground">@drawable/background_gradient_land</item>-->
+
+        <!-- Below are specific element styles (which will automatically be applied) -->
+        <item name="editTextStyle">@style/sp_EditTextStyle</item>
+        <item name="android:buttonStyle">@style/sp_ButtonStyle</item>
+
+
+    </style>
+
+    <style name="sp_EditTextStyle" parent="@android:style/Widget.EditText">
+        <item name="android:textColor">@color/almostBlack</item>
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="sp_ButtonStyle" parent="Base.Widget.AppCompat.Button">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+</resources>

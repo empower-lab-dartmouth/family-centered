@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1047262864667",
+    "firebase_url": "https://superprimer-1f503.firebaseio.com",
+    "project_id": "superprimer-1f503",
+    "storage_bucket": "superprimer-1f503.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1047262864667:android:f363407d1d70e5c1",
+        "android_client_info": {
+          "package_name": "com.example.myfirstapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1047262864667-14c2n36d7c8qi639ofrru3jq17vp0n0i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBDh0_swGPNTX9dxMRvDQZ1st3qezM63I0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1047262864667-14c2n36d7c8qi639ofrru3jq17vp0n0i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

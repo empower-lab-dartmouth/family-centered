@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+    Thanks to 'Heiko Rupp' on stack for ideas on how to make images clickable (though I didn't take their exact solution)
+    https://stackoverflow.com/questions/4785544/clickable-image-android
+    -->
+
+    <!--
+    designed to serve as a template for styling quests. Not currently being used.
+    As more quests are developed, it is probably a good idea to have a centralized template, however.
+    -->
+
+    <TextView
+        android:id="@+id/textViewQ2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:text="TextView"
+
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageViewQ2"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:clickable="true"
+        android:onClick="sendMessage2"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewQ1"
+        app:srcCompat="@drawable/sp_roadriddle_question3" />
+
+    <ImageView
+        android:id="@+id/imageViewQ3"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:clickable="true"
+        android:onClick="sendMessage3"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewQ2"
+        app:srcCompat="@drawable/sp_roadriddle_question2" />
+
+    <ImageView
+        android:id="@+id/imageViewQ1"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:adjustViewBounds="true"
+        android:clickable="true"
+        android:onClick="sendMessage1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewQ2"
+        app:srcCompat="@drawable/sp_roadriddle_question1" />
+
+</android.support.constraint.ConstraintLayout>

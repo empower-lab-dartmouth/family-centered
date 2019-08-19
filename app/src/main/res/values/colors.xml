@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Thanks to user658042 from stack for their help on how to add colors
+    https://stackoverflow.com/questions/7378636/setting-background-colour-of-android-layout-element
+-->
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorLight">#f5fffa</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="gradientStart">#D81B60</color>
+    <color name="gradientEnd">#00574B</color>
+    <color name="white">#ffffff</color>
+    <color name="almostBlack">#555957</color>
+    <color name="almostBlacker">#303331</color>
+    <color name="transparent">#00000000</color>
+    <color name="background">#FF0000 </color>
+</resources>

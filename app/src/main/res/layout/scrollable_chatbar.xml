@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <!--
+    Thanks to Byte from slack for how to make scrollable chatbar
+    https://stackoverflow.com/questions/5101448/android-auto-scrolling-down-the-edittextview-for-chat-apps
+    Thanks to Santhosh Shettigar from slack for how to put textview in one line
+    https://stackoverflow.com/questions/8616631/textview-cuts-off-text-when-it-is-long-enough
+    Thanks to this blog for how to wrap a textview in a scrollview
+    http://blog.teamgrowth.net/index.php/android/how-to-make-the-textview-in-android-scrollable
+    -->
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/chatBoxOuter"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_alignParentBottom="true"
+        >
+
+            <TextView
+            android:id="@+id/chatBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textColor="@color/white"
+            />
+
+    </HorizontalScrollView>
+
+</RelativeLayout>

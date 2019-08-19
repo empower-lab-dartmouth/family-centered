@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Smart Primer Prototype</string>
+    <string name="edit_message">What\'s your name?</string>
+    <string name="nickname_message"></string>
+    <string name="button_send">Send</string>
+    <string name="button_cont">Continue</string>
+    <string name="button_begin">Begin</string>
+    <string name="button_yes">Yes</string>
+    <string name="button_parents">Awesometown Parents</string>
+    <string name="button_kids">Awesometown Kids</string>
+    <string name="button_answer">Submit Proposal</string>
+    <string name="menu_item">Menu Item</string>
+    <string name="title_activity_maps_test">Map</string>
+    <string name="permission_required_toast">prt test</string>
+    <string name="permission_rationale_location">prl test</string>
+    <string name="location_permission_denied">lpd test</string>
+    <string name="title_activity_maps_q1">Map</string>
+    <string name="title_activity_maps_q2">Map</string>
+    <string name="title_activity_maps_q3">Map</string>
+    <string name="title_activity_maps_q4">Map</string>
+    <string name="title_activity_maps2">Map</string>
+</resources>
+
