@@ -81,7 +81,7 @@
         <activity android:name=".VisionApi" />
         <activity android:name=".PictureActivity"/>
         <activity android:name=".DisplayImageActivity"/>
-
+        <activity android:name=".HardcodedExample"/>
 
         <activity android:name=".IntroSequenceActivity2" />
         <activity android:name=".Quest2Part2" />

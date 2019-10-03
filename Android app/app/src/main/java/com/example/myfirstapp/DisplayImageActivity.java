@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import android.Manifest;
@@ -48,13 +50,24 @@ import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
 
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+
 
 /*
 Code and design based off: https://github.com/Thumar/GoogleVisionAPI by Thumar.
@@ -68,13 +81,16 @@ private Spinner spinnerVisionAPI;
 private TextView visionAPIData;
 
 
-private String[] visionAPI = new String[]{"LABEL_DETECTION","LANDMARK_DETECTION", "LOGO_DETECTION", "SAFE_SEARCH_DETECTION", "IMAGE_PROPERTIES", };
+private String[] visionAPI = new String[]{"LABEL_DETECTION","LANDMARK_DETECTION", "LOGO_DETECTION", "SAFE_SEARCH_DETECTION", "IMAGE_PROPERTIES"};
 private String api = visionAPI[0];
 
 private static final String CLOUD_VISION_API_KEY = "AIzaSyBrjvW-v6XkEC6XxO_GarOZbxfalDwfzvc";
 
 private static final String TAG = "API Activity";
 
+public static final String SERVER_PICTURE_POST = "http://10.0.2.2:3000/label_picture";
+
+private String imagePath;
 
 
 
@@ -85,6 +101,8 @@ private static final String TAG = "API Activity";
         imageView = findViewById(R.id.imageView);
         Bitmap picture = BitmapFactory.decodeFile(getIntent().getStringExtra("image_path"));
         imageView.setImageBitmap(picture);
+
+        imagePath = getIntent().getStringExtra("image_path");
 
         visionAPIData = findViewById(R.id.visionApiText);
         visionAPIData.setText("Processing...");
@@ -103,9 +121,79 @@ private static final String TAG = "API Activity";
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerVisionAPI.setAdapter(dataAdapter);
 
+        // Call web app code to show picture.
+        // Connects to the web app code to get the labeled picture
 
-
+       // HttpPostRequest requestPost = new HttpPostRequest();
+       // requestPost.execute();
     }
+
+    public class HttpPostRequest extends AsyncTask<Void, Void, String> {
+
+        static final String REQUEST_METHOD = "POST";
+        static final int READ_TIMEOUT = 15000;
+        static final int CONNECTION_TIMEOUT = 15000;
+
+        String postData = getStringImageEncodeImage(bitmap);
+
+        @Override
+        protected String doInBackground(Void... params){
+            StringBuffer response = new StringBuffer();
+            HttpURLConnection connection = null;
+
+            try {
+                // connect to the server
+                URL myUrl = new URL(SERVER_PICTURE_POST);
+                connection =(HttpURLConnection) myUrl.openConnection();
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                connection.setRequestMethod(REQUEST_METHOD);
+                connection.setReadTimeout(READ_TIMEOUT);
+                connection.setConnectTimeout(CONNECTION_TIMEOUT);
+                connection.connect();
+
+                // Send post request
+                DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
+                wr.writeBytes(postData);
+                wr.flush ();
+                wr.close ();
+
+                if (connection.getResponseCode() ==  HttpURLConnection.HTTP_OK) {
+                    //Get Response
+                    InputStream is = connection.getInputStream();
+                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
+                    String line;
+                    while((line = rd.readLine()) != null) {
+                        response.append(line);
+                        response.append('\n');
+                    }	        rd.close();
+                } else {
+                    response.append("HTTP Response code not OK - " + connection.getResponseCode());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+            }
+            return response.toString();
+        }
+
+        protected void onPostExecute(String result){
+           System.out.print("HERE IS RESULT: " + result);
+
+            imageView = findViewById(R.id.imageView);
+            imageView.setImageBitmap(bitmap);
+          //  tvServerResponse.setText(result);
+            //Need to set picture based off the result.
+        }
+    }
+
+
+
+
 
     public void callCloudVision(final Bitmap bitmap, final Feature feature) {
         visionAPIData.setText("Processing...");
@@ -187,6 +275,9 @@ private static final String TAG = "API Activity";
                 entityAnnotations = imageResponses.getLabelAnnotations();
                 message = formatAnnotation(entityAnnotations);
                 break;
+            case "OBJECT_LOCALIZATION":
+             //   message = detectLocalizedObjects(LOA);
+                break;
         }
         return message;
     }
@@ -216,6 +307,18 @@ private static final String TAG = "API Activity";
         // Base64 encode the JPEG
         base64EncodedImage.encodeContent(imageBytes);
         return base64EncodedImage;
+    }
+
+    private String getStringImageEncodeImage(Bitmap bitmap) {
+        Image base64EncodedImage = new Image();
+        // Convert the bitmap to a JPEG
+        // Just in case it's a format that Android understands but Cloud Vision
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+
+        String imageData = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+        return imageData;
     }
 
 
@@ -249,4 +352,45 @@ private static final String TAG = "API Activity";
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+/*
+    public void detectLocalizedObjects(String filePath, PrintStream out)
+            throws Exception, IOException {
+        List<AnnotateImageRequest> requests = new ArrayList<>();
+
+        final List<AnnotateImageRequest> annotateImageRequests = new ArrayList<>();
+
+        AnnotateImageRequest request = new AnnotateImageRequest();
+
+        request.addFeatures(featureList);
+        annotateImageReq.setImage(getImageEncodeImage(bitmap));
+
+        requests.add(request);
+
+        AnnotateImageRequest request =
+                AnnotateImageRequest.newBuilder()
+                        .addFeatures(Feature.newBuilder().setType(Type.OBJECT_LOCALIZATION))
+                        .setImage(getImageEncodeImage(bitmap))
+                        .build();
+        requests.add(request);
+
+        // Perform the request
+        try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
+            BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
+            List<AnnotateImageResponse> responses = response.getResponsesList();
+
+            // Display the results
+            for (AnnotateImageResponse res : responses) {
+                for (LocalizedObjectAnnotation entity : res.getLocalizedObjectAnnotationsList()) {
+                    out.format("Object name: %s\n", entity.getName());
+                    out.format("Confidence: %s\n", entity.getScore());
+                    out.format("Normalized Vertices:\n");
+                    entity
+                            .getBoundingPoly()
+                            .getNormalizedVerticesList()
+                            .forEach(vertex -> out.format("- (%s, %s)\n", vertex.getX(), vertex.getY()));
+                }
+            }
+        }
+        */
+
 }

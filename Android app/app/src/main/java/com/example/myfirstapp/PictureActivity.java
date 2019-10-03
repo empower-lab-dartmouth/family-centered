@@ -92,4 +92,9 @@ public class PictureActivity extends BasicFunctionality{
     public void gallerySelect(View view) {
 
     }
+
+    public void hardcodedExample(View view) {
+        Intent intent = new Intent(this, HardcodedExample.class);
+        startActivity(intent);
+    }
 }
