@@ -1,0 +1,1 @@
+$env:GOOGLE_APPLICATION_CREDENTIALS="apitest1.json"

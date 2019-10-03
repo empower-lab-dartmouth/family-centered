@@ -119,6 +119,7 @@
     <session id="-1724949718">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.1" value="1" />
           <entry key="project.opened" value="1" />
         </counts>
@@ -171,7 +172,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-216" />
+            <state relative-caret-position="-3" />
           </provider>
         </entry>
       </file>
@@ -338,7 +339,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="120" y="23" width="1053" height="739" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" visible="true" weight="0.32937685" />
       <window_info id="Structure" side_tool="true" />
@@ -348,7 +348,7 @@
       <window_info id="Capture Tool" />
       <window_info id="Favorites" side_tool="true" />
       <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Run" visible="true" weight="0.32921174" />
+      <window_info anchor="bottom" id="Run" weight="0.32921174" />
       <window_info anchor="bottom" id="Logcat" />
       <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
       <window_info anchor="bottom" id="TODO" />
@@ -392,7 +392,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-216" />
+        <state relative-caret-position="-3" />
       </provider>
     </entry>
   </component>
