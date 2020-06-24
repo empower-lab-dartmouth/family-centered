@@ -8,35 +8,33 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
-
-
-
-    <!--
-    Needed to use the camera.
-    -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- Needed to use the camera. -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-feature android:name="android.hardware.camera"
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="true" />
-
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
         android:required="true" />
 
-
-
     <application
-        android:usesCleartextTraffic="true"
-
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".IntroSequenceActivity1"></activity>
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+        <activity android:name=".VisionAPI2"></activity>
+        <activity
+            android:name=".PictureActivity2"
+            android:label="@string/title_activity_picture2"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".IntroSequenceActivity1" />
         <activity android:name=".Quest4Activity" />
 
         <provider
@@ -46,9 +44,8 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
-
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -73,16 +70,14 @@
         <activity
             android:name=".MapsActivityQ1"
             android:label="@string/title_activity_maps_q1" />
-        <activity android:name=".AccountPageActivity"
-            />
+        <activity android:name=".AccountPageActivity" />
         <activity
             android:name=".MapsActivity2"
             android:label="@string/title_activity_maps2" />
         <activity android:name=".VisionApi" />
-        <activity android:name=".PictureActivity"/>
-        <activity android:name=".DisplayImageActivity"/>
-        <activity android:name=".HardcodedExample"/>
-
+        <activity android:name=".PictureActivity" />
+        <activity android:name=".DisplayImageActivity" />
+        <activity android:name=".HardcodedExample" />
         <activity android:name=".IntroSequenceActivity2" />
         <activity android:name=".Quest2Part2" />
         <activity android:name=".Quest1Part2Activity" />
@@ -108,5 +103,9 @@
             </intent-filter>
         </activity>
     </application>
+
+    <meta-data
+        android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+        android:value="text,face,label" />
 
 </manifest>

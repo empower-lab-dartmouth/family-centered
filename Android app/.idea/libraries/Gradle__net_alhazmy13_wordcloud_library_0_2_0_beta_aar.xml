@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: net.alhazmy13.wordcloud:library:0.2.0-beta@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/library-0.2.0-beta.aar/ca40bd99d4efceec3d054a8f86c4545d/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/library-0.2.0-beta.aar/ca40bd99d4efceec3d054a8f86c4545d/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.alhazmy13.wordcloud/library/0.2.0-beta/345833e0e18f43b7603c50d3d6d4f1c5a126653/library-0.2.0-beta-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

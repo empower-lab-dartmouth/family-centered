@@ -14,7 +14,8 @@
     -->
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar"> //C: DarkActionBar --> NoActionBar
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">//C: DarkActionBar -->
+        NoActionBar
         <!-- Customize your theme here. -->
         <!--<item name="actionBarStyle">@style/AppTheme.ActionBar</item>-->
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -24,7 +25,8 @@
         <!-- Below are generic styles (which will automatically be applied) -->
         <item name="android:gravity">left</item>
         <item name="android:text">TextView</item>
-        <item name="android:textColor">@color/almostBlack</item> //recently altered
+        <item name="android:textColor">@color/almostBlack</item>
+        //recently altered
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">@font/actor</item>
 
@@ -35,7 +37,6 @@
         <item name="editTextStyle">@style/sp_EditTextStyle</item>
         <item name="snackbarStyle">@style/TextAppearance.Design.Snackbar.Message</item>
         <item name="android:buttonStyle">@style/sp_ButtonStyle</item>
-
 
 
     </style>
@@ -55,7 +56,7 @@
 
     <style name="TextAppearance.Design.Snackbar.Message" parent="android:TextAppearance">
         <item name="android:textColor">@color/white</item>
-        <item name="android:windowBackground"> @color/almostBlacker</item>
+        <item name="android:windowBackground">@color/almostBlacker</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
     </style>
@@ -64,5 +65,14 @@
     <style name="sp_ButtonStyle" parent="Base.Widget.AppCompat.Button">
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

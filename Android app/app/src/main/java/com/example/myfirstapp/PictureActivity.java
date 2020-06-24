@@ -23,6 +23,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
 
 public class PictureActivity extends BasicFunctionality{
 
@@ -93,8 +96,10 @@ public class PictureActivity extends BasicFunctionality{
 
     }
 
+    //NO LONGER HARDCODED!!
     public void hardcodedExample(View view) {
         Intent intent = new Intent(this, HardcodedExample.class);
         startActivity(intent);
+
     }
 }
