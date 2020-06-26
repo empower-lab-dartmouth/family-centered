@@ -1,1 +1,1 @@
-include ':app'
+include ':app', ':kumo-core-1.22', ':libs'

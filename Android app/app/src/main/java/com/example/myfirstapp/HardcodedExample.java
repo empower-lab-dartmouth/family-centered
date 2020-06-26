@@ -5,6 +5,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.label.FirebaseVisionLabelDetector;
+
+import android.graphics.drawable.BitmapDrawable;
+
 public class HardcodedExample extends BasicFunctionality{
 
     ImageView picture;
@@ -24,5 +30,14 @@ public class HardcodedExample extends BasicFunctionality{
 
             }
         });
+
+        generateLabels(picture);
+    }
+
+    //Thanks https://code.tutsplus.com/tutorials/getting-started-with-firebase-ml-kit-for-android--cms-31305
+    public void generateLabels(ImageView v) {
+        FirebaseVisionLabelDetector detector = FirebaseVision.getInstance().getVisionLabelDetector();//LabelDetector;
+        detector.detectInImage(FirebaseVisionImage.fromBitmap(
+                ((BitmapDrawable) v.getDrawable()).getBitmap()  ));
     }
 }

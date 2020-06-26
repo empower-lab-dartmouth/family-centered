@@ -60,12 +60,40 @@
             <TextView
                 android:id="@+id/nodeText"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
+                android:layout_height="100dp"
                 android:scrollbars="vertical"
                 android:text="Wikipedia textView"
                 android:textAlignment="viewStart"
+                android:textSize="14dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginTop="20dp"
                 tools:layout_editor_absoluteX="310dp"
                 tools:layout_editor_absoluteY="105dp" />
+
+
+                <net.alhazmy13.wordcloud.WordCloudView
+                    android:id="@+id/wordCloud"
+                    android:layout_width="600dp"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="20dp"
+                    />
+
+
+            <TextView
+                android:id="@+id/nodeText2"
+                android:layout_width="match_parent"
+                android:layout_height="350dp"
+                android:scrollbars="vertical"
+                android:text="Wikipedia textView"
+                android:textAlignment="viewStart"
+                android:textSize="14dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginTop="30dp"
+                tools:layout_editor_absoluteX="500dp"
+                tools:layout_editor_absoluteY="500dp" />
 
         </LinearLayout>
 

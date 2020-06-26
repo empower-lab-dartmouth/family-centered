@@ -1,14 +1,22 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.3.70'
     repositories {
         google()
         jcenter()
+        mavenCentral() //added to access kumo
 
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.0'
         classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.kennycason:kumo-core:1.22'
+        classpath 'net.alhazmy13.wordcloud:library:0.2.0-beta'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        //classpath "androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0"
+
+
 
         //implementation 'com.google.android.gms:play-services-places:15.0.1'
 
@@ -22,11 +30,13 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         
     }
-    /*dependencies{
-        compile 'com.android.support:support-v4:23.4.0'
-    }*/
+    dependencies{
+        //compile 'com.android.support:support-v4:23.4.0'
+        //compile 'com.kennycason:kumo-core:1.22'
+    }
 }
 
 task clean(type: Delete) {

@@ -68,6 +68,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
+//The problem is, we can't just abandon node, bc the java functionality for GoogleVision is weird
+
 
 /*
 Code and design based off: https://github.com/Thumar/GoogleVisionAPI by Thumar.
