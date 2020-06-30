@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.google.firebase:firebase-ml-common:16.0.0@aar">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/firebase-ml-common-16.0.0.aar/4fb7ed64ec1b57a9fad244e4ae7dcfa7/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/firebase-ml-common-16.0.0.aar/4fb7ed64ec1b57a9fad244e4ae7dcfa7/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/firebase-ml-common-16.0.0.aar/18f34b09699b6daa49174d632808bac3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/firebase-ml-common-16.0.0.aar/18f34b09699b6daa49174d632808bac3/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

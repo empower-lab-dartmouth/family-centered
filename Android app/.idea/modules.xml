@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Android app.iml" filepath="$PROJECT_DIR$/Android app.iml" group="Android app" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Android app-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Android app-app.iml" group="Android app/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Android_app.iml" filepath="$PROJECT_DIR$/.idea/modules/Android_app.iml" group="Android_app" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Android app/app" />
       <module fileurl="file://$PROJECT_DIR$/kumo-core-1.22/kumo-core-1.22.iml" filepath="$PROJECT_DIR$/kumo-core-1.22/kumo-core-1.22.iml" group="Android app/kumo-core-1.22" />
       <module fileurl="file://$PROJECT_DIR$/libs/libs.iml" filepath="$PROJECT_DIR$/libs/libs.iml" group="Android app/libs" />
