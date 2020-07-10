@@ -43,6 +43,8 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
+import com.google.api.services.vision.v1.model.LocationInfo;
+
 
 
 import java.io.BufferedReader;
@@ -53,6 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -86,6 +89,7 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
     public static final String SERVER_PICTURE_POST = "http://10.0.2.2:3000/label_picture";
 
     private String imagePath;
+
 
 
 
@@ -123,71 +127,6 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
         // requestPost.execute();
     }
 
-    public class HttpPostRequest extends AsyncTask<Void, Void, String> {
-
-        static final String REQUEST_METHOD = "POST";
-        static final int READ_TIMEOUT = 15000;
-        static final int CONNECTION_TIMEOUT = 15000;
-
-        String postData = getStringImageEncodeImage(bitmap);
-
-        @Override
-        protected String doInBackground(Void... params){
-            StringBuffer response = new StringBuffer();
-            HttpURLConnection connection = null;
-
-            try {
-                // connect to the server
-                URL myUrl = new URL(SERVER_PICTURE_POST);
-                connection =(HttpURLConnection) myUrl.openConnection();
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-
-                connection.setRequestMethod(REQUEST_METHOD);
-                connection.setReadTimeout(READ_TIMEOUT);
-                connection.setConnectTimeout(CONNECTION_TIMEOUT);
-                connection.connect();
-
-                // Send post request
-                DataOutputStream wr = new DataOutputStream (connection.getOutputStream());
-                wr.writeBytes(postData);
-                wr.flush ();
-                wr.close ();
-
-                if (connection.getResponseCode() ==  HttpURLConnection.HTTP_OK) {
-                    //Get Response
-                    InputStream is = connection.getInputStream();
-                    BufferedReader rd = new BufferedReader(new InputStreamReader(is));
-                    String line;
-                    while((line = rd.readLine()) != null) {
-                        response.append(line);
-                        response.append('\n');
-                    }	        rd.close();
-                } else {
-                    response.append("HTTP Response code not OK - " + connection.getResponseCode());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (connection != null) {
-                    connection.disconnect();
-                }
-            }
-            return response.toString();
-        }
-
-        protected void onPostExecute(String result){
-            System.out.print("HERE IS RESULT: " + result);
-
-            imageView = findViewById(R.id.imageView);
-            imageView.setImageBitmap(bitmap);
-            //  tvServerResponse.setText(result);
-            //Need to set picture based off the result.
-        }
-    }
-
-
-
 
 
     public void callCloudVision(final Bitmap bitmap, final Feature feature) {
@@ -203,6 +142,7 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
         annotateImageReq.setFeatures(featureList);
         annotateImageReq.setImage(getImageEncodeImage(bitmap));
         annotateImageRequests.add(annotateImageReq);
+
 
 
         new AsyncTask<Object, Void, String>() {
@@ -241,6 +181,7 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
                 visionAPIData.setText(result);
             }
         }.execute();
+
     }
 
     private String convertResponseToString(BatchAnnotateImagesResponse response) {
@@ -271,7 +212,7 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
                 message = formatAnnotation(entityAnnotations);
                 break;
             case "OBJECT_LOCALIZATION":
-                //   message = detectLocalizedObjects(LOA);
+//                   message = detectLocalizedObjects(LOA);
                 break;
         }
         return message;
@@ -282,7 +223,7 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
 
         if (entityAnnotation != null) {
             for (EntityAnnotation entity : entityAnnotation) {
-                message = message + "    " + entity.getDescription() + " " + entity.getScore();
+                message = message + "    " + entity.getDescription() + " " + entity.getScore() + " " + entity.getLocale() + " " + entity.getLocations();
                 message += "\n";
             }
         } else {
@@ -339,53 +280,77 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         api = (String) adapterView.getItemAtPosition(i);
         feature.setType(api);
-        if (bitmap != null)
+//        api = "OBJECT_LOCALIZATION";
+//        feature.setType("OBJECT_LOCALIZATION");
+        if (bitmap != null){
+
+//            new AsyncTask<Object, Void, String>() {
+//                @Override
+//                protected String doInBackground(Object... params) {
+//                    try {
+//                        callCloudVision(bitmap, feature);
+//                    } catch(Exception e) {
+//                        Log.d(TAG, "failed to make API request because " + e);
+//                    }
+//
+//                    return "done";
+//                }
+//
+//                protected void onPostExecute(String result) {
+//                    System.out.println(result);
+//                }
+//
+//            }.execute();
+
             callCloudVision(bitmap, feature);
+        }
+
+
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
-/*
-    public void detectLocalizedObjects(String filePath, PrintStream out)
-            throws Exception, IOException {
-        List<AnnotateImageRequest> requests = new ArrayList<>();
 
-        final List<AnnotateImageRequest> annotateImageRequests = new ArrayList<>();
+//    public void detectLocalizedObjects(String filePath, PrintStream out)
+//            throws Exception, IOException {
+//        List<AnnotateImageRequest> requests = new ArrayList<>();
+//
+//        final List<AnnotateImageRequest> annotateImageRequests = new ArrayList<>();
+//
+//        AnnotateImageRequest request = new AnnotateImageRequest();
+//
+//        request.addFeatures(featureList);
+//        annotateImageReq.setImage(getImageEncodeImage(bitmap));
+//
+//        requests.add(request);
+//
+//        AnnotateImageRequest request =
+//                AnnotateImageRequest.newBuilder()
+//                        .addFeatures(Feature.newBuilder().setType(Type.OBJECT_LOCALIZATION))
+//                        .setImage(getImageEncodeImage(bitmap))
+//                        .build();
+//        requests.add(request);
+//
+//        // Perform the request
+//        try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
+//            BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
+//            List<AnnotateImageResponse> responses = response.getResponsesList();
+//
+//            // Display the results
+//            for (AnnotateImageResponse res : responses) {
+//                for (LocalizedObjectAnnotation entity : res.getLocalizedObjectAnnotationsList()) {
+//                    out.format("Object name: %s\n", entity.getName());
+//                    out.format("Confidence: %s\n", entity.getScore());
+//                    out.format("Normalized Vertices:\n");
+//                    entity
+//                            .getBoundingPoly()
+//                            .getNormalizedVerticesList()
+//                            .forEach(vertex -> out.format("- (%s, %s)\n", vertex.getX(), vertex.getY()));
+//                }
+//            }
+//        }
 
-        AnnotateImageRequest request = new AnnotateImageRequest();
-
-        request.addFeatures(featureList);
-        annotateImageReq.setImage(getImageEncodeImage(bitmap));
-
-        requests.add(request);
-
-        AnnotateImageRequest request =
-                AnnotateImageRequest.newBuilder()
-                        .addFeatures(Feature.newBuilder().setType(Type.OBJECT_LOCALIZATION))
-                        .setImage(getImageEncodeImage(bitmap))
-                        .build();
-        requests.add(request);
-
-        // Perform the request
-        try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
-            BatchAnnotateImagesResponse response = client.batchAnnotateImages(requests);
-            List<AnnotateImageResponse> responses = response.getResponsesList();
-
-            // Display the results
-            for (AnnotateImageResponse res : responses) {
-                for (LocalizedObjectAnnotation entity : res.getLocalizedObjectAnnotationsList()) {
-                    out.format("Object name: %s\n", entity.getName());
-                    out.format("Confidence: %s\n", entity.getScore());
-                    out.format("Normalized Vertices:\n");
-                    entity
-                            .getBoundingPoly()
-                            .getNormalizedVerticesList()
-                            .forEach(vertex -> out.format("- (%s, %s)\n", vertex.getX(), vertex.getY()));
-                }
-            }
-        }
-        */
 
 }

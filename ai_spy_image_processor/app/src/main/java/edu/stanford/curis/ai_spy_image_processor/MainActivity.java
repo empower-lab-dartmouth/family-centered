@@ -90,6 +90,7 @@ public class MainActivity extends BasicFunctionality{
 
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
+
         return image;
     }
 
@@ -97,6 +98,7 @@ public class MainActivity extends BasicFunctionality{
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+            ObjectDetectionAPI api = new ObjectDetectionAPI(this, currentPhotoPath);
             Intent intent = new Intent(this, DisplayImageActivity.class);
             intent.putExtra("image_path", currentPhotoPath);
             startActivity(intent);

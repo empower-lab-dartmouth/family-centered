@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "725781321583",
+    "firebase_url": "https://ai-spy-image-processor-4f538.firebaseio.com",
+    "project_id": "ai-spy-image-processor-4f538",
+    "storage_bucket": "ai-spy-image-processor-4f538.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:725781321583:android:899a7362cd4d0ac9a33a9a",
+        "android_client_info": {
+          "package_name": "edu.stanford.curis.ai_spy_image_processor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "725781321583-c1qv624scg2981pqtbencfa42cjh4cco.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.stanford.curis.ai_spy_image_processor",
+            "certificate_hash": "26b75b1462c37377844ebb15fdc8d041bd7dfeaf"
+          }
+        },
+        {
+          "client_id": "725781321583-bs6b3e7iat5l9qhhp6fvqoq88ob5u1uh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXyDQINRlYsinlBwNygs1thJwnv9wWNlc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "725781321583-bs6b3e7iat5l9qhhp6fvqoq88ob5u1uh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
