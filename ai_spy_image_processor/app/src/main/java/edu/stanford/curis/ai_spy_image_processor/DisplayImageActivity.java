@@ -1,28 +1,20 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
-import android.content.Intent;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Base64;
-import android.widget.EditText;
 import android.widget.ImageView;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -43,26 +35,21 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
-import com.google.api.services.vision.v1.model.LocationInfo;
+import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
+import com.google.mlkit.vision.objects.DetectedObject;
 
 
-
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.lang.reflect.Type;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
@@ -120,11 +107,95 @@ public class DisplayImageActivity extends BasicFunctionality implements AdapterV
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerVisionAPI.setAdapter(dataAdapter);
 
-        // Call web app code to show picture.
-        // Connects to the web app code to get the labeled picture
+        Context thisContent = this.getApplicationContext();
 
-        // HttpPostRequest requestPost = new HttpPostRequest();
-        // requestPost.execute();
+
+        //Asynchronously run APIs to collect data about the image
+        new AsyncTask<Object, Void, ArrayList<AISpyObject>>() {
+            @Override
+            protected ArrayList<AISpyObject> doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
+                ArrayList<Bitmap> croppedObjects;
+                ArrayList<DetectedObject> detectedObjects;
+                ArrayList<AISpyObject> aiSpyObjects = new ArrayList<>();
+
+
+                String newFilePath = "";
+                try {
+
+                    //This api uses Firebase ML Kit to locate objects in the image and returns their boundary boxes
+//                    objectBoundaryBoxes = ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, imagePath);
+                    detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, imagePath);
+
+                    //This api takes an image and boundary boxes and returns the a cropped bitmap for each boundary box
+//                    croppedObjects = ObjectCropperAPI.getCroppedObjects(objectBoundaryBoxes, imagePath);
+                    croppedObjects = ObjectCropperAPI.getCroppedObjects(detectedObjects, imagePath);
+
+                    //Store cropped bitmaps in files
+                    for (Bitmap croppedObject: croppedObjects){
+
+                        //Find the dominant color in the object
+                        String color = new ColorDetectorAPI(croppedObject).getColor();
+
+                        //Save the object image
+                        newFilePath = createNewImageFile();
+                        try {
+                            File file = new File(newFilePath);
+                            FileOutputStream fOut = new FileOutputStream(file);
+                            croppedObject.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                            fOut.flush();
+                            fOut.close();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        //Detect the labels for the object
+                        ArrayList<FirebaseVisionImageLabel> labels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, newFilePath));
+
+                        //Store object info in AISpyObject
+                        AISpyObject aiSpyObject = new AISpyObject(croppedObject, newFilePath, labels, color);
+                        aiSpyObjects.add(aiSpyObject);
+
+                    }
+
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return aiSpyObjects;
+            }
+
+            //Add the cropped object images to the screen with their corresponding labels
+            protected void onPostExecute(ArrayList<AISpyObject> aiSpyObjects) {
+
+                ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
+                TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
+
+                for (int i = 0; i < aiSpyObjects.size() && i < objectImages.length; i++){
+                    objectImages[i].setImageBitmap(aiSpyObjects.get(i).getImage());
+                    objectText[i].setText(aiSpyObjects.get(i).getColor() + "\n\n" + aiSpyObjects.get(i).getLabelsText());
+                }
+
+            }
+        }.execute();
+
+    }
+
+    private String createNewImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        String newImagePath = image.getAbsolutePath();
+
+        return newImagePath;
     }
 
 

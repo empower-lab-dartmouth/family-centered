@@ -9,31 +9,26 @@ Build -> Clean Project and then try running again and it will compile.
 
 package edu.stanford.curis.ai_spy_image_processor;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 //import android.support.v4.content.FileProvider;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.view.View;
 
 import androidx.core.content.FileProvider; //added
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MainActivity extends BasicFunctionality{
@@ -94,11 +89,70 @@ public class MainActivity extends BasicFunctionality{
         return image;
     }
 
+//    private String createNewImageFile() throws IOException {
+//        // Create an image file name
+//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+//        String imageFileName = "JPEG_" + timeStamp + "_";
+//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+//        File image = File.createTempFile(
+//                imageFileName,  /* prefix */
+//                ".jpg",         /* suffix */
+//                storageDir      /* directory */
+//        );
+//
+//        // Save a file: path for use with ACTION_VIEW intents
+//        String newImagePath = image.getAbsolutePath();
+//
+//        return newImagePath;
+//    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            ObjectDetectionAPI api = new ObjectDetectionAPI(this, currentPhotoPath);
+            Context thisContent = this.getApplicationContext();
+
+//            //Asynchronously run APIs to collect data about the image TODO: Most likely we will move this code to whatever activity follows taking the picture (an updated DisplayImageActivity)
+//            new AsyncTask<Object, Void, ArrayList<Rect>>() {
+//                @Override
+//                protected ArrayList<Rect> doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
+//                    ArrayList<Rect> objectBoundaryBoxes = new ArrayList<Rect>();
+//                    try {
+//
+//                        //This api uses Firebase ML Kit to locate objects in the image and returns their boundary boxes
+//                        objectBoundaryBoxes = ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, currentPhotoPath);
+//
+//                        Bitmap sample = ObjectCropperAPI.getCroppedObjects(objectBoundaryBoxes, currentPhotoPath);
+//
+//                        String newFilePath = createNewImageFile();
+//                        try {
+//                            File file = new File(newFilePath);
+//                            FileOutputStream fOut = new FileOutputStream(file);
+//                            sample.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+//                            fOut.flush();
+//                            fOut.close();
+//                        }
+//                        catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                    }catch (Exception e) {
+//
+//                    }
+//
+//                    return objectBoundaryBoxes;
+//                }
+//
+//                protected void onPostExecute(ArrayList<Rect> objectBoundaryBoxes) {
+//                    for(Rect boundaryBox : objectBoundaryBoxes){
+//                        System.out.println("*********************" + boundaryBox);
+//                    }
+//
+//
+//                }
+//            }.execute();
+
+            //This calls the next activity (Display Image Activity) which uses old code based on the Cloud Vision api to collect info about the image
             Intent intent = new Intent(this, DisplayImageActivity.class);
             intent.putExtra("image_path", currentPhotoPath);
             startActivity(intent);

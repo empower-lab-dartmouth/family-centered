@@ -11,11 +11,17 @@ public class AISpyObject {
     private String imageFileName;
     private Bitmap image;
     private ArrayList<FirebaseVisionImageLabel> labels;
+    private String color;
 
-    public AISpyObject(Bitmap image, String imageFileName, ArrayList<FirebaseVisionImageLabel> labels){
+    public AISpyObject(Bitmap image, String imageFileName, ArrayList<FirebaseVisionImageLabel> labels, String color){
         this.image = image;
         this.imageFileName = imageFileName;
         this.labels = labels;
+        this.color = color;
+    }
+
+    public String getColor() {
+        return color;
     }
 
     public Bitmap getImage(){

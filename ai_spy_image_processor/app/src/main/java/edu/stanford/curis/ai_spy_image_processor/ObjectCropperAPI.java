@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Environment;
 
+import com.google.mlkit.vision.objects.DetectedObject;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,11 +16,14 @@ import java.util.Date;
 
 public class ObjectCropperAPI {
 
-    public static ArrayList<Bitmap> getCroppedObjects(ArrayList<Rect> objectBoundaryBoxes, String imagePath){
+//    public static ArrayList<Bitmap> getCroppedObjects(ArrayList<Rect> objectBoundaryBoxes, String imagePath){
+    public static ArrayList<Bitmap> getCroppedObjects(ArrayList<DetectedObject> detectedObjects, String imagePath){
         Bitmap originalBitmap = BitmapFactory.decodeFile(imagePath);
+
         ArrayList<Bitmap> croppedObjects = new ArrayList<Bitmap>();
 
-        for (Rect boundaryBox : objectBoundaryBoxes){
+        for (DetectedObject detectedObject : detectedObjects){
+            Rect boundaryBox = detectedObject.getBoundingBox();
             croppedObjects.add(Bitmap.createBitmap(originalBitmap, boundaryBox.left, boundaryBox.top, boundaryBox.width(), boundaryBox.height()));
         }
 
