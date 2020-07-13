@@ -13,15 +13,12 @@
     <list default="true" id="3fba8b50-de5c-4f87-a9bf-c36e858df7d4" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.gradle/4.10.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/4.10.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/build_file_checksums.ser" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/4.10.1/taskHistory/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10.1/taskHistory/taskHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/4.10.1/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/4.10.1/taskHistory/taskHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app/Android app-app.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/Android app-app.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/AISpyObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/AISpyObject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/DisplayImageActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/DisplayImageActivity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/MainActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/ObjectCropperAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/ObjectCropperAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/ObjectDetectionAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/java/edu/stanford/curis/ai_spy_image_processor/ObjectDetectionAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/res/layout/display_image_layout.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../ai_spy_image_processor/app/src/main/res/layout/display_image_layout.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -408,17 +405,6 @@
       <screen x="0" y="23" width="1440" height="812" />
     </state>
     <state x="442" y="101" key="psd.add.module.dependency.panel.dimension/0.23.1440.812@0.23.1440.812" timestamp="1592932067594" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/com/example/myfirstapp/HardcodedExample.java</url>
-          <line>18</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="masterDetails">
     <states>

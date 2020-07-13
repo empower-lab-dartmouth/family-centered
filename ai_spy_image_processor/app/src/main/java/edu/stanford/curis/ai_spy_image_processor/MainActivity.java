@@ -30,11 +30,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 
+import static android.provider.MediaStore.*;
+import static android.provider.MediaStore.Images.*;
+import static android.provider.MediaStore.Images.Media.*;
+
 
 public class MainActivity extends BasicFunctionality{
 
     String currentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_GALLERY_SELECT = 0;
 
 
     @Override
@@ -44,12 +49,19 @@ public class MainActivity extends BasicFunctionality{
 
     }
 
+    public void gallerySelect(View view){ dispatchGallerySelect(); }
+
+    private void dispatchGallerySelect() {
+        Intent gallerySelect = new Intent(Intent.ACTION_PICK, EXTERNAL_CONTENT_URI);
+        startActivityForResult(gallerySelect , REQUEST_GALLERY_SELECT);
+    }
+
     public void takePicture(View view) {
         dispatchTakePictureIntent();
     }
 
     private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent takePictureIntent = new Intent(ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
@@ -64,7 +76,7 @@ public class MainActivity extends BasicFunctionality{
                 Uri photoURI = FileProvider.getUriForFile(this,
                         "edu.stanford.curis.android.fileprovider",
                         photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                takePictureIntent.putExtra(EXTRA_OUTPUT, photoURI);
                 System.out.println("******************" + takePictureIntent);
                 System.out.println("******************" + photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
@@ -89,77 +101,63 @@ public class MainActivity extends BasicFunctionality{
         return image;
     }
 
-//    private String createNewImageFile() throws IOException {
-//        // Create an image file name
-//        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-//        String imageFileName = "JPEG_" + timeStamp + "_";
-//        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-//        File image = File.createTempFile(
-//                imageFileName,  /* prefix */
-//                ".jpg",         /* suffix */
-//                storageDir      /* directory */
-//        );
-//
-//        // Save a file: path for use with ACTION_VIEW intents
-//        String newImagePath = image.getAbsolutePath();
-//
-//        return newImagePath;
-//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
+        Context thisContent = this.getApplicationContext();
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            Context thisContent = this.getApplicationContext();
-
-//            //Asynchronously run APIs to collect data about the image TODO: Most likely we will move this code to whatever activity follows taking the picture (an updated DisplayImageActivity)
-//            new AsyncTask<Object, Void, ArrayList<Rect>>() {
-//                @Override
-//                protected ArrayList<Rect> doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
-//                    ArrayList<Rect> objectBoundaryBoxes = new ArrayList<Rect>();
-//                    try {
-//
-//                        //This api uses Firebase ML Kit to locate objects in the image and returns their boundary boxes
-//                        objectBoundaryBoxes = ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, currentPhotoPath);
-//
-//                        Bitmap sample = ObjectCropperAPI.getCroppedObjects(objectBoundaryBoxes, currentPhotoPath);
-//
-//                        String newFilePath = createNewImageFile();
-//                        try {
-//                            File file = new File(newFilePath);
-//                            FileOutputStream fOut = new FileOutputStream(file);
-//                            sample.compress(Bitmap.CompressFormat.PNG, 85, fOut);
-//                            fOut.flush();
-//                            fOut.close();
-//                        }
-//                        catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//
-//                    }catch (Exception e) {
-//
-//                    }
-//
-//                    return objectBoundaryBoxes;
-//                }
-//
-//                protected void onPostExecute(ArrayList<Rect> objectBoundaryBoxes) {
-//                    for(Rect boundaryBox : objectBoundaryBoxes){
-//                        System.out.println("*********************" + boundaryBox);
-//                    }
-//
-//
-//                }
-//            }.execute();
 
             //This calls the next activity (Display Image Activity) which uses old code based on the Cloud Vision api to collect info about the image
             Intent intent = new Intent(this, DisplayImageActivity.class);
             intent.putExtra("image_path", currentPhotoPath);
             startActivity(intent);
         }
+        else if (requestCode == REQUEST_GALLERY_SELECT && resultCode == RESULT_OK){
+            try {
+                Bitmap bitmap = getBitmap(this.getContentResolver(), data.getData());
+
+                String newFilePath = createNewImageFile();
+                try {
+                    File file = new File(newFilePath);
+                    FileOutputStream fOut = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                    fOut.flush();
+                    fOut.close();
+                    currentPhotoPath = newFilePath;
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            Intent intent = new Intent(this, DisplayImageActivity.class);
+            intent.putExtra("image_path", currentPhotoPath);
+            startActivity(intent);
+        }
+
+
     }
 
-    public void gallerySelect(View view) {
+    private String createNewImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
 
+        // Save a file: path for use with ACTION_VIEW intents
+        String newImagePath = image.getAbsolutePath();
+
+        return newImagePath;
     }
+
 }
