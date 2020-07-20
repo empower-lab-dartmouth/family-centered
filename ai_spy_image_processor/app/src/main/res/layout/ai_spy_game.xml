@@ -24,11 +24,39 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="25dp"
-        android:text=" I spy something ..."/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="25dp"
+            android:text="  I spy something ..."/>
+        <Space
+            android:layout_width="30dp"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/colorClue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="Give Color Clue"
+            android:onClick="giveColorClue"
+            />
+        <Space
+            android:layout_width="25dp"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/locationClue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="giveLocationClue"
+            android:text="Give Location Clue"/>
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/iSpyClue"
         android:layout_width="wrap_content"
@@ -61,13 +89,28 @@
             android:layout_height="match_parent" />
 
     </LinearLayout>
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Submit Guess"
-        android:textSize="25dp"
-        android:layout_gravity="center"
-        android:onClick="checkGuess"/>
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit Guess"
+            android:textSize="25dp"
+            android:layout_gravity="center"
+            android:onClick="checkGuess"/>
+
+        <ImageView
+            android:id="@+id/speechInput"
+            android:layout_width="60px"
+            android:layout_height="60px"
+            android:src="@drawable/ic_mic"
+            android:onClick="getSpeechInput"/>
+
+
+    </LinearLayout>
+
     <Space
         android:layout_width="match_parent"
         android:layout_height="50dp"/>

@@ -14,21 +14,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+/*
+This api takes an image and boundary boxes and returns the a cropped bitmap for each boundary box
+ */
 public class ObjectCropperAPI {
 
-//    public static ArrayList<Bitmap> getCroppedObjects(ArrayList<Rect> objectBoundaryBoxes, String imagePath){
-    public static ArrayList<Bitmap> getCroppedObjects(ArrayList<DetectedObject> detectedObjects, String imagePath){
+
+    public static Bitmap getCroppedObject(DetectedObject detectedObject, String imagePath){
         Bitmap originalBitmap = BitmapFactory.decodeFile(imagePath);
 
-        ArrayList<Bitmap> croppedObjects = new ArrayList<Bitmap>();
-
-        for (DetectedObject detectedObject : detectedObjects){
-            Rect boundaryBox = detectedObject.getBoundingBox();
-            croppedObjects.add(Bitmap.createBitmap(originalBitmap, boundaryBox.left, boundaryBox.top, boundaryBox.width(), boundaryBox.height()));
-        }
-
-        return croppedObjects;
-
+        Rect boundaryBox = detectedObject.getBoundingBox();
+        return (Bitmap.createBitmap(originalBitmap, boundaryBox.left, boundaryBox.top, boundaryBox.width(), boundaryBox.height()));
     }
 
 

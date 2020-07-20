@@ -38,6 +38,7 @@
         </provider>
 
         <activity android:name=".DisplayImageActivity"/>
+        <activity android:name=".PlayAISpyActivity"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>

@@ -6,21 +6,11 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
-import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.objects.DetectedObject;
 import com.google.mlkit.vision.objects.ObjectDetection;
 import com.google.mlkit.vision.objects.ObjectDetector;
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions;
-import com.google.mlkit.vision.objects.defaults.PredefinedCategory;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,6 +21,9 @@ import java.util.concurrent.ExecutionException;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
+/*
+This api queries queries Firebase ML Vision kit' object detection feature to locate objects in the image and returns their boundary boxes
+ */
 public class ObjectDetectionAPI extends Thread {
 
     private ArrayList<Rect> objectBoundaryBoxes;
@@ -63,7 +56,6 @@ public class ObjectDetectionAPI extends Thread {
         try {
             List<DetectedObject> list = await (objectDetector.process(image));
             return list;
-//            return getObjectInfo(list); // returns an ArrayList of the boundary boxes of the detected objects
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -91,3 +83,4 @@ public class ObjectDetectionAPI extends Thread {
     }
 
 }
+

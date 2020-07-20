@@ -46,6 +46,7 @@ dependencies {
     //Necessary for ML Kit
     implementation 'com.google.mlkit:object-detection:16.0.0'
     implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
+    implementation 'com.google.mlkit:image-labeling:16.0.0'
 
     //Necessary for Pallete
     //noinspection GradleCompatible
