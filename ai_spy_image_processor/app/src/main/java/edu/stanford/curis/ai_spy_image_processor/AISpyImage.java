@@ -110,6 +110,10 @@ public class AISpyImage implements Serializable {
         return fullImagePath;
     }
 
+    public ArrayList<FirebaseVisionImageLabel> getAllLabels() {
+        return allLabels;
+    }
+
     public String getAllLabelsText(){
         String allLabelsText = "";
 

@@ -14,11 +14,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Random;
 
-public class PlayAISpyActivity extends BasicFunctionality {
+public class PlayWithComputerSpyActivity extends BasicFunctionality {
 
     private AISpyImage aiSpyImage;
     private String iSpyClue;
@@ -37,8 +36,14 @@ public class PlayAISpyActivity extends BasicFunctionality {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ai_spy_game);
+        setContentView(R.layout.computer_spy);
 
+        setUpAIVoice();
+        setUpGame();
+
+    }
+
+    private void setUpAIVoice(){
         voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -54,11 +59,8 @@ public class PlayAISpyActivity extends BasicFunctionality {
             }
         });
 
-        voice.setPitch(0.8f);
+        voice.setPitch(0.9f);
         voice.setSpeechRate(0.7f);
-
-        setUpGame();
-
     }
 
     private void setUpGame(){
@@ -83,14 +85,6 @@ public class PlayAISpyActivity extends BasicFunctionality {
         fullImage.setImageBitmap(fullImageBitmap);
     }
 
-//    private void setISpyClue(){
-//        Random rand = new Random();
-//        TextView iSpyClueView = findViewById(R.id.iSpyClue);
-//        HashSet<Features> features = aiSpyImage.getiSpyMap().get(chosenObject);
-//        iSpyClue = features.toArray(new String[features.size()])[rand.nextInt(features.size())];
-//        iSpyClueView.setText(iSpyClue);
-//    }
-
 
     public void checkGuess(View view) {
         EditText guessView = findViewById(R.id.guess);
@@ -101,11 +95,15 @@ public class PlayAISpyActivity extends BasicFunctionality {
 
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
 
-        if (possibleAnswers.contains(guess.toUpperCase())){
-            resultView.setText("Correct!");
-        } else {
-            resultView.setText("Wrong :( The correct answer is " + chosenObject.getPossibleLabels().get(0));
+        for (String possibleAnswer: possibleAnswers){
+            if (guess.toUpperCase().contains(possibleAnswer)){
+                resultView.setText("Correct!");
+                return;
+            }
         }
+
+        //If possible answer can not be found in guess
+        resultView.setText("Wrong :( The correct answer is " + chosenObject.getPossibleLabels().get(0));
     }
 
     public void playAgain(View view) {
@@ -138,7 +136,7 @@ public class PlayAISpyActivity extends BasicFunctionality {
         if (intent.resolveActivity(getPackageManager()) != null){
             startActivityForResult(intent, 10);
         } else {
-            Toast.makeText(this, "Your device desn't support speech input", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
         }
     }
 
