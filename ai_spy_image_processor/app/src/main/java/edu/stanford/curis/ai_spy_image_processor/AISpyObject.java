@@ -11,6 +11,7 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /*
 An AISpyObject contains the image wherein that object is located, the primary color of that object, and an ArrayList of the labels firebase generated to describe that object
@@ -58,6 +59,10 @@ public class AISpyObject implements Serializable {
         }
 
         return possibleLabels;
+    }
+
+    public HashSet<String> getPossibleLabelsHashSet(){
+        return new HashSet<>(getPossibleLabels());
     }
 
     public Rect getLocation() {

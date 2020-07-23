@@ -80,7 +80,7 @@ public class AISpyImage implements Serializable {
             //Detect the labels for the object
             ArrayList<FirebaseVisionImageLabel> objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, newFilePath));
 
-            //Find the dominant color in the object //TODO: Only send to colorDetector if there isn't already a label with a color
+            //Find the dominant color in the object (only send to colorDetector if there isn't already a label with a color)
             String color = (findColorInLabels(objectLabels));
             if(color == null){ color = new ColorDetectorAPI(croppedObject).getColor(); }
 
@@ -170,7 +170,7 @@ public class AISpyImage implements Serializable {
         }
     }
 
-    private HashSet<String> generateLocationFeatures(AISpyObject obj){
+    private HashMap<String,HashSet<AISpyObject>> generateLocationFeatures(AISpyObject obj){
         HashSet<AISpyObject> above = new HashSet<>();
         HashSet<AISpyObject> below = new HashSet<>();
         HashSet<AISpyObject> rightOf = new HashSet<>();
@@ -178,6 +178,7 @@ public class AISpyImage implements Serializable {
 
         Rect objLocation = obj.getLocation();
 
+        //Find which objects are below/above, to the right/left of other objects
         for (AISpyObject otherObj : allObjects){
             Rect otherObjLocation = otherObj.getLocation();
             if (objLocation.top > otherObjLocation.bottom){
@@ -193,30 +194,38 @@ public class AISpyImage implements Serializable {
             }
         }
 
-        HashSet<String> locationFeatures = new HashSet<>();
+        HashMap<String,HashSet<AISpyObject>> locationMap = new HashMap<>();
+        if (above.size() > 0) locationMap.put("above", above);
+        if (below.size() > 0) locationMap.put("below", below);
+        if (rightOf.size() > 0) locationMap.put("right", rightOf);
+        if (leftOf.size() > 0) locationMap.put("left", leftOf);
 
-        for (AISpyObject aboveObj : above){
-            for (String label : aboveObj.getPossibleLabels()){
-                locationFeatures.add("above the " + label);
-            }
-        }
-        for (AISpyObject belowObj : below){
-            for (String label : belowObj.getPossibleLabels()){
-                locationFeatures.add("below the " + label);
-            }
-        }
-        for (AISpyObject rightObj : rightOf){
-            for (String label : rightObj.getPossibleLabels()){
-                locationFeatures.add("to the right of the " + label);
-            }
-        }
-        for (AISpyObject leftObj : leftOf){
-            for (String label : leftObj.getPossibleLabels()){
-                locationFeatures.add("to the left of the " + label);
-            }
-        }
+        return locationMap;
 
-        return locationFeatures;
+//        //Add labels of objects where a relative location was found to the structure "locationFeatures"
+//        HashSet<String> locationFeatures = new HashSet<>();
+//        for (AISpyObject aboveObj : above){
+//            for (String label : aboveObj.getPossibleLabels()){
+//                locationFeatures.add("above the " + label.toLowerCase());
+//            }
+//        }
+//        for (AISpyObject belowObj : below){
+//            for (String label : belowObj.getPossibleLabels()){
+//                locationFeatures.add("below the " + label.toLowerCase());
+//            }
+//        }
+//        for (AISpyObject rightObj : rightOf){
+//            for (String label : rightObj.getPossibleLabels()){
+//                locationFeatures.add("to the right of the " + label.toLowerCase());
+//            }
+//        }
+//        for (AISpyObject leftObj : leftOf){
+//            for (String label : leftObj.getPossibleLabels()){
+//                locationFeatures.add("to the left of the " + label.toLowerCase());
+//            }
+//        }
+//
+//        return locationFeatures;
     }
 
 

@@ -24,6 +24,14 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private AISpyObject chosenObject;
     private TextToSpeech voice;
 
+    //String constants
+    private final String[] CHILD_INCORRECT_GUESS = new String[]{"Sorry, try again", "That's still not right, sorry. Try again!", "I'm thinking of something else, try again!", "Wanna give up?"};
+    private final String MOTIVATION = "You can do it!";
+    private final String COMPUTER_WINS = "Gotcha! One point for me. It's the ";
+    private final String CHILD_CORRECT_FIRST_TRY = "Wow, you're right on the first try! One point for you";
+
+
+
     @Override
     protected void onDestroy() {
         if (voice != null){
@@ -122,7 +130,22 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         Random rand = new Random();
         TextView iSpyClueView = findViewById(R.id.iSpyClue);
         Features features = aiSpyImage.getiSpyMap().get(chosenObject);
-        iSpyClue = features.locations.toArray(new String[features.locations.size()])[rand.nextInt(features.locations.size())];
+
+//        iSpyClue = features.locations.toArray(new String[features.locations.size()])[rand.nextInt(features.locations.size())];
+
+        int numDirections = features.locations.keySet().size();
+        String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
+        int numObjectsForDirection = features.locations.get(direction).size();
+        AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
+        int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
+        String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
+
+        if (direction == "above" || direction == "below"){
+            iSpyClue = direction + " the " + label.toLowerCase();
+        } else if (direction == "right" || direction == "left"){
+            iSpyClue = "to the " + direction + " of the " + label.toLowerCase();
+        }
+
         iSpyClueView.setText(iSpyClue);
         voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null);
     }
