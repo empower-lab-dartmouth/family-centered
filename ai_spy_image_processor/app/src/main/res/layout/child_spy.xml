@@ -6,13 +6,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PlayAISpyActivity">
+    tools:context=".PlayWithChildSpyActivity">
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to AI Spy"
+        android:text="Great, you do the spying!"
         android:textSize="30dp"
         android:layout_gravity="center"
         />
@@ -36,41 +36,32 @@
         <Space
             android:layout_width="30dp"
             android:layout_height="match_parent"/>
-        <Button
-            android:id="@+id/colorClue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Give Color Clue"
-            android:onClick="giveColorClue"
-            />
-        <Space
-            android:layout_width="25dp"
-            android:layout_height="match_parent"/>
-        <Button
-            android:id="@+id/locationClue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="giveLocationClue"
-            android:text="Give Location Clue"/>
+        <EditText
+            android:id="@+id/iSpyClue"
+            android:layout_width="400dp"
+            android:layout_height="80dp"
+            android:hint="Type a clue here!"/>
+        <ImageView
+            android:id="@+id/speechInput"
+            android:layout_width="60px"
+            android:layout_height="60px"
+            android:src="@drawable/ic_mic"
+            android:onClick="getSpeechInput"/>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/iSpyClue"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="30dp"/>
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:textSize="20dp"
+        android:text="Go"
+        android:onClick="startComputerGuessing"/>
     <TextView
+        android:id="@+id/computerRemark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25dp"
-        android:text=" Can you guess what it is?"/>
+        android:textSize="25dp" />
     <Space
         android:layout_width="match_parent"
         android:layout_height="50dp"/>
@@ -82,44 +73,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="30dp"
-            android:text=" Enter your guess here: "/>
-        <EditText
-            android:id="@+id/guess"
-            android:layout_width="match_parent"
+            android:text=" Is it the  "/>
+        <TextView
+            android:id="@+id/computerGuess"
+            android:layout_width="400dp"
             android:layout_height="match_parent" />
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
 
         <Button
+            android:id="@+id/correctGuess"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Submit Guess"
+            android:text="Yes"
             android:textSize="25dp"
             android:layout_gravity="center"
-            android:onClick="checkGuess"/>
-
-        <ImageView
-            android:id="@+id/speechInput"
-            android:layout_width="60px"
-            android:layout_height="60px"
-            android:src="@drawable/ic_mic"
-            android:onClick="getSpeechInput"/>
-
+            android:onClick="handleCorrectGuess"/>
+        <Button
+            android:id="@+id/incorrectGuess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No"
+            android:textSize="25dp"
+            android:layout_gravity="center"
+            android:onClick="handleIncorrectGuess"/>
 
     </LinearLayout>
+
 
     <Space
         android:layout_width="match_parent"
         android:layout_height="50dp"/>
     <TextView
-        android:id="@+id/result"
+        android:id="@+id/remainingGuesses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="25dp"
-        android:layout_gravity="center"/>
+        android:text="Number of Guesses remaining: 5"/>
+
+    <TextView
+        android:id="@+id/result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="25dp"
+        android:text=""/>
     <Button
         android:id="@+id/playAgain"
         android:layout_width="wrap_content"

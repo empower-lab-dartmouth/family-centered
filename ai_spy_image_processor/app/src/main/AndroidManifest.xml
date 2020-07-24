@@ -38,7 +38,9 @@
         </provider>
 
         <activity android:name=".DisplayImageActivity"/>
-        <activity android:name=".PlayAISpyActivity"/>
+        <activity android:name=".PlayWithComputerSpyActivity"/>
+        <activity android:name=".PlayWithChildSpyActivity"/>
+        <activity android:name=".WelcomeActivity"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>
