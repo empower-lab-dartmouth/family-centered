@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="30dp"
-            android:text=" Is it a  "/>
+            android:text=" Is it the  "/>
         <TextView
             android:id="@+id/computerGuess"
             android:layout_width="400dp"

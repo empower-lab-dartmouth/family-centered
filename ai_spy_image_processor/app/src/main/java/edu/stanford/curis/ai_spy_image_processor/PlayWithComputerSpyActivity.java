@@ -3,9 +3,11 @@ package edu.stanford.curis.ai_spy_image_processor;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -13,22 +15,39 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Set;
 
 public class PlayWithComputerSpyActivity extends BasicFunctionality {
+
+    //Views
+    private TextView guessView;
+    private TextView iSpyClueView;
+    private TextView remainingGuessesView;
+    private TextView resultView;
+    private TextView computerRemarkView;
+
+    //constants
+    private final int NUM_GUESSES_ALLOWED = 5;
 
     private AISpyImage aiSpyImage;
     private String iSpyClue;
     private AISpyObject chosenObject;
     private TextToSpeech voice;
+    private int numGuesses;
 
     //String constants
-    private final String[] CHILD_INCORRECT_GUESS = new String[]{"Sorry, try again", "That's still not right, sorry. Try again!", "I'm thinking of something else, try again!", "Wanna give up?"};
+    private final String COMPUTER_INIT = "Great, I'll do the spying";
+    private final String[] COMPUTER_REMARKS = new String[]{"Can you guess what it is?", "Sorry, try again", "That's still not right, sorry. Try again!", "I'm thinking of something else, try again!", "Wanna give up?"};
     private final String MOTIVATION = "You can do it!";
     private final String COMPUTER_WINS = "Gotcha! One point for me. It's the ";
     private final String CHILD_CORRECT_FIRST_TRY = "Wow, you're right on the first try! One point for you";
+    private final String CHILD_CORRECT = "You got it right! One point for you.";
 
 
 
@@ -46,10 +65,21 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.computer_spy);
 
-        setUpAIVoice();
-        setUpGame();
+        //Set views
+        resultView = findViewById(R.id.result);
+        guessView = findViewById(R.id.guess);
+        iSpyClueView = findViewById(R.id.iSpyClue);
+        remainingGuessesView = findViewById(R.id.remainingGuesses);
+        computerRemarkView = findViewById(R.id.computerRemark);
 
+        this.aiSpyImage = AISpyImage.getInstance();
+
+        setUpAIVoice();
+        reset();
+        setISpyImage();
+        computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
     }
+
 
     private void setUpAIVoice(){
         voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
@@ -63,26 +93,31 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                     } else {
 
                     }
+
+                    voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
                 }
             }
-        });
+        }, "com.google.android.tts");
 
-        voice.setPitch(0.9f);
-        voice.setSpeechRate(0.7f);
+        //https://stackoverflow.com/questions/9815245/android-text-to-speech-male-voice
+        Set<String> a=new HashSet<>();
+        a.add("male");//here you can give male if you want to select male voice.
+        Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,a);
+        voice.setVoice(v);
+        voice.setSpeechRate(0.8f);
     }
 
-    private void setUpGame(){
-        this.aiSpyImage = AISpyImage.getInstance();
+    private void reset(){
+        this.numGuesses = 0;
 
         //Clear old views
-        TextView resultView = findViewById(R.id.result);
         resultView.setText("");
-        EditText guessView = findViewById(R.id.guess);
         guessView.setText("");
-        TextView iSpyClueView = findViewById(R.id.iSpyClue);
         iSpyClueView.setText("");
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
+        computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
+        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
 
-        setISpyImage();
         chosenObject = aiSpyImage.chooseRandomObject();
 
     }
@@ -95,27 +130,47 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
 
 
     public void checkGuess(View view) {
-        EditText guessView = findViewById(R.id.guess);
-
         String guess = guessView.getText().toString();
-
-        TextView resultView = findViewById(R.id.result);
-
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
 
         for (String possibleAnswer: possibleAnswers){
             if (guess.toUpperCase().contains(possibleAnswer)){
-                resultView.setText("Correct!");
+                handleCorrectGuess();
                 return;
             }
         }
 
-        //If possible answer can not be found in guess
-        resultView.setText("Wrong :( The correct answer is " + chosenObject.getPossibleLabels().get(0));
+        handleIncorrectGuess();
+    }
+
+    private void handleCorrectGuess(){
+        if (numGuesses == 0){
+            resultView.setText(CHILD_CORRECT_FIRST_TRY);
+        } else {
+            resultView.setText(CHILD_CORRECT);
+            voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+    }
+
+    private void handleIncorrectGuess(){
+        this.numGuesses++;
+        if (numGuesses < NUM_GUESSES_ALLOWED){
+            setUpNextGuess();
+        } else {
+            resultView.setText(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0));
+            voice.speak(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0), TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+    }
+
+    private void setUpNextGuess(){
+        guessView.setText("");
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
+        computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
+        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     public void playAgain(View view) {
-        setUpGame();
+        reset();
     }
 
     public void giveColorClue(View view) {
@@ -123,7 +178,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         Features features = aiSpyImage.getiSpyMap().get(chosenObject);
         iSpyClue = features.color;
         iSpyClueView.setText(iSpyClue);
-        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null);
+        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     public void giveLocationClue(View view) {
@@ -147,7 +202,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         }
 
         iSpyClueView.setText(iSpyClue);
-        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null);
+        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
