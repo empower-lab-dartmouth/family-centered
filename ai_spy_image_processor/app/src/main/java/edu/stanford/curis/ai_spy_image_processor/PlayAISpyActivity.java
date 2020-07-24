@@ -86,8 +86,8 @@ public class PlayAISpyActivity extends BasicFunctionality {
 //    private void setISpyClue(){
 //        Random rand = new Random();
 //        TextView iSpyClueView = findViewById(R.id.iSpyClue);
-//        HashSet<Features> features = aiSpyImage.getiSpyMap().get(chosenObject);
-//        iSpyClue = features.toArray(new String[features.size()])[rand.nextInt(features.size())];
+//        HashSet<Features> features = aiSpyImage.getiSpyMap().get(chosenObject);nnbccvbnnnbbnnnnnnnnn     
+//        iSpyClue = features.toArray(new String[features.size()])[rand.nextInt(features.size())];                                                                  vv
 //        iSpyClueView.setText(iSpyClue);
 //    }
 
