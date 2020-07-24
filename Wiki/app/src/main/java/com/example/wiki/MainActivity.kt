@@ -1,22 +1,16 @@
 package com.example.wiki
 
-import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import kotlinx.android.synthetic.main.activity_main.*
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
+import com.squareup.picasso.Picasso
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,17 +22,39 @@ class MainActivity : AppCompatActivity() {
 
         val button: Button = findViewById(R.id.queryButton)
         val editText = findViewById<EditText>(R.id.textView)
-        var text = "";
+        var keyword = "";
         button.setOnClickListener {
             // Getting the user input
-            text = editText.text.toString()
+            keyword = editText.text.toString()
             // Showing the user input
             //Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
             val def = findViewById<TextView>(R.id.defText)
-            val url =
-                "https://simple.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&titles=${text}&exsentences=2&exintro=1&explaintext=1&exsectionformat=plain"
+            val img = findViewById<ImageView>(R.id.image)
+            val defurl =
+                "https://simple.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&titles=${keyword}&exsentences=2&exintro=1&explaintext=1&exsectionformat=plain"
+            val imgpath =
+                "https://simple.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&titles=${keyword}&piprop=original"
+
             val queue = Volley.newRequestQueue(this)
-            val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, url, null,
+            val imgRequest = JsonObjectRequest(Request.Method.GET, imgpath, null,
+                Response.Listener { response ->
+                    val query = response.getJSONObject("query")
+                    val pages = query.getJSONObject("pages")
+                    for (key in pages.keys()) {
+                        val num = pages.getJSONObject(key)
+                        val original = num.getJSONObject("original")
+                        val imgurl = original.getString("source")
+                        //Loading image using Picasso
+                        Picasso.get().load(imgurl).into(img)
+                    }
+
+                },
+                Response.ErrorListener { error ->
+
+                }
+            )
+            queue.add(imgRequest)
+            val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, defurl, null,
                 Response.Listener { response ->
                     val query = response.getJSONObject("query")
                     val pages = query.getJSONObject("pages")
@@ -53,29 +69,12 @@ class MainActivity : AppCompatActivity() {
                     def.text = error.toString()
                 }
             )
+           // queue.add(imgRequest)
             queue.add(jsonObjectRequest)
-// Access the RequestQueue through your singleton class.
-            //MySingleton.getInstance(this).addToRequestQueue(jsonObjectRequest)
 
-//            AsyncTaskHandleJason().execute(url)
-//            val jsonObjectRequest = JsonObjectRequest(
-//                Request.Method.GET, url, null,
-//                Response.Listener { response ->
-//                    def.text = "hi"
-//                    Toast.makeText(this, "hi", Toast.LENGTH_SHORT).show();
-//                },
-//                Response.ErrorListener { error ->
-//                    def.text = "GET request failed"
-//                }
-//            )
         }
 
-//        button.setOnClickListener(new View.onClickListener() {
-//            public void onClick(View v) {
-//                openActivity( )
-//            }
-//        });
-//    }
+
 
 
     }
