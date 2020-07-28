@@ -1,6 +1,9 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
-import java.io.File;
+import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +15,10 @@ import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.Parser;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
 
+//https://gist.github.com/johnmiedema/e12e7359bcb17b03b8a0
 //extract noun phrases from a single sentence using OpenNLP
 public class OpenNLPExample {
 
@@ -20,16 +26,40 @@ public class OpenNLPExample {
 
     static Set<String> nounPhrases = new HashSet<>();
 
-    public static void main(String[] args) {
-        InputStream test = null;
+    public static void main(Context thisContext) {
+        AssetManager assetManager = thisContext.getAssets();
+
+
+        //TODO: Fix this attempt to initialize a part of speech identifier model
+        System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
+        try {
+            InputStream modelStream = assetManager.open("en-pos-maxent.bin");
+            POSModel model;
+
+            if(modelStream != null) {
+                model = new POSModel(modelStream); //TODO: program stalls here
+            } else {
+                return;
+            }
+
+            POSTaggerME tagger = new POSTaggerME(model);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+
+        //TODO: Fix this attempt to initialize a chunking model
         InputStream modelInParse = null;
         try {
             //load chunking model
-            System.out.println(new File(".").getAbsolutePath());
-            modelInParse = new FileInputStream("/Users/cmoffitt/Desktop/test.txt");
-            modelInParse = new FileInputStream("/Users/cmoffitt/Desktop/en-parser-chunking.bin"); //from http://opennlp.sourceforge.net/models-1.5/
-            ParserModel model = new ParserModel(modelInParse);
+            modelInParse = assetManager.open("en-parser-chunking.bin");//from http://opennlp.sourceforge.net/models-1.5/
 
+            ParserModel model;
+
+            if (modelInParse != null){
+                model = new ParserModel(modelInParse); //TODO: program stalls here
+            } else {
+                return;
+            }
 
             //create parse tree
             Parser parser = ParserFactory.create(model);
@@ -41,7 +71,7 @@ public class OpenNLPExample {
 
             //print noun phrases
             for (String s : nounPhrases)
-                System.out.println(s);
+                System.out.println("***************" + s);
 
             //The Call
             //the Wild?

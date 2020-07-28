@@ -1,10 +1,12 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 import android.util.Log;
@@ -13,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -154,7 +157,24 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
     private void determineClueType(){
         iSpyClue = iSpyClueView.getText().toString();
         String args[] = new String[1];
-        OpenNLPExample.main(args);
+        Context thisContext = this.getApplicationContext();
+
+
+        new AsyncTask<Object, Void, Void>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            protected Void doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
+
+                try {
+                    OpenNLPExample.main(thisContext);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+        }.execute();
+
 
         for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
             if (iSpyClue.contains(relativeLocation)){
