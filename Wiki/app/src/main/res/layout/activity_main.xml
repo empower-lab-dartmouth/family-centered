@@ -34,11 +34,53 @@
         android:id="@+id/defText"
         android:layout_width="382dp"
         android:layout_height="223dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.419"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/queryButton" />
+        app:layout_constraintTop_toBottomOf="@+id/image" />
+
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="378dp"
+        android:layout_height="315dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="38dp"
+        android:contentDescription="Query Image"
+        app:layout_constraintBottom_toTopOf="@+id/defText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/queryButton"
+        app:layout_constraintVertical_bias="0.236"
+        app:srcCompat="?attr/selectableItemBackgroundBorderless" />
+
+    <!--    <ImageView-->
+<!--        android:id="@+id/image"-->
+<!--        android:layout_width="384dp"-->
+<!--        android:layout_height="279dp"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_marginLeft="8dp"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        android:layout_marginEnd="8dp"-->
+<!--        android:layout_marginRight="8dp"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:scaleType="centerCrop"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/defText"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintHorizontal_bias="0.481"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/queryButton"-->
+<!--        app:layout_constraintVertical_bias="0.311"-->
+<!--        app:srcCompat="@android:drawable/list_selector_background" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
