@@ -13,8 +13,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-/*
-An AISpyObject contains the image wherein that object is located, the primary color of that object, and an ArrayList of the labels firebase generated to describe that object
+
+/**
+ * An AISpyObject contains the image wherein that object is located, the primary color of that object, and an ArrayList of the labels firebase generated to describe that object
  */
 public class AISpyObject implements Serializable {
     private String imageFileName;
@@ -39,6 +40,9 @@ public class AISpyObject implements Serializable {
         return this.image;
     }
 
+    /**
+     * @return labelsText is a string representation of all the detected labels and their confidence levels
+     */
     public String getLabelsText(){
         String labelsText = "";
 
@@ -51,6 +55,9 @@ public class AISpyObject implements Serializable {
         return labelsText;
     }
 
+    /**
+     * @return possibleLabels is an array list of Strings containing all the labels of an object
+     */
     public ArrayList<String> getPossibleLabels(){
         ArrayList<String> possibleLabels = new ArrayList<String>();
 

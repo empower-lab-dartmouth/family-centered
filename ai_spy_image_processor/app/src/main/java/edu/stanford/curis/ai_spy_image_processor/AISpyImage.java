@@ -23,9 +23,9 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-/*
-AISpyImage is a representation of an image containing all information necessary for a computer to play "I Spy"
-Initialization of an AISpyImage object requires several network calls to Google Vision APIs so it must be run in a sub thread
+/**
+ * AISpyImage is a representation of an image containing all information necessary for a computer to play "I Spy"
+ * Initialization of an AISpyImage object requires several network calls to Google Vision APIs so it must be run in a sub thread
  */
 public class AISpyImage implements Serializable {
     private String fullImagePath;
@@ -46,6 +46,14 @@ public class AISpyImage implements Serializable {
         instance = new AISpyImage(thisContent, storageDir, imagePath);
     }
 
+    /**
+     * Constructor to create an AISpyImage representation. This constructor is private so that AISpyImage is a "Singleton" (only one instantiation can exist at a time). This
+     * allows the current instantiation of AISpyImage to be easily accessible from every class.
+     * @param thisContent the Context that the picture was taken in
+     * @param storageDir the File directory where the full AISpy image is stored
+     * @param imagePath the String path where the full AISpy image is stored.
+     * @throws IOException
+     */
     private AISpyImage(Context thisContent, File storageDir, String imagePath) throws IOException {
 
         this.fullImagePath = imagePath;
@@ -130,6 +138,11 @@ public class AISpyImage implements Serializable {
         return iSpyMap;
     }
 
+    /**
+     * Loops through the labels of a detected object to see if a color was detected
+     * @param labels: a list of FirebaseVisionImageLabel detected for an object
+     * @return null if no color found; the String color name if a color is found
+     */
     private String findColorInLabels(ArrayList<FirebaseVisionImageLabel> labels){
         for (FirebaseVisionImageLabel label : labels){
             if (COMMON_COLORS.contains(label.getText().toLowerCase())){
@@ -140,7 +153,11 @@ public class AISpyImage implements Serializable {
         return null;
     }
 
-    // Creates an image file name
+
+    /**
+     * Creates and returns an image file name
+     * @throws IOException
+     */
     private String createNewImageFile(File storageDir) throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -156,6 +173,9 @@ public class AISpyImage implements Serializable {
         return newImagePath;
     }
 
+    /**
+     * Creates a hashmap mapping each detected object to the objects Features
+     */
     private void generateISpyMap(){
         iSpyMap = new HashMap<>();
 
@@ -170,6 +190,12 @@ public class AISpyImage implements Serializable {
         }
     }
 
+    /**
+     * In relation to one detected object, finds all other objects that share a relative location to it \. Stores data as
+     * a hashmap mapping the type of relative location ("right of", "left of", "above", "below") to the AISpyObject which is the
+     * base of that relative location. For example, the location features of one object might include:
+     * String("right of") -> HashSet({'stop sign', 'car', 'sidewalk'})
+     */
     private HashMap<String,HashSet<AISpyObject>> generateLocationFeatures(AISpyObject obj){
         HashSet<AISpyObject> above = new HashSet<>();
         HashSet<AISpyObject> below = new HashSet<>();
@@ -201,35 +227,7 @@ public class AISpyImage implements Serializable {
         if (leftOf.size() > 0) locationMap.put("left", leftOf);
 
         return locationMap;
-
-//        //Add labels of objects where a relative location was found to the structure "locationFeatures"
-//        HashSet<String> locationFeatures = new HashSet<>();
-//        for (AISpyObject aboveObj : above){
-//            for (String label : aboveObj.getPossibleLabels()){
-//                locationFeatures.add("above the " + label.toLowerCase());
-//            }
-//        }
-//        for (AISpyObject belowObj : below){
-//            for (String label : belowObj.getPossibleLabels()){
-//                locationFeatures.add("below the " + label.toLowerCase());
-//            }
-//        }
-//        for (AISpyObject rightObj : rightOf){
-//            for (String label : rightObj.getPossibleLabels()){
-//                locationFeatures.add("to the right of the " + label.toLowerCase());
-//            }
-//        }
-//        for (AISpyObject leftObj : leftOf){
-//            for (String label : leftObj.getPossibleLabels()){
-//                locationFeatures.add("to the left of the " + label.toLowerCase());
-//            }
-//        }
-//
-//        return locationFeatures;
     }
-
-
-
 }
 
 

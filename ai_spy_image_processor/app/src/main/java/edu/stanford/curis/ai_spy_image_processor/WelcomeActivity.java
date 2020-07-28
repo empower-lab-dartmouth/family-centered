@@ -4,6 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+/**
+ * In WelcomeActivity, the user chooses which mode of AISpy to play:
+ * 1. Computer gives i-sy clues and user guesses (playWithComputerSpy)
+ * 2. User gives i-spy clues and computer guesses (playWithChildSpy)
+ */
 public class WelcomeActivity extends BasicFunctionality {
 
     @Override

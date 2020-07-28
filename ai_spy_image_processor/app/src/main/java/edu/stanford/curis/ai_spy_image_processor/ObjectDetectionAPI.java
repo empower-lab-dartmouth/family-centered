@@ -21,8 +21,8 @@ import java.util.concurrent.ExecutionException;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
-/*
-This api queries queries Firebase ML Vision kit' object detection feature to locate objects in the image and returns their boundary boxes
+/**
+ * This api queries queries Firebase ML Vision kit' object detection feature to locate objects in the image and returns their boundary boxes
  */
 public class ObjectDetectionAPI extends Thread {
 

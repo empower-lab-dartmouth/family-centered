@@ -21,7 +21,11 @@ import com.google.api.services.vision.v1.model.Feature;
 
 import java.io.IOException;
 
-
+/**
+ * DisplayImageActivity is called as an Intent immediately after a user successfully takes a picture. In this activity,
+ * the an AISpyImage singleton object is created as a representation of the image including all relevant meta-data. After
+ * the AISpyImage is created, the user can navigate to the WelcomeActivity Intent and play a game of AISpy
+ */
 public class DisplayImageActivity extends BasicFunctionality {
     private ImageView imageView;
     private Bitmap bitmap;
@@ -33,17 +37,8 @@ public class DisplayImageActivity extends BasicFunctionality {
     private String[] visionAPI = new String[]{"LABEL_DETECTION","LANDMARK_DETECTION", "LOGO_DETECTION", "SAFE_SEARCH_DETECTION", "IMAGE_PROPERTIES"};
     private String api = visionAPI[0];
 
-    private static final String CLOUD_VISION_API_KEY = "AIzaSyBrjvW-v6XkEC6XxO_GarOZbxfalDwfzvc";
-
-    private static final String TAG = "API Activity";
-
-    public static final String SERVER_PICTURE_POST = "http://10.0.2.2:3000/label_picture";
-
     private String imagePath;
     private AISpyImage aiSpyImage;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -61,7 +56,7 @@ public class DisplayImageActivity extends BasicFunctionality {
         Context thisContent = this.getApplicationContext();
 
 
-        //Asynchronously run APIs to collect data about the image
+        //Asynchronously creates the AISpyImage representation
 //        new AsyncTask<Object, Void, ArrayList<AISpyObject>>() {
         new AsyncTask<Object, Void, AISpyImage>() {
             @SuppressLint("StaticFieldLeak")
@@ -100,12 +95,12 @@ public class DisplayImageActivity extends BasicFunctionality {
 
     }
 
+    /**
+     * Starts the WelcomeActivity Intent
+     * @param view
+     */
     public void playAISpy(View view) {
-
-
         if (aiSpyImage != null) {
-//            Intent intent = new Intent(this, PlayAISpyActivity.class);
-//            startActivity(intent);
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
         } else {

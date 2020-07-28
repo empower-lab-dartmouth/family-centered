@@ -7,22 +7,23 @@ import androidx.palette.graphics.Palette;
 import java.util.ArrayList;
 import java.util.Stack;
 
-/*
-This api is used to extract the name of the primary color of an object. The color name will be one of the most common colors that children would recognize
- */
 
+/**
+ * This api is used to extract the name of the primary color of an object. The color name will be one of the most common colors that children would recognize
+ */
 public class ColorDetectorAPI {
     private String color;
 
 
+    /**
+     * Constructor for a ColorDetectorAPI object. Instantiating this object gives access to the getColor() method which returns an image's primary color.
+     * @param image is the bitmap image that this api will detect the primar color from
+     */
     public ColorDetectorAPI(Bitmap image){
         Palette p = Palette.from(image).generate();
         int dominantColorRgb = p.getDominantColor(0);
         int vibrantColorRgb = p.getVibrantColor(0);
         String dominantColorName = getColorNameFromRgb(getRGB(dominantColorRgb));
-//        String vibrantColorName = getColorNameFromRgb(getRGB(vibrantColorRgb));
-
-//        this.color = vibrantColorRgb != 0 ? vibrantColorName : dominantColorName;
         this.color = dominantColorName;
     }
 
@@ -107,10 +108,6 @@ public class ColorDetectorAPI {
 
         //Pink colors
         colorList.add(new ColorName("pink", 0xFF, 0xC0, 0xCB));
-
-
-
-
 
         return colorList;
     }

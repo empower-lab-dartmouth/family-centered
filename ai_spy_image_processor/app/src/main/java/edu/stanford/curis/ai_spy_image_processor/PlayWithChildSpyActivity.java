@@ -19,6 +19,10 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * In PlayWithChildSpyActivity, the computer guesses the chosen i spy object based off of clues given by the child
+ */
+
 public class PlayWithChildSpyActivity extends BasicFunctionality {
     public CountDownLatch speakLatch;
 
@@ -149,6 +153,16 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
 
     private void determineClueType(){
         iSpyClue = iSpyClueView.getText().toString();
+        String args[] = new String[1];
+        OpenNLPExample.main(args);
+
+        for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
+            if (iSpyClue.contains(relativeLocation)){
+                clueType = LOCATION_CLUE;
+                getClueEssentials(relativeLocation);
+                return;
+            }
+        }
 
         for (String color : commonColors){ //Check if clue is a color clue
             if (iSpyClue.contains(color)){
@@ -158,13 +172,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
             }
         }
 
-        for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
-            if (iSpyClue.contains(relativeLocation)){
-                clueType = LOCATION_CLUE;
-                getClueEssentials(relativeLocation);
-                return;
-            }
-        }
+
 
         //TODO: Check if general knowledge clue type
     }
@@ -307,7 +315,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         if (numGuesses != NUM_GUESSES_ALLOWED){
             computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
             toSay += COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length];
-            
+
             updateRemainingGuesses();
             String guess = makeGuess();
             if (guess != null) {
@@ -356,28 +364,6 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
     private void makeRemark() {
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
         voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, null);
-    }
-
-
-    class VoiceThread implements Runnable{
-
-        CountDownLatch latch = null;
-        String toSay;
-
-        public VoiceThread(CountDownLatch latch, String toSay){
-            this.latch = latch;
-            this.toSay = toSay;
-        }
-
-        public void run(){
-            try {
-                latch.await();
-                voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, null);
-            } catch (Exception e){
-
-            }
-
-        }
     }
 }
 

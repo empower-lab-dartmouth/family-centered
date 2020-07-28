@@ -23,6 +23,11 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 
+
+/**
+ * In PlayWithComputerSpyActivity, the child guesses the chosen i-spy object based off of clues given by the computer.
+ * The child can choose between either color clues or location clues
+ */
 public class PlayWithComputerSpyActivity extends BasicFunctionality {
 
     //Views
@@ -117,6 +122,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
         voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
+
 
         chosenObject = aiSpyImage.chooseRandomObject();
 

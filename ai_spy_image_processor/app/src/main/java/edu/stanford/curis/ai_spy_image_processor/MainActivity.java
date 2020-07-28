@@ -34,7 +34,12 @@ import static android.provider.MediaStore.*;
 import static android.provider.MediaStore.Images.*;
 import static android.provider.MediaStore.Images.Media.*;
 
-
+/**
+ * MainActivity is the initial Activity. In this Activity, a user has 2 options:
+ * 1. take a photo
+ * 2. select a photo from gallery
+ * Upon successfully completing one of the above, the next Activity is called.
+ */
 public class MainActivity extends BasicFunctionality{
 
     String currentPhotoPath;
@@ -77,8 +82,6 @@ public class MainActivity extends BasicFunctionality{
                         "edu.stanford.curis.android.fileprovider",
                         photoFile);
                 takePictureIntent.putExtra(EXTRA_OUTPUT, photoURI);
-                System.out.println("******************" + takePictureIntent);
-                System.out.println("******************" + photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
             }
         }
@@ -107,14 +110,12 @@ public class MainActivity extends BasicFunctionality{
                                     Intent data) {
         Context thisContent = this.getApplicationContext();
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-
-            //This calls the next activity (Display Image Activity) which uses old code based on the Cloud Vision api to collect info about the image
-            Intent intent = new Intent(this, DisplayImageActivity.class);
-            intent.putExtra("image_path", currentPhotoPath);
-            startActivity(intent);
+            //The image is already stored in currentPhotoPath so just start the next activity
+            startDisplayImageActivity();
         }
         else if (requestCode == REQUEST_GALLERY_SELECT && resultCode == RESULT_OK){
             try {
+                //First, store the image in currentPhotoPath
                 Bitmap bitmap = getBitmap(this.getContentResolver(), data.getData());
 
                 String newFilePath = createNewImageFile();
@@ -133,16 +134,18 @@ public class MainActivity extends BasicFunctionality{
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
-            Intent intent = new Intent(this, DisplayImageActivity.class);
-            intent.putExtra("image_path", currentPhotoPath);
-            startActivity(intent);
+            //Then start the next activity
+            startDisplayImageActivity();
         }
-
-
     }
 
+    private void startDisplayImageActivity(){
+        Intent intent = new Intent(this, DisplayImageActivity.class);
+        intent.putExtra("image_path", currentPhotoPath);
+        startActivity(intent);
+    }
+
+    //Creates a String file name based on the current time when the method is called
     private String createNewImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

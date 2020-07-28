@@ -15,8 +15,8 @@ import java.util.List;
 
 import static com.google.android.gms.tasks.Tasks.await;
 
-/*
-This api queries Firebase ML Vision kit' label detection feature to get the labels associated with an image
+/**
+ * This api queries Firebase ML Vision kit' label detection feature to get the labels associated with an image
  */
 public class LabelDetectionAPI {
 

@@ -14,8 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-/*
-This api takes an image and boundary boxes and returns the a cropped bitmap for each boundary box
+/**
+ * This api takes an image and boundary boxes and returns the a cropped bitmap for each boundary box
  */
 public class ObjectCropperAPI {
 
