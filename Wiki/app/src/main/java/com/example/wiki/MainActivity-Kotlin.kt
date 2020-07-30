@@ -13,7 +13,7 @@ import com.android.volley.toolbox.Volley
 import com.squareup.picasso.Picasso
 
 
-class MainActivity : AppCompatActivity() {
+class `MainActivity-Kotlin` : AppCompatActivity() {
     val query = "";
 
     override fun onCreate(savedInstanceState: Bundle?) {

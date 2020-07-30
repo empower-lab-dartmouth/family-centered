@@ -9,7 +9,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -25,7 +24,7 @@ import org.json.JSONObject;
 
 import java.util.Iterator;
 
-public class MainActivity1 extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     Button button;
     EditText editText;
     String keyword;
@@ -50,6 +49,13 @@ public class MainActivity1 extends AppCompatActivity {
         String imgpath = "https://simple.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=pageimages&titles=" + keyword + "&piprop=original";
 
         RequestQueue queue = Volley.newRequestQueue(this);
+        JsonObjectRequest imgRequest = makeImageRequest(imgpath);
+        queue.add(imgRequest);
+        JsonObjectRequest jsonObjectRequest = makeDefRequest(defurl);
+        queue.add(jsonObjectRequest);
+    }
+
+    private JsonObjectRequest makeImageRequest(String imgpath){
         JsonObjectRequest imgRequest = new JsonObjectRequest
                 (Request.Method.GET, imgpath, null, new Response.Listener<JSONObject>() {
 
@@ -79,9 +85,10 @@ public class MainActivity1 extends AppCompatActivity {
                         Log.e("ERROR", "Error occurred ", error);
                     }
                 });
+        return imgRequest;
+    }
 
-        queue.add(imgRequest);
-
+    private JsonObjectRequest makeDefRequest(String defurl){
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
                 (Request.Method.GET, defurl, null, new Response.Listener<JSONObject>() {
 
@@ -111,29 +118,8 @@ public class MainActivity1 extends AppCompatActivity {
 
                     }
                 });
-        queue.add(jsonObjectRequest);
+        return jsonObjectRequest;
     }
 }
 
 
-//        queue.add(imgRequest)
-//        val jsonObjectRequest = JsonObjectRequest(Request.Method.GET, defurl, null,
-//                Response.Listener { response ->
-//                val query = response.getJSONObject("query")
-//            val pages = query.getJSONObject("pages")
-//            for (key in pages.keys()) {
-//                val num = pages.getJSONObject(key)
-//                val ans = num.getString("extract")
-//                def.text = ans
-//            }
-//
-//        },
-//        Response.ErrorListener { error ->
-//                def.text = error.toString()
-//        }
-//            )
-//        // queue.add(imgRequest)
-//        queue.add(jsonObjectRequest)
-//
-//    }
-//}
