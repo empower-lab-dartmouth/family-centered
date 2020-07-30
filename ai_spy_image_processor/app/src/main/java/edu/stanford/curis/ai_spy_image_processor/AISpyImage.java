@@ -147,7 +147,7 @@ public class AISpyImage implements Serializable {
         for (FirebaseVisionImageLabel label : labels){
             if (COMMON_COLORS.contains(label.getText().toLowerCase())){
                 labels.remove(label);
-                return label.getText();
+                return label.getText().toLowerCase();
             }
         }
         return null;

@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:text="Welcome to AI Spy"
         android:textSize="30dp"
-        android:layout_gravity="center"
-        />
+        android:layout_gravity="center"/>
+
     <ImageView
         android:id="@+id/fullImage"
         android:layout_width="match_parent"
@@ -39,6 +39,7 @@
         android:layout_height="50dp"/>
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center">

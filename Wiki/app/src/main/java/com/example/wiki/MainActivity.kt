@@ -73,11 +73,8 @@ class MainActivity : AppCompatActivity() {
             queue.add(jsonObjectRequest)
 
         }
-
-
-
-
     }
+
 //    inner class AsyncTaskHandleJason : AsyncTask<String, String, String>() {
 //        override fun doInBackground(vararg url: String?): String {
 //            var text : String

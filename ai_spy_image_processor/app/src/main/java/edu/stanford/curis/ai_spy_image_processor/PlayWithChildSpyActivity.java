@@ -159,21 +159,21 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         String args[] = new String[1];
         Context thisContext = this.getApplicationContext();
 
-
-        new AsyncTask<Object, Void, Void>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            protected Void doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
-
-                try {
-                    OpenNLPExample.main(thisContext);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-        }.execute();
+//
+//        new AsyncTask<Object, Void, Void>() {
+//            @SuppressLint("StaticFieldLeak")
+//            @Override
+//            protected Void doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
+//
+//                try {
+//                    OpenNLPExample.main(thisContext);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//        }.execute();
 
 
         for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
@@ -265,7 +265,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         String colorClue = clueEssentials[0];
         for (AISpyObject object: iSpyMap.keySet()){
             if (alreadyGuessedObjects.contains(object)) continue;
-            if (colorClue == iSpyMap.get(object).color){
+            if (colorClue.equals(iSpyMap.get(object).color)){
                 return object;
             }
         }
