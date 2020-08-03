@@ -55,6 +55,7 @@ dependencies {
     //    implementation 'com.google.code.findbugs:jsr305:2.0.1'
     //    implementation 'commons-io:commons-io:2.5'
     implementation 'com.jakewharton:butterknife:10.0.0'
+    implementation 'com.android.volley:volley:1.1.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
     implementation files('libs/opennlp-tools-1.9.2.jar')
 }
