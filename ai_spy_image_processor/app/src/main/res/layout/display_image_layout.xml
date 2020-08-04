@@ -24,13 +24,13 @@
             <TextView
                 android:id="@+id/visionApiText"
                 android:layout_width="wrap_content"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 android:text="TextView" />
 
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="wrap_content"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 android:padding="4dp" />
         </LinearLayout>
         <LinearLayout
@@ -44,22 +44,22 @@
 
                 <ImageView
                     android:id="@+id/objectView1"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText1"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
                 <ImageView
                     android:id="@+id/objectView2"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText2"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
 
             </LinearLayout>
 
@@ -70,22 +70,22 @@
 
                 <ImageView
                     android:id="@+id/objectView3"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText3"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
                 <ImageView
                     android:id="@+id/objectView4"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText4"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
 
             </LinearLayout>
 
@@ -96,22 +96,22 @@
 
                 <ImageView
                     android:id="@+id/objectView5"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText5"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
                 <ImageView
                     android:id="@+id/objectView6"
-                    android:layout_width="200dp"
-                    android:layout_height="175dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:padding="4dp" />
                 <TextView
                     android:id="@+id/objectText6"
                     android:layout_width="100dp"
-                    android:layout_height="175dp" />
+                    android:layout_height="100dp" />
 
             </LinearLayout>
 

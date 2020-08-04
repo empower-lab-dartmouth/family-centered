@@ -53,7 +53,11 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private final String COMPUTER_WINS = "Gotcha! One point for me. It's the ";
     private final String CHILD_CORRECT_FIRST_TRY = "Wow, you're right on the first try! One point for you";
     private final String CHILD_CORRECT = "You got it right! One point for you.";
+    private final String ISPY_PRELUDE = "I spy something that ";
 
+    private final int COLOR_CLUE = 1;
+    private final int LOCATION_CLUE = 2;
+    private final int GENERAL_KNOWLEDGE_CLUE = 3;
 
 
     @Override
@@ -130,7 +134,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
 
     private void setISpyImage(){
         ImageView fullImage = findViewById(R.id.fullImage);
-        Bitmap fullImageBitmap = BitmapFactory.decodeFile(aiSpyImage.getFullImagePath());
+        Bitmap fullImageBitmap = BitmapAPI.getCorrectOrientation(aiSpyImage.getFullImagePath());
         fullImage.setImageBitmap(fullImageBitmap);
     }
 
@@ -140,7 +144,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
 
         for (String possibleAnswer: possibleAnswers){
-            if (guess.toUpperCase().contains(possibleAnswer)){
+            if (guess.toLowerCase().contains(possibleAnswer)){
                 handleCorrectGuess();
                 return;
             }
@@ -179,36 +183,55 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         reset();
     }
 
-    public void giveColorClue(View view) {
-        TextView iSpyClueView = findViewById(R.id.iSpyClue);
-        Features features = aiSpyImage.getiSpyMap().get(chosenObject);
-        iSpyClue = features.color;
-        iSpyClueView.setText(iSpyClue);
-        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
-    }
-
-    public void giveLocationClue(View view) {
-        Random rand = new Random();
+    private void giveClue(int clueType){
         TextView iSpyClueView = findViewById(R.id.iSpyClue);
         Features features = aiSpyImage.getiSpyMap().get(chosenObject);
 
-//        iSpyClue = features.locations.toArray(new String[features.locations.size()])[rand.nextInt(features.locations.size())];
+        switch(clueType){
+            case COLOR_CLUE:
+                iSpyClue = "is " + features.color;
+                break;
+            case LOCATION_CLUE:
+                Random rand = new Random();
+                int numDirections = features.locations.keySet().size();
+                if (numDirections != 0){
+                    String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
+                    int numObjectsForDirection = features.locations.get(direction).size();
+                    AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
+                    int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
+                    String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
 
-        int numDirections = features.locations.keySet().size();
-        String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
-        int numObjectsForDirection = features.locations.get(direction).size();
-        AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
-        int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
-        String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
-
-        if (direction == "above" || direction == "below"){
-            iSpyClue = direction + " the " + label.toLowerCase();
-        } else if (direction == "right" || direction == "left"){
-            iSpyClue = "to the " + direction + " of the " + label.toLowerCase();
+                    if (direction == "above" || direction == "below"){
+                        iSpyClue = "is " + direction + " the " + label.toLowerCase();
+                    } else if (direction == "right" || direction == "left"){
+                        iSpyClue = "is to the " + direction + " of the " + label.toLowerCase();
+                    }
+                }
+                break;
+            case GENERAL_KNOWLEDGE_CLUE:
+                iSpyClue = features.wiki;
+                break;
         }
 
         iSpyClueView.setText(iSpyClue);
-        voice.speak("I spy something " + iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
+
+    }
+
+    public void giveWikiClue(View view){
+        int clueType = GENERAL_KNOWLEDGE_CLUE;
+        giveClue(clueType);
+    }
+
+    public void giveColorClue(View view) {
+        int clueType = COLOR_CLUE;
+        giveClue(clueType);
+    }
+
+    public void giveLocationClue(View view) {
+        int clueType = LOCATION_CLUE;
+        giveClue(clueType);
+
     }
 
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
@@ -234,7 +257,6 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                 if (resultCode == RESULT_OK && data != null){
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    System.out.println("*********************************" + result.get(0));
                     EditText guessView = findViewById(R.id.guess);
                     guessView.setText(result.get(0));
                 }

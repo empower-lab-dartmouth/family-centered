@@ -3,8 +3,6 @@ package edu.stanford.curis.ai_spy_image_processor;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.google.firebase.ml.vision.label.FirebaseVisionImageLabel;
 import com.google.mlkit.vision.objects.DetectedObject;
@@ -21,7 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 /**
  * AISpyImage is a representation of an image containing all information necessary for a computer to play "I Spy"
@@ -70,7 +67,7 @@ public class AISpyImage implements Serializable {
         //Get each object's dominant color and store cropped bitmaps in files
         for (DetectedObject detectedObject: detectedObjects){
 
-            Bitmap croppedObject = ObjectCropperAPI.getCroppedObject(detectedObject, imagePath);
+            Bitmap croppedObject = BitmapAPI.getCroppedObject(detectedObject, imagePath);
 
             //Save the object image
             String newFilePath = createNewImageFile(storageDir);
@@ -102,8 +99,10 @@ public class AISpyImage implements Serializable {
         }
         allObjects = aiSpyObjects;
 
-        generateISpyMap();
+        generateISpyMap(thisContent);
     }
+
+    /****** Public Methods *******/
 
     public AISpyObject chooseRandomObject(){
         Random rand = new Random();
@@ -176,7 +175,7 @@ public class AISpyImage implements Serializable {
     /**
      * Creates a hashmap mapping each detected object to the objects Features
      */
-    private void generateISpyMap(){
+    private void generateISpyMap(Context thisContent){
         iSpyMap = new HashMap<>();
 
 
@@ -185,6 +184,7 @@ public class AISpyImage implements Serializable {
             Features features = new Features();
             features.color = object.getColor();
             features.locations = generateLocationFeatures(object);
+            features.wiki = getWiki(object, thisContent);
 
             iSpyMap.put(object, features);
         }
@@ -227,6 +227,20 @@ public class AISpyImage implements Serializable {
         if (leftOf.size() > 0) locationMap.put("left", leftOf);
 
         return locationMap;
+    }
+
+    /**
+     * Loops through the labels of an object and for whichever one first successfully queries wiki, returns that result
+     */
+    private String getWiki(AISpyObject obj, Context thisContent){
+        for (String label : obj.getPossibleLabels()){
+            String wiki = WikiClueAPI.getWikiClue(label, thisContent);
+            if (wiki != null){
+                return wiki;
+            }
+        }
+
+        return null;
     }
 }
 

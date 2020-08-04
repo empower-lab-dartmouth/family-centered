@@ -13,16 +13,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Great, I'll do the spying"
-        android:textSize="30dp"
+        android:textSize="20dp"
         android:layout_gravity="center"
         />
     <ImageView
         android:id="@+id/fullImage"
         android:layout_width="match_parent"
-        android:layout_height="300dp"/>
+        android:layout_height="200dp"/>
     <Space
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="20dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,29 +31,40 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25dp"
-            android:text="  I spy something ..."/>
+            android:textSize="15dp"
+            android:text="  I spy something that..."/>
         <Space
-            android:layout_width="30dp"
+            android:layout_width="10dp"
             android:layout_height="match_parent"/>
         <Button
             android:id="@+id/colorClue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Give Color Clue"
+            android:text="Give Color"
+            android:textSize="10dp"
             android:onClick="giveColorClue"
             />
         <Space
-            android:layout_width="25dp"
+            android:layout_width="10dp"
             android:layout_height="match_parent"/>
         <Button
             android:id="@+id/locationClue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:onClick="giveLocationClue"
-            android:text="Give Location Clue"/>
+            android:text="Give Location"
+            android:textSize="10dp"/>
+        <Space
+            android:layout_width="10dp"
+            android:layout_height="match_parent"/>
+        <Button
+            android:id="@+id/wikiClue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:onClick="giveWikiClue"
+            android:text="Give Wiki"
+            android:textSize="10dp"/>
 
     </LinearLayout>
 
@@ -62,19 +73,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="30dp"/>
+        android:textSize="15dp"/>
     <Space
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="20dp"/>
     <TextView
         android:id="@+id/computerRemark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:text=" Can you guess what it is?"/>
     <Space
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="20dp"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -82,11 +93,11 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
+            android:textSize="25dp"
             android:text=" Enter your guess here: "/>
         <EditText
             android:id="@+id/guess"
-            android:layout_width="400dp"
+            android:layout_width="120dp"
             android:layout_height="match_parent" />
         <ImageView
             android:id="@+id/speechInput"
@@ -102,31 +113,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Submit Guess"
-        android:textSize="25dp"
+        android:textSize="10dp"
         android:layout_gravity="center"
         android:onClick="checkGuess"/>
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+
     <TextView
         android:id="@+id/remainingGuesses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25dp"
+        android:textSize="15dp"
         android:text="Number of Guesses remaining: 5"/>
     <TextView
         android:id="@+id/result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="25dp"
+        android:textSize="20dp"
         android:layout_gravity="center"/>
     <Button
         android:id="@+id/playAgain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Play Again?"
-        android:textSize="25dp"
+        android:textSize="10dp"
         android:layout_gravity="bottom|center"
         android:onClick="playAgain"/>
 

@@ -62,7 +62,7 @@ public class AISpyObject implements Serializable {
         ArrayList<String> possibleLabels = new ArrayList<String>();
 
         for(FirebaseVisionImageLabel label : labels){
-            possibleLabels.add(label.getText().toUpperCase());
+            possibleLabels.add(label.getText().toLowerCase());
         }
 
         return possibleLabels;

@@ -64,7 +64,8 @@ public class WikiClueAPI {
         }
 
         if (clueStartIndex != -1) {
-            clue = def.substring(clueStartIndex, (def.indexOf('.') + 1));
+            int clueEndIndex = def.indexOf('.') + 1;
+            clue = clueEndIndex > clueStartIndex ? def.substring(clueStartIndex, (def.indexOf('.') + 1)) : def.substring(clueStartIndex);
         }
 
         return clue;

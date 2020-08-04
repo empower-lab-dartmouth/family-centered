@@ -12,5 +12,6 @@ public class Features {
 
     public String color;
     public HashMap<String,HashSet<AISpyObject>> locations;
+    public String wiki;
 
 }

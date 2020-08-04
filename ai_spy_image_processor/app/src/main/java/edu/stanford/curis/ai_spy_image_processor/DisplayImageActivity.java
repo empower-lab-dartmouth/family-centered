@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.ImageView;
@@ -20,6 +19,7 @@ import com.google.api.services.vision.v1.model.Feature;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * DisplayImageActivity is called as an Intent immediately after a user successfully takes a picture. In this activity,
@@ -40,15 +40,42 @@ public class DisplayImageActivity extends BasicFunctionality {
     private String imagePath;
     private AISpyImage aiSpyImage;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.display_image_layout);
         imageView = findViewById(R.id.imageView);
-        Bitmap picture = BitmapFactory.decodeFile(getIntent().getStringExtra("image_path"));
-        imageView.setImageBitmap(picture);
-
         imagePath = getIntent().getStringExtra("image_path");
+//        Bitmap picture = BitmapFactory.decodeFile(imagePath);
+//
+//        //correct Orientation
+//        try {
+//            ExifInterface exif = new ExifInterface(imagePath);
+//            int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+//            int rotationInDegrees = exifToDegrees(rotation);
+//            Matrix matrix = new Matrix();
+//            if (rotation != 0) {matrix.preRotate(rotationInDegrees);}
+//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
+//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+//            imageView.setImageBitmap(rotatedBitmap);
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        Bitmap picture = BitmapAPI.getCorrectOrientation(imagePath);
+        imageView.setImageBitmap(picture);
+//        Matrix matrix = new Matrix();
+//        matrix.postRotate(90);
+//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
+//        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+//        imageView.setImageBitmap(rotatedBitmap);
+
+
+
+
 
         visionAPIData = findViewById(R.id.visionApiText);
         visionAPIData.setText("Processing...");
@@ -82,9 +109,13 @@ public class DisplayImageActivity extends BasicFunctionality {
                 ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
                 TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
 
-                for (int i = 0; i < generatedAiSpyImage.getAllObjects().size() && i < objectImages.length; i++){
-                    objectImages[i].setImageBitmap(generatedAiSpyImage.getAllObjects().get(i).getImage());
-                    objectText[i].setText(generatedAiSpyImage.getAllObjects().get(i).getColor() + "\n\n" + generatedAiSpyImage.getAllObjects().get(i).getLabelsText());
+                ArrayList<AISpyObject> allObjects = generatedAiSpyImage.getAllObjects();
+                for (int i = 0; i < allObjects.size() && i < objectImages.length; i++){
+                    AISpyObject object = allObjects.get(i);
+                    objectImages[i].setImageBitmap(allObjects.get(i).getImage());
+                    String wiki = generatedAiSpyImage.getiSpyMap().get(object).wiki;
+                    if ( wiki == null) wiki = "";
+                    objectText[i].setText(object.getColor() + "\n\n" + wiki+ "\n\n" + object.getLabelsText());
                 }
 
                 System.out.println(generatedAiSpyImage);
