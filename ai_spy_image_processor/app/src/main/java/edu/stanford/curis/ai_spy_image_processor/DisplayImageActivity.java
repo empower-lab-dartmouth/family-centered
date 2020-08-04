@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.ImageView;
 
 import android.os.AsyncTask;
@@ -31,11 +32,14 @@ public class DisplayImageActivity extends BasicFunctionality {
     private Bitmap bitmap;
     private Feature feature;
     private Spinner spinnerVisionAPI;
-    private TextView visionAPIData;
+    private TextView allLabelsView;
 
 
     private String[] visionAPI = new String[]{"LABEL_DETECTION","LANDMARK_DETECTION", "LOGO_DETECTION", "SAFE_SEARCH_DETECTION", "IMAGE_PROPERTIES"};
     private String api = visionAPI[0];
+
+    private final String BAD_PHOTO_PROMPT = "There's not a lot going on in this photo. Please choose another one";
+    private final String NOT_READY_PROMPT = "AI Spy is not ready";
 
     private String imagePath;
     private AISpyImage aiSpyImage;
@@ -77,8 +81,8 @@ public class DisplayImageActivity extends BasicFunctionality {
 
 
 
-        visionAPIData = findViewById(R.id.visionApiText);
-        visionAPIData.setText("Processing...");
+        allLabelsView = findViewById(R.id.allLabels);
+        allLabelsView.setText("Processing...");
 
         Context thisContent = this.getApplicationContext();
 
@@ -101,10 +105,8 @@ public class DisplayImageActivity extends BasicFunctionality {
             }
 
             protected void onPostExecute(AISpyImage generatedAiSpyImage) {
-
-                TextView allLabelsView = findViewById(R.id.visionApiText);
                 String allLabelsText = generatedAiSpyImage.getAllLabelsText();
-                visionAPIData.setText(allLabelsText);
+                allLabelsView.setText(allLabelsText);
 
                 ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
                 TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
@@ -115,12 +117,15 @@ public class DisplayImageActivity extends BasicFunctionality {
                     objectImages[i].setImageBitmap(allObjects.get(i).getImage());
                     String wiki = generatedAiSpyImage.getiSpyMap().get(object).wiki;
                     if ( wiki == null) wiki = "";
+                    objectText[i].setMovementMethod(new ScrollingMovementMethod());
                     objectText[i].setText(object.getColor() + "\n\n" + wiki+ "\n\n" + object.getLabelsText());
                 }
 
                 System.out.println(generatedAiSpyImage);
 
                 aiSpyImage = generatedAiSpyImage;
+
+                handleBadImage(thisContent);
             }
         }.execute();
 
@@ -135,8 +140,21 @@ public class DisplayImageActivity extends BasicFunctionality {
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
         } else {
-            Toast toast=Toast.makeText(getApplicationContext(),"AI Spy is not ready", Toast.LENGTH_SHORT);
+            Toast toast=Toast.makeText(getApplicationContext(),NOT_READY_PROMPT, Toast.LENGTH_SHORT);
             toast.show();
+        }
+    }
+
+    /**
+     * If no objects were detected in the image, prompts the user to try choosing another photo and takes user back to MainActivity
+     */
+    private void handleBadImage(Context thisContent){
+        if (aiSpyImage.getAllObjects().size() == 0){
+            Toast toast=Toast.makeText(getApplicationContext(),BAD_PHOTO_PROMPT, Toast.LENGTH_SHORT);
+            toast.show();
+
+            Intent intent = new Intent(thisContent, MainActivity.class);
+            startActivity(intent);
         }
     }
 }

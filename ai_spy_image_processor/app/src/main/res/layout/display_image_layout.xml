@@ -22,7 +22,7 @@
                 android:layout_marginTop="100dp" />
 
             <TextView
-                android:id="@+id/visionApiText"
+                android:id="@+id/allLabels"
                 android:layout_width="wrap_content"
                 android:layout_height="200dp"
                 android:text="TextView" />
@@ -50,7 +50,8 @@
                 <TextView
                     android:id="@+id/objectText1"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
                 <ImageView
                     android:id="@+id/objectView2"
                     android:layout_width="100dp"
@@ -59,7 +60,8 @@
                 <TextView
                     android:id="@+id/objectText2"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
 
             </LinearLayout>
 
@@ -76,7 +78,8 @@
                 <TextView
                     android:id="@+id/objectText3"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
                 <ImageView
                     android:id="@+id/objectView4"
                     android:layout_width="100dp"
@@ -85,7 +88,8 @@
                 <TextView
                     android:id="@+id/objectText4"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
 
             </LinearLayout>
 
@@ -102,7 +106,8 @@
                 <TextView
                     android:id="@+id/objectText5"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
                 <ImageView
                     android:id="@+id/objectView6"
                     android:layout_width="100dp"
@@ -111,7 +116,8 @@
                 <TextView
                     android:id="@+id/objectText6"
                     android:layout_width="100dp"
-                    android:layout_height="100dp" />
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
 
             </LinearLayout>
 
