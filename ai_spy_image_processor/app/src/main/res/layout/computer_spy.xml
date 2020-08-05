@@ -40,31 +40,15 @@
             android:id="@+id/colorClue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Give Color"
-            android:textSize="10dp"
-            android:onClick="giveColorClue"
+            android:layout_gravity="end"
+            android:text="Choose clue catagory"
+            android:onClick="getChoiceInput"
             />
+
         <Space
-            android:layout_width="10dp"
-            android:layout_height="match_parent"/>
-        <Button
-            android:id="@+id/locationClue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="giveLocationClue"
-            android:text="Give Location"
-            android:textSize="10dp"/>
-        <Space
-            android:layout_width="10dp"
-            android:layout_height="match_parent"/>
-        <Button
-            android:id="@+id/wikiClue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="giveWikiClue"
-            android:text="Give Wiki"
-            android:textSize="10dp"/>
+            android:layout_width="25dp"
+            android:layout_height="match_parent" />
+
 
     </LinearLayout>
 

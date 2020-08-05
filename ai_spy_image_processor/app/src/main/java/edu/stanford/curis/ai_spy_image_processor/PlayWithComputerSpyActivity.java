@@ -233,7 +233,17 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         giveClue(clueType);
 
     }
+    public void getChoiceInput(View view){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
+        if (intent.resolveActivity(getPackageManager()) != null){
+            startActivityForResult(intent, 9);
+        } else {
+            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
+        }
+    }
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -260,6 +270,22 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                     EditText guessView = findViewById(R.id.guess);
                     guessView.setText(result.get(0));
                 }
+            case 9:
+                if (resultCode == RESULT_OK && data != null){
+
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String input = result.get(0);
+                    System.out.println("*********************************" + result.get(0));
+                    if (input.contains("color") || input.contains("colors")) {
+                        giveColorClue(findViewById(R.id.iSpyClue));
+                    } else if (input.contains("location") || input.contains("locations")) {
+                        giveLocationClue(findViewById(R.id.iSpyClue));
+                    } else if (input.contains("Wiki") || input.contains("Wikipedia")){
+                        giveWikiClue(findViewById(R.id.iSpyClue));
+                    }
+                }
         }
     }
+
+
 }
