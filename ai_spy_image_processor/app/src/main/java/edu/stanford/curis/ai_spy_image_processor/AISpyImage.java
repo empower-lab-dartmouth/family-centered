@@ -87,7 +87,7 @@ public class AISpyImage implements Serializable {
 
             //Find the dominant color in the object (only send to colorDetector if there isn't already a label with a color)
             String color = (findColorInLabels(objectLabels));
-            if(color == null){ color = new ColorDetectorAPI(croppedObject).getColor(); }
+            if(color == null){ color = new ColorDetectorAPI(croppedObject, thisContent).getColor(); }
 
             //Store object info in AISpyObject
             if (objectLabels.size() > 0){
