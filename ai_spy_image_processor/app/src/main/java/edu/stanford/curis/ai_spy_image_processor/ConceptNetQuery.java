@@ -44,7 +44,9 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
 
     @Override
     protected void onPostExecute(ArrayList<String> results){
-        map.put(this.relation, results);
+        if (results.size() > 0){
+            map.put(this.relation, results);
+        }
     }
 
     private ArrayList<String> queryConceptNet(){

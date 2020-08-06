@@ -21,6 +21,7 @@ import com.google.api.services.vision.v1.model.Feature;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * DisplayImageActivity is called as an Intent immediately after a user successfully takes a picture. In this activity,
@@ -105,23 +106,7 @@ public class DisplayImageActivity extends BasicFunctionality {
             }
 
             protected void onPostExecute(AISpyImage generatedAiSpyImage) {
-                String allLabelsText = generatedAiSpyImage.getAllLabelsText();
-                allLabelsView.setText(allLabelsText);
-
-                ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
-                TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
-
-                ArrayList<AISpyObject> allObjects = generatedAiSpyImage.getAllObjects();
-                for (int i = 0; i < allObjects.size() && i < objectImages.length; i++){
-                    AISpyObject object = allObjects.get(i);
-                    objectImages[i].setImageBitmap(allObjects.get(i).getImage());
-                    String wiki = generatedAiSpyImage.getiSpyMap().get(object).wiki;
-                    if ( wiki == null) wiki = "";
-                    objectText[i].setMovementMethod(new ScrollingMovementMethod());
-                    objectText[i].setText(object.getColor() + "\n\n" + wiki+ "\n\n" + object.getLabelsText());
-                }
-
-                System.out.println(generatedAiSpyImage);
+                displayAISpyObjects(generatedAiSpyImage);
 
                 aiSpyImage = generatedAiSpyImage;
 
@@ -129,6 +114,30 @@ public class DisplayImageActivity extends BasicFunctionality {
             }
         }.execute();
 
+    }
+
+    /**
+     * Creates a readable representation of all detected AISpyObjects and displays it to the screen
+     * @param generatedAiSpyImage
+     */
+    private void displayAISpyObjects(AISpyImage generatedAiSpyImage){
+        String allLabelsText = generatedAiSpyImage.getAllLabelsText();
+        allLabelsView.setText(allLabelsText);
+
+        ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
+        TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
+
+        ArrayList<AISpyObject> allObjects = generatedAiSpyImage.getAllObjects();
+        HashMap<AISpyObject, Features> iSpyMap = generatedAiSpyImage.getiSpyMap();
+        for (int i = 0; i < allObjects.size() && i < objectImages.length; i++){
+            AISpyObject object = allObjects.get(i);
+            objectImages[i].setImageBitmap(allObjects.get(i).getImage());
+            String wiki = iSpyMap.get(object).wiki;
+            if ( wiki == null) wiki = "";
+            objectText[i].setMovementMethod(new ScrollingMovementMethod());
+            HashMap<String, ArrayList<String>> conceptNetMap = iSpyMap.get(object).conceptNet;
+            objectText[i].setText("Labels:" + "\n" + object.getLabelsText() + "\n\n" + "Color: " + object.getColor() + "\n\n" + "Wiki:" + wiki+ "\n\n" + ConceptNetAPI.getReadableRepresentation(conceptNetMap));
+        }
     }
 
     /**

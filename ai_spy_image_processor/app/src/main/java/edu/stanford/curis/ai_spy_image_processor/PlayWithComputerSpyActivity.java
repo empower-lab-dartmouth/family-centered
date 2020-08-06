@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
@@ -58,6 +59,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private final int COLOR_CLUE = 1;
     private final int LOCATION_CLUE = 2;
     private final int GENERAL_KNOWLEDGE_CLUE = 3;
+    private final int CONCEPTNET_CLUE= 4;
 
 
     @Override
@@ -192,30 +194,56 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                 iSpyClue = "is " + features.color;
                 break;
             case LOCATION_CLUE:
-                Random rand = new Random();
-                int numDirections = features.locations.keySet().size();
-                if (numDirections != 0){
-                    String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
-                    int numObjectsForDirection = features.locations.get(direction).size();
-                    AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
-                    int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
-                    String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
-
-                    if (direction == "above" || direction == "below"){
-                        iSpyClue = "is " + direction + " the " + label.toLowerCase();
-                    } else if (direction == "right" || direction == "left"){
-                        iSpyClue = "is to the " + direction + " of the " + label.toLowerCase();
-                    }
-                }
+                iSpyClue = getLocationClue(features);
                 break;
             case GENERAL_KNOWLEDGE_CLUE:
                 iSpyClue = features.wiki;
                 break;
+            case CONCEPTNET_CLUE:
+                iSpyClue = getConceptNetClue(features);
         }
 
         iSpyClueView.setText(iSpyClue);
         voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
 
+    }
+
+    private String getConceptNetClue(Features features){
+        String conceptNetClue = "";
+        Random rand = new Random();
+        int numRelations = features.conceptNet.keySet().size();
+        if (numRelations != 0){
+            String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
+            ArrayList<String> endpoints = features.conceptNet.get(relation);
+            String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
+            conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+        }
+        return conceptNetClue;
+    }
+
+    private String getLocationClue(Features features){
+        String locationClue = "";
+        Random rand = new Random();
+        int numDirections = features.locations.keySet().size();
+        if (numDirections != 0){
+            String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
+            int numObjectsForDirection = features.locations.get(direction).size();
+            AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
+            int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
+            String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
+
+            if (direction == "above" || direction == "below"){
+                locationClue = "is " + direction + " the " + label.toLowerCase();
+            } else if (direction == "right" || direction == "left"){
+                locationClue = "is to the " + direction + " of the " + label.toLowerCase();
+            }
+        }
+        return locationClue;
+    }
+
+    private void giveConceptNetClue(View view){
+        int clueType = CONCEPTNET_CLUE;
+        giveClue(clueType);
     }
 
     public void giveWikiClue(View view){
@@ -282,6 +310,8 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                         giveLocationClue(findViewById(R.id.iSpyClue));
                     } else if (input.contains("Wiki") || input.contains("Wikipedia")){
                         giveWikiClue(findViewById(R.id.iSpyClue));
+                    } else if (input.contains("concept") || input.contains("net") || input.contains("knowledge")){
+                        giveConceptNetClue(findViewById(R.id.iSpyClue));
                     }
                 }
         }
