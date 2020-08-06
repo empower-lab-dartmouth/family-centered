@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 
 public class ConceptNetAPI {
@@ -16,8 +17,8 @@ public class ConceptNetAPI {
     private final static String SIMILAR_RELATION = "SimilarTo";
     private final static String MADE_RELATION = "MadeOf";
     private final static String[] RELATIONS = new String[]{IS_RELATION, HAS_RELATION, USED_RELATION, CAPABLE_RELATION, SIMILAR_RELATION, MADE_RELATION};
-    private final static String[] RELATIONS_NATURAL = new String[]{"is a ", "has ", "is used for ", "is capable of ", "is similar to ", "is made of "};
-    private static HashMap<String, String> relationToLanguage;
+    private final static String[] RELATIONS_NATURAL = new String[]{"is ", "has ", "is used ", "is capable of ", "is similar to ", "is made of "};
+
     private static HashMap<String, ArrayList<String>> knowledgeGraph;
 
     public static HashMap<String, ArrayList<String>> getConceptNetMap(String keyword, Context context){
@@ -64,23 +65,47 @@ public class ConceptNetAPI {
     }
 
     public static String makeConceptNetClue(String relation, String endpoint){
+
+        HashMap<String, String> relationToLanguage = new HashMap<>();
+        for (int i = 0; i < RELATIONS.length; i++){
+            relationToLanguage.put(RELATIONS[i], RELATIONS_NATURAL[i]);
+        }
+
+        HashSet<Character> vowels = new HashSet<>();
+        vowels.add('a');
+        vowels.add('e');
+        vowels.add('i');
+        vowels.add('o');
+        vowels.add('u');
+
         String clue = "";
 
         switch (relation){
             case IS_RELATION:
+                if (vowels.contains(endpoint.charAt(0))) endpoint = "an " + endpoint;
+                else endpoint = "a " + endpoint;
                 clue = relationToLanguage.get(relation) + " " + endpoint;
                 break;
             case HAS_RELATION:
-                clue = relationToLanguage.get(relation) + " " + endpoint;
+                clue = relationToLanguage.get(relation) + endpoint;
                 break;
             case USED_RELATION:
-                clue = relationToLanguage.get(relation) + " " + endpoint;
+                if (endpoint.contains("ing")) endpoint = "for " + endpoint;
+                else endpoint = "to " + endpoint;
+                clue = relationToLanguage.get(relation) + endpoint;
                 break;
             case CAPABLE_RELATION:
-                clue = relationToLanguage.get(relation) + " " + endpoint;
+                String newEndpoint = endpoint;
+                if (!endpoint.contains("ing")){
+                    int i = endpoint.indexOf(" ");
+                    String begin = endpoint.substring(0, i);
+                    String end = endpoint.substring(i);
+                    newEndpoint = begin + "ing" + end;
+                }
+                clue = relationToLanguage.get(relation) + newEndpoint;
                 break;
             case SIMILAR_RELATION:
-                clue = relationToLanguage.get(relation) + " " + endpoint;
+                clue = relationToLanguage.get(relation) + "a " + endpoint;
                 break;
             case MADE_RELATION:
                 clue = relationToLanguage.get(relation) + " " + endpoint;

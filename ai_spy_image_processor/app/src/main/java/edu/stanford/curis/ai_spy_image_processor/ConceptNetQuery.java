@@ -38,7 +38,7 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
     @Override
     protected ArrayList<String> doInBackground(Void... params){
         ArrayList<String> results = queryConceptNet();
-        latch.countDown();
+//        latch.countDown();
         return results;
     }
 
@@ -47,6 +47,7 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
         if (results.size() > 0){
             map.put(this.relation, results);
         }
+        latch.countDown();
     }
 
     private ArrayList<String> queryConceptNet(){
