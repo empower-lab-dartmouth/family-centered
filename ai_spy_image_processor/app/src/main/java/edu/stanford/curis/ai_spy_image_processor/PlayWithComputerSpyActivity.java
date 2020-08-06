@@ -141,8 +141,8 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     }
 
 
-    public void checkGuess(View view) {
-        String guess = guessView.getText().toString();
+    private void checkGuess(String guess) {
+//        String guess = guessView.getText().toString();
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
 
         for (String possibleAnswer: possibleAnswers){
@@ -158,6 +158,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private void handleCorrectGuess(){
         if (numGuesses == 0){
             resultView.setText(CHILD_CORRECT_FIRST_TRY);
+            voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, null);
         } else {
             resultView.setText(CHILD_CORRECT);
             voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, null);
@@ -261,17 +262,17 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         giveClue(clueType);
 
     }
-    public void getChoiceInput(View view){
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, 9);
-        } else {
-            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-        }
-    }
+//    public void getChoiceInput(View view){
+//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+//
+//        if (intent.resolveActivity(getPackageManager()) != null){
+//            startActivityForResult(intent, 9);
+//        } else {
+//            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
+//        }
+//    }
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -296,24 +297,26 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     EditText guessView = findViewById(R.id.guess);
-                    guessView.setText(result.get(0));
+                    String guess = result.get(0);
+                    guessView.setText(guess);
+                    checkGuess(guess);
                 }
-            case 9:
-                if (resultCode == RESULT_OK && data != null){
-
-                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    String input = result.get(0);
-                    System.out.println("*********************************" + result.get(0));
-                    if (input.contains("color") || input.contains("colors")) {
-                        giveColorClue(findViewById(R.id.iSpyClue));
-                    } else if (input.contains("location") || input.contains("locations")) {
-                        giveLocationClue(findViewById(R.id.iSpyClue));
-                    } else if (input.contains("Wiki") || input.contains("Wikipedia")){
-                        giveWikiClue(findViewById(R.id.iSpyClue));
-                    } else if (input.contains("concept") || input.contains("net") || input.contains("knowledge")){
-                        giveConceptNetClue(findViewById(R.id.iSpyClue));
-                    }
-                }
+//            case 9:
+//                if (resultCode == RESULT_OK && data != null){
+//
+//                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+//                    String input = result.get(0);
+//                    System.out.println("*********************************" + result.get(0));
+//                    if (input.contains("color") || input.contains("colors")) {
+//                        giveColorClue(findViewById(R.id.iSpyClue));
+//                    } else if (input.contains("location") || input.contains("locations")) {
+//                        giveLocationClue(findViewById(R.id.iSpyClue));
+//                    } else if (input.contains("Wiki") || input.contains("Wikipedia")){
+//                        giveWikiClue(findViewById(R.id.iSpyClue));
+//                    } else if (input.contains("concept") || input.contains("net") || input.contains("knowledge")){
+//                        giveConceptNetClue(findViewById(R.id.iSpyClue));
+//                    }
+//                }
         }
     }
 

@@ -99,14 +99,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textSize="15dp"/>
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="20dp"/>
     <TextView
         android:id="@+id/computerRemark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:text=" Can you guess what it is?"/>
     <Space
         android:layout_width="match_parent"
@@ -126,23 +123,12 @@
             android:layout_height="match_parent" />
         <ImageView
             android:id="@+id/speechInput"
-            android:layout_width="60px"
-            android:layout_height="60px"
+            android:layout_width="70px"
+            android:layout_height="70px"
             android:src="@drawable/ic_mic"
             android:onClick="getSpeechInput"/>
 
     </LinearLayout>
-
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Submit Guess"
-        android:textSize="10dp"
-        android:layout_gravity="center"
-        android:onClick="checkGuess"/>
-
-
     <TextView
         android:id="@+id/remainingGuesses"
         android:layout_width="wrap_content"
@@ -153,7 +139,7 @@
         android:id="@+id/result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20dp"
+        android:textSize="15dp"
         android:layout_gravity="center"/>
     <Button
         android:id="@+id/playAgain"

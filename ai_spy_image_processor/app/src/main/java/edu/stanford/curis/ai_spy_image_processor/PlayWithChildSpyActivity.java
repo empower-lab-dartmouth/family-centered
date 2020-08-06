@@ -122,7 +122,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
 
         //Set image
         ImageView fullImage = findViewById(R.id.fullImage);
-        Bitmap fullImageBitmap = BitmapFactory.decodeFile(aiSpyImage.getFullImagePath());
+        Bitmap fullImageBitmap = BitmapAPI.getCorrectOrientation(aiSpyImage.getFullImagePath());
         fullImage.setImageBitmap(fullImageBitmap);
     }
 
@@ -159,22 +159,6 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         String args[] = new String[1];
         Context thisContext = this.getApplicationContext();
 
-//
-//        new AsyncTask<Object, Void, Void>() {
-//            @SuppressLint("StaticFieldLeak")
-//            @Override
-//            protected Void doInBackground(Object... params) { //TODO: Once all apis are implemented, this should return the full image data structure that we want to build (A map of colors to objects)
-//
-//                try {
-//                    OpenNLPExample.main(thisContext);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                return null;
-//            }
-//
-//        }.execute();
-
 
         for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
             if (iSpyClue.contains(relativeLocation)){
@@ -191,9 +175,6 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
                 return;
             }
         }
-
-
-
         //TODO: Check if general knowledge clue type
     }
 
@@ -330,6 +311,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
     }
 
     public void handleIncorrectGuess(View view) throws InterruptedException {
+        if (numGuesses == 5) return;
         String toSay = "";
         this.numGuesses++;
         if (numGuesses != NUM_GUESSES_ALLOWED){
