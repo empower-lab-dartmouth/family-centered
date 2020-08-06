@@ -241,7 +241,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         return locationClue;
     }
 
-    private void giveConceptNetClue(View view){
+    public void giveConceptNetClue(View view){
         int clueType = CONCEPTNET_CLUE;
         giveClue(clueType);
     }

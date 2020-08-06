@@ -71,6 +71,34 @@ public class ConceptNetAPI {
             relationToLanguage.put(RELATIONS[i], RELATIONS_NATURAL[i]);
         }
 
+
+
+        String clue = "";
+
+        switch (relation){
+            case IS_RELATION:
+                endpoint = handleISGrammer(endpoint);
+                break;
+            case HAS_RELATION:
+                break;
+            case USED_RELATION:
+                endpoint = handleUSEDGrammer(endpoint);
+                break;
+            case CAPABLE_RELATION:
+                endpoint = handleCAPABLEGrammer(endpoint);
+                break;
+            case SIMILAR_RELATION:
+                endpoint = "a " + endpoint;
+                break;
+            case MADE_RELATION:
+                break;
+        }
+
+        clue = relationToLanguage.get(relation) + endpoint;
+        return clue;
+    }
+
+    private static String handleISGrammer(String endpoint){
         HashSet<Character> vowels = new HashSet<>();
         vowels.add('a');
         vowels.add('e');
@@ -78,41 +106,26 @@ public class ConceptNetAPI {
         vowels.add('o');
         vowels.add('u');
 
-        String clue = "";
+        if (vowels.contains(endpoint.charAt(0))) endpoint = "an " + endpoint;
+        else endpoint = "a " + endpoint;
 
-        switch (relation){
-            case IS_RELATION:
-                if (vowels.contains(endpoint.charAt(0))) endpoint = "an " + endpoint;
-                else endpoint = "a " + endpoint;
-                clue = relationToLanguage.get(relation) + " " + endpoint;
-                break;
-            case HAS_RELATION:
-                clue = relationToLanguage.get(relation) + endpoint;
-                break;
-            case USED_RELATION:
-                if (endpoint.contains("ing")) endpoint = "for " + endpoint;
-                else endpoint = "to " + endpoint;
-                clue = relationToLanguage.get(relation) + endpoint;
-                break;
-            case CAPABLE_RELATION:
-                String newEndpoint = endpoint;
-                if (!endpoint.contains("ing")){
-                    int i = endpoint.indexOf(" ");
-                    String begin = endpoint.substring(0, i);
-                    String end = endpoint.substring(i);
-                    newEndpoint = begin + "ing" + end;
-                }
-                clue = relationToLanguage.get(relation) + newEndpoint;
-                break;
-            case SIMILAR_RELATION:
-                clue = relationToLanguage.get(relation) + "a " + endpoint;
-                break;
-            case MADE_RELATION:
-                clue = relationToLanguage.get(relation) + " " + endpoint;
-                break;
-        }
-
-        return clue;
+        return endpoint;
     }
 
+    private static String handleUSEDGrammer(String endpoint){
+        if (endpoint.contains("ing")) endpoint = "for " + endpoint;
+        else endpoint = "to " + endpoint;
+        return endpoint;
+    }
+
+    private static String handleCAPABLEGrammer(String endpoint){
+        String newEndpoint = endpoint;
+        if (!endpoint.contains("ing")){
+            int i = endpoint.indexOf(" ");
+            String begin = endpoint.substring(0, i);
+            String end = endpoint.substring(i);
+            newEndpoint = begin + "ing" + end;
+        }
+        return newEndpoint;
+    }
 }
