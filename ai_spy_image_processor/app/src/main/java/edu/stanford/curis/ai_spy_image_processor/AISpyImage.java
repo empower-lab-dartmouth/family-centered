@@ -24,7 +24,8 @@ import java.util.Random;
  * AISpyImage is a representation of an image containing all information necessary for a computer to play "I Spy"
  * Initialization of an AISpyImage object requires several network calls to Google Vision APIs so it must be run in a sub thread
  */
-public class AISpyImage implements Serializable {
+public class
+AISpyImage implements Serializable {
     private String fullImagePath;
     private HashMap<AISpyObject, Features> iSpyMap;
     private ArrayList<AISpyObject> allObjects;
@@ -185,6 +186,7 @@ public class AISpyImage implements Serializable {
             features.color = object.getColor();
             features.locations = generateLocationFeatures(object);
             features.wiki = getWiki(object, thisContent);
+            features.conceptNet = getConceptNet(object, thisContent);
 
             iSpyMap.put(object, features);
         }
@@ -241,6 +243,25 @@ public class AISpyImage implements Serializable {
         }
 
         return null;
+    }
+
+    private HashMap<String, ArrayList<String>> getConceptNet(AISpyObject obj, Context thisContent){
+        HashMap<String, ArrayList<String>> conceptNetMap = null;
+        int bestScore = 0;
+        for (String label : obj.getPossibleLabels()){
+            HashMap<String, ArrayList<String>> possibleConceptNetMap = ConceptNetAPI.getConceptNetMap(label, thisContent);
+            if (ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap) != 0){
+                conceptNetMap = possibleConceptNetMap;
+                return conceptNetMap;
+            }
+//            int curScore = ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap);
+//            if (curScore > bestScore){
+//                bestScore = curScore;
+//                conceptNetMap = possibleConceptNetMap;
+//            }
+        }
+
+        return conceptNetMap;
     }
 }
 

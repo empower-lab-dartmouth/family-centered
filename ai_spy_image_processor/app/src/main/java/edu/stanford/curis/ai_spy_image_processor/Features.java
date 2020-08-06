@@ -1,5 +1,6 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -13,5 +14,6 @@ public class Features {
     public String color;
     public HashMap<String,HashSet<AISpyObject>> locations;
     public String wiki;
+    public HashMap<String, ArrayList<String>> conceptNet;
 
 }
