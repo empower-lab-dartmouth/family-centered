@@ -144,6 +144,8 @@ public class ColorDetectorAPI {
 
             }
         }
+
+        //TODO:Handle null object reference exceptions (closestMatch objects might be null)
         if(closestMatch1.getName().equalsIgnoreCase(closestMatch2.getName())) {
             return closestMatch1.getName();
         } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch3.getName())) {

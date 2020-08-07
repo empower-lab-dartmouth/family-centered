@@ -141,6 +141,12 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     }
 
 
+    public void checkGuess(View view){
+        String guess = guessView.getText().toString();
+        checkGuess(guess);
+    }
+
+
     private void checkGuess(String guess) {
 //        String guess = guessView.getText().toString();
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
@@ -212,13 +218,16 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private String getConceptNetClue(Features features){
         String conceptNetClue = "";
         Random rand = new Random();
-        int numRelations = features.conceptNet.keySet().size();
-        if (numRelations != 0){
-            String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
-            ArrayList<String> endpoints = features.conceptNet.get(relation);
-            String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
-            conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+        if (features.conceptNet != null){
+            int numRelations = features.conceptNet.keySet().size();
+            if (numRelations != 0){
+                String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
+                ArrayList<String> endpoints = features.conceptNet.get(relation);
+                String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
+                conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+            }
         }
+
         return conceptNetClue;
     }
 
