@@ -29,26 +29,29 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:text="  I spy something ..."/>
         <Space
             android:layout_width="30dp"
             android:layout_height="match_parent"/>
         <EditText
             android:id="@+id/iSpyClue"
-            android:layout_width="400dp"
+            android:layout_width="match_parent"
             android:layout_height="80dp"
+            android:layout_weight="1"
             android:hint="Type a clue here!"/>
         <ImageView
             android:id="@+id/speechInput"
-            android:layout_width="60px"
-            android:layout_height="60px"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_weight="1.5"
             android:src="@drawable/ic_mic"
-            android:onClick="getSpeechInput"/>
+            android:onClick="getSpeechClueInput"/>
 
     </LinearLayout>
 
     <Button
+        android:id="@+id/startComputerGuessingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -87,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Yes"
-            android:textSize="25dp"
+            android:textSize="15dp"
             android:layout_gravity="center"
             android:onClick="handleCorrectGuess"/>
         <Button
@@ -95,12 +98,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No"
-            android:textSize="25dp"
+            android:textSize="15dp"
             android:layout_gravity="center"
             android:onClick="handleIncorrectGuess"/>
 
     </LinearLayout>
-
+    <ImageView
+        android:id="@+id/feedbackInput"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/ic_mic"
+        android:layout_gravity="center"
+        android:onClick="getSpeechFeedbackInput"/>
 
     <TextView
         android:id="@+id/remainingGuesses"
@@ -121,7 +130,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Play Again?"
-        android:textSize="25dp"
+        android:textSize="15dp"
         android:layout_gravity="bottom|center"
         android:onClick="playAgain"/>
 

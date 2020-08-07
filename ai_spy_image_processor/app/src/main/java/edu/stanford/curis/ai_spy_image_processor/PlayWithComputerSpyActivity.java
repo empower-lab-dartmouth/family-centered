@@ -60,6 +60,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private final int LOCATION_CLUE = 2;
     private final int GENERAL_KNOWLEDGE_CLUE = 3;
     private final int CONCEPTNET_CLUE= 4;
+    private final int GUESS_INPUT_REQUEST = 10;
 
 
     @Override
@@ -289,7 +290,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
         if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, 10);
+            startActivityForResult(intent, GUESS_INPUT_REQUEST);
         } else {
             Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
         }
@@ -301,7 +302,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         System.out.println("*************" + requestCode);
 
         switch(requestCode){
-            case 10:
+            case GUESS_INPUT_REQUEST:
                 if (resultCode == RESULT_OK && data != null){
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -310,22 +311,6 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                     guessView.setText(guess);
                     checkGuess(guess);
                 }
-//            case 9:
-//                if (resultCode == RESULT_OK && data != null){
-//
-//                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-//                    String input = result.get(0);
-//                    System.out.println("*********************************" + result.get(0));
-//                    if (input.contains("color") || input.contains("colors")) {
-//                        giveColorClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("location") || input.contains("locations")) {
-//                        giveLocationClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("Wiki") || input.contains("Wikipedia")){
-//                        giveWikiClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("concept") || input.contains("net") || input.contains("knowledge")){
-//                        giveConceptNetClue(findViewById(R.id.iSpyClue));
-//                    }
-//                }
         }
     }
 
