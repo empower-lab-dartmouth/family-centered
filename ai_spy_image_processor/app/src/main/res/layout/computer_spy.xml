@@ -119,12 +119,12 @@
             android:text=" Enter your guess here: "/>
         <EditText
             android:id="@+id/guess"
-            android:layout_width="120dp"
-            android:layout_height="match_parent" />
+            android:layout_width="115dp"
+            android:layout_height="50dp" />
         <ImageView
             android:id="@+id/speechInput"
-            android:layout_width="70px"
-            android:layout_height="70px"
+            android:layout_width="100px"
+            android:layout_height="100px"
             android:src="@drawable/ic_mic"
             android:onClick="getSpeechInput"/>
 
