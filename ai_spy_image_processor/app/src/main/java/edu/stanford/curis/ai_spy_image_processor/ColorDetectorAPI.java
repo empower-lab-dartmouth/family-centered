@@ -114,39 +114,28 @@ public class ColorDetectorAPI {
         int b = rgb[2];
         ArrayList<ColorName> colorList = initColorList();
 
-        ColorName closestMatch1 = null;
-        ColorName closestMatch2 = null;
-        ColorName closestMatch3 = null;
+        ColorName closestMatch1 = new ColorName();
+        ColorName closestMatch2 = new ColorName();
+        ColorName closestMatch3 = new ColorName();
 
-        double min1 = Integer.MAX_VALUE;
-        double min2 = Integer.MAX_VALUE;
-        double min3 = Integer.MAX_VALUE;
-
-        double distance;
         for (ColorName c : colorList) {
-            distance = c.calculateDistance(r, g, b);
-            if (distance < min1) {
-                min3 = min2;
-                min2 = min1;
-                min1 = distance;
+            c.calculateDistance(r, g, b);
+            if (c.getDistance() < closestMatch1.getDistance()) {
+                closestMatch3 = closestMatch2;
+                closestMatch2 = closestMatch1;
                 closestMatch1 = c;
-                closestMatch1.setDistance(distance);
-            } else if (distance < min2) {
-                min3 = min2;
-                min2 = distance;
+            } else if (c.getDistance() < closestMatch2.getDistance()) {
+                closestMatch3 = closestMatch2;
                 closestMatch2 = c;
-                closestMatch2.setDistance(distance);
 
-            } else if (distance < min3) {
-                min3 = distance;
+            } else if (c.getDistance() < closestMatch3.getDistance()) {
                 closestMatch3 = c;
-                closestMatch3.setDistance(distance);
-
             }
         }
 
-        //TODO:Handle null object reference exceptions (closestMatch objects might be null)
-        if(closestMatch1.getName().equalsIgnoreCase(closestMatch2.getName())) {
+        if(closestMatch1 == null || closestMatch2 == null || closestMatch3 == null) {
+            return "no matched color found";
+        } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch2.getName())) {
             return closestMatch1.getName();
         } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch3.getName())) {
             return closestMatch1.getName();
@@ -163,12 +152,21 @@ public class ColorDetectorAPI {
         public int r, g, b;
         public String name;
 
+        //constructor for finding the min
+        public ColorName() {
+            this.r = 0;
+            this.g = 0;
+            this.b = 0;
+            this.name = "";
+            this.distance = Integer.MAX_VALUE;
+        }
+
         public ColorName(String name, int r, int g, int b, double distance) {
             this.r = r;
             this.g = g;
             this.b = b;
             this.name = name;
-            this.distance = 0;
+            this.distance = distance;
         }
        /*
         public int computeMSE(int pixR, int pixG, int pixB) {
@@ -176,15 +174,14 @@ public class ColorDetectorAPI {
                     * (pixB - b)) / 3);
         }
         */
-        public double calculateDistance(int pixR, int pixG, int pixB) {
+        public void calculateDistance(int pixR, int pixG, int pixB) {
             double distance = ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
                     * (pixB - b));
-            return Math.sqrt(distance);
+            this.distance = Math.sqrt(distance);
         }
 
-        public String getName() {
-            return name;
-        }
+        public String getName() { return name; }
+        public double getDistance() { return distance; }
         public void setDistance(double distance) {
             this.distance = distance;
         }
