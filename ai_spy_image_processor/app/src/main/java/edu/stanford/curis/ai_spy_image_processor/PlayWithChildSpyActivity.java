@@ -208,7 +208,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         if (desperateMode){ //Make desperate guess if can't find object
             guess = getDesperateGuess();
         }
-        else if(numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < 3 && numDesperateGuesses < computerGuess.getPossibleLabels().size()){ //Guess another label for current object if have only made 1 other guess for that object
+        else if(numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < 3 && numGuessesForCurrentObject < computerGuess.getPossibleLabels().size()){ //Guess another label for current object if have only made 1 other guess for that object
             guess = computerGuess.getPossibleLabels().get(numGuessesForCurrentObject);
             numGuessesForCurrentObject++;
         } else { //Try finding a new object

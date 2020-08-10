@@ -58,12 +58,16 @@ AISpyImage implements Serializable {
 
         allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, imagePath));
 
-        ArrayList<Bitmap> croppedObjects;
-        ArrayList<DetectedObject> detectedObjects;
+        //Create hash set to quickly check if a label is present or not
+        HashSet<String> allLabelsSet = new HashSet<>();
+        for (FirebaseVisionImageLabel label : allLabels){
+            allLabelsSet.add(label.getText());
+        }
+
         ArrayList<AISpyObject> aiSpyObjects = new ArrayList<>();
 
         //Locate objects in the image and get their boundary boxes
-        detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, imagePath);
+        ArrayList<DetectedObject> detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, imagePath);
 
         //Get each object's dominant color and store cropped bitmaps in files
         for (DetectedObject detectedObject: detectedObjects){
@@ -85,6 +89,14 @@ AISpyImage implements Serializable {
 
             //Detect the labels for the object
             ArrayList<FirebaseVisionImageLabel> objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, newFilePath));
+
+            //Add to allLabels if not already there
+            for (FirebaseVisionImageLabel label : objectLabels){
+                if (!allLabelsSet.contains(label.getText())){
+                    allLabelsSet.add(label.getText());
+                    allLabels.add(label);
+                }
+            }
 
             //Find the dominant color in the object (only send to colorDetector if there isn't already a label with a color)
             String color = (findColorInLabels(objectLabels));
@@ -144,13 +156,25 @@ AISpyImage implements Serializable {
      * @return null if no color found; the String color name if a color is found
      */
     private String findColorInLabels(ArrayList<FirebaseVisionImageLabel> labels){
+        String trueColor = null;
+        Boolean foundTrueColor = false;
+        ArrayList<FirebaseVisionImageLabel> toRemove = new ArrayList<>();
+
         for (FirebaseVisionImageLabel label : labels){
-            if (COMMON_COLORS.contains(label.getText().toLowerCase())){
-                labels.remove(label);
-                return label.getText().toLowerCase();
+            String text = label.getText().toLowerCase();
+            if (COMMON_COLORS.contains(text)){
+                if (!foundTrueColor){
+                    trueColor = text;
+                    foundTrueColor = true;
+                }
+                toRemove.add(label);
             }
         }
-        return null;
+
+        for(FirebaseVisionImageLabel label : toRemove){
+            labels.remove(label);
+        }
+        return trueColor;
     }
 
 
