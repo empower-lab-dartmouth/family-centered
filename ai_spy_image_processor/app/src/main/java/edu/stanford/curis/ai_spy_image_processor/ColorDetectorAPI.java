@@ -42,19 +42,14 @@ public class ColorDetectorAPI {
         int vibrantColorRgb = p.getVibrantColor(0);
         String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
         try{
-            TensorBuffer probabilityBuffer =
-                    TensorBuffer.createFixedSize(new int[]{1, 10}, DataType.UINT8);
             Interpreter tflite = new Interpreter(loadModelFile(thisContent));
-            TensorBuffer inputBuffer =
-                    TensorBuffer.createFixedSize(new int[]{1, 3}, DataType.UINT8);
-            int[] input = makeTensorInput(dominantColorRgb);
-            inputBuffer.loadArray(input);
+            int[] inputArray = {0, 0, 0};
+            int[] outputArray = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-
-            tflite.run(inputBuffer, probabilityBuffer);
-            System.out.println(probabilityBuffer.getFloatArray());
+            tflite.run(inputArray, outputArray);
+            System.out.println(outputArray);
         } catch(IOException e){
-
+            System.out.println(e);
         }
 
         this.color = dominantColorName;
