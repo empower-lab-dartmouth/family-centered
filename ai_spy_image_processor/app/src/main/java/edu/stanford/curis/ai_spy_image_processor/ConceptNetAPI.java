@@ -76,7 +76,7 @@ public class ConceptNetAPI {
 
 
         String clue = "";
-
+        endpoint = endpoint + " ";
         switch (relation){
             case IS_RELATION:
                 endpoint = handleISGrammer(endpoint);

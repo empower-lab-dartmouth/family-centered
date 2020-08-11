@@ -30,6 +30,8 @@ public class ColorDetectorAPI {
     private String color;
     private Context thisContent;
 
+    private String[] colorLabels = new String[]{ "red", "green", "blue", "orange", "yellow", "pink", "purple", "brown", "grey", "black"};
+
 
     /**
      * Constructor for a ColorDetectorAPI object. Instantiating this object gives access to the getColor() method which returns an image's primary color.
@@ -39,33 +41,38 @@ public class ColorDetectorAPI {
         this.thisContent = thisContent;
         Palette p = Palette.from(image).generate();
         int dominantColorRgb = p.getDominantColor(0);
-        int vibrantColorRgb = p.getVibrantColor(0);
-        String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
-        try{
-            //AssetFileDescriptor fileDescriptor = getAssets().openFd("model.tflite");
-            Interpreter tflite = new Interpreter(loadModelFile(thisContent));
-            float[][] inputs = new float[1][3];
-            inputs[0][0] = 0;
-            inputs[0][1] = 0;
-            inputs[0][2] = 0;
-// populate the inputs float array above
-            float[][] outputs = new float[1][10];
-            //int[] inputArray = new int[int[]];
+        this.color = getColorNameFromRGBUsingMLModel(dominantColorRgb);
 
-            //int[] outputArray = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-            tflite.run(inputs, outputs);
-
-            System.out.println(outputs[0]);
-        } catch(IOException e){
-            System.out.println(e);
-        }
-
-        this.color = dominantColorName;
     }
 
     public String getColor() {
         return color;
+    }
+
+    private String getColorNameFromRGBUsingMLModel(int rgb){
+        float[][] outputs = new float[1][10];
+        try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
+            float[][] inputRGB = makeRGBInputTensor(rgb);
+            tflite.run(inputRGB, outputs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int i = argMax(outputs);
+        String color =  colorLabels[i];
+        return color;
+    }
+
+    private int argMax(float[][] outputs){
+        float max = 0;
+        int maxIndex = -1;
+        for (int i = 0; i < outputs[0].length; i++){
+            if (outputs[0][i] > max){
+                max = outputs[0][i];
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 
     private MappedByteBuffer loadModelFile(Context context) throws IOException {
@@ -78,168 +85,22 @@ public class ColorDetectorAPI {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
-    private int[] makeTensorInput(int rgbNum){
-        int[] rgb = new int[3];
+    private float[][] makeRGBInputTensor(int rgbNum){
+        float[] rgb = new float[3];
 
-        rgb[0] = ((rgbNum >> 16) & 255) / 255;
-        rgb[1] = ((rgbNum >> 8) & 255) / 255;
-        rgb[2] = (rgbNum & 255) / 255;
+        float r = (float) ((rgbNum >> 16) & 255);
+        float g = (float) ((rgbNum >> 8) & 255);
+        float b = (float) (rgbNum & 255);
 
-        int[][] tensor = new int[1][3];
+
+        rgb[0] = r / 255;
+        rgb[1] = g / 255;
+        rgb[2] = b / 255;
+
+        float[][] tensor = new float[1][3];
         tensor[0] = rgb;
 
-        return rgb;
-    }
-
-    //inspired from https://stackoverflow.com/questions/2262100/rgb-int-to-rgb-python
-    private int[] getRGB (int rgbNum){
-        int[] rgb = new int[3];
-
-        rgb[0] = (rgbNum >> 16) & 255;
-        rgb[1] = (rgbNum >> 8) & 255;
-        rgb[2] = rgbNum & 255;
-        return rgb;
-
-    }
-
-    //Creates an ArrayList of the common colors that children will be likely to guess
-    private ArrayList<ColorName> initColorList() {
-        ArrayList<ColorName> colorList = new ArrayList<ColorName>();
-        //read training data in assets folder
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(this.thisContent.getAssets().open("training.txt")));
-            String strLine;
-            //Read File Line By Line
-            while ((strLine = reader.readLine()) != null)   {
-                // Print the content on the console
-                System.out.println(strLine);
-                String[] res = strLine.split("[,]", 0);
-                int r = Integer.parseInt(res[0]);
-                int g = Integer.parseInt(res[1]);
-                int b = Integer.parseInt(res[2]);
-                colorList.add(new ColorName(res[3], r, g, b,0));
-            }
-        } catch (Exception e){//Catch exception if any
-            System.err.println("Error: " + e.getMessage());
-        }
-        /*
-        colorList.add(new ColorName("white", 0xFF, 0xFF, 0xFF));
-        */
-
-        return colorList;
-    }
-    //*********************************ORIGINAL FUNCTION***************************************
-    //This old function works by finding and returning the string name  of the common colors has the smallest difference in rgb value to the object color
-    //Inspired from https://cindyxiaoxiaoli.wordpress.com/2014/02/15/convert-an-rgb-valuehex-valuejava-color-object-to-a-color-name-in-java/
-    /*
-    private String getColorNameFromRgb(int[] rgb) {
-        int r = rgb[0];
-        int g = rgb[1];
-        int b = rgb[2];
-        ArrayList<ColorName> colorList = initColorList();
-        Stack<ColorName> topColors = new Stack<>();
-
-        ColorName closestMatch = null;
-        int minMSE = Integer.MAX_VALUE;
-        int mse;
-        for (ColorName c : colorList) {
-            mse = c.computeMSE(r, g, b);
-            if (mse < minMSE) {
-                minMSE = mse;
-                closestMatch = c;
-                topColors.push(c);
-            }
-        }
-
-        if (closestMatch != null) { //TODO: maybe instead of returning one color, return the top 3 from topColors as long as the mse < 3,000 (have a primary, secondary, and tertiary option sense color is subjective)
-            return closestMatch.getName();
-        } else {
-            return "No matched color name.";
-        }
-    }
-    */
-    //New function that using kNN technique to detect color.
-    private String getColorNameFromRGB(int[] rgb) {
-        int r = rgb[0];
-        int g = rgb[1];
-        int b = rgb[2];
-        ArrayList<ColorName> colorList = initColorList();
-
-
-        ColorName closestMatch1 = new ColorName();
-        ColorName closestMatch2 = new ColorName();
-        ColorName closestMatch3 = new ColorName();
-
-        for (ColorName c : colorList) {
-            c.calculateDistance(r, g, b);
-            if (c.getDistance() < closestMatch1.getDistance()) {
-                closestMatch3 = closestMatch2;
-                closestMatch2 = closestMatch1;
-                closestMatch1 = c;
-            } else if (c.getDistance() < closestMatch2.getDistance()) {
-                closestMatch3 = closestMatch2;
-                closestMatch2 = c;
-
-            } else if (c.getDistance() < closestMatch3.getDistance()) {
-                closestMatch3 = c;
-            }
-        }
-
-        if(closestMatch1 == null || closestMatch2 == null || closestMatch3 == null) {
-            return "no matched color found";
-        } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch2.getName())) {
-            return closestMatch1.getName();
-        } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch3.getName())) {
-            return closestMatch1.getName();
-        } else if(closestMatch2.getName().equalsIgnoreCase(closestMatch3.getName())) {
-            return closestMatch2.getName();
-        } else {
-            return "Not confident!";
-        }
-
-
-    }
-
-    //This inner class is used to encapsulate information about a color, including its string name
-    public class ColorName {
-        private double distance;
-        public int r, g, b;
-        public String name;
-
-        //constructor for finding the min
-        public ColorName() {
-            this.r = 0;
-            this.g = 0;
-            this.b = 0;
-            this.name = "";
-            this.distance = Integer.MAX_VALUE;
-        }
-
-        public ColorName(String name, int r, int g, int b, double distance) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.name = name;
-            this.distance = distance;
-        }
-       /*
-        public int computeMSE(int pixR, int pixG, int pixB) {
-            return (int) (((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
-                    * (pixB - b)) / 3);
-        }
-        */
-        public void calculateDistance(int pixR, int pixG, int pixB) {
-            double distance = ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
-                    * (pixB - b));
-            this.distance = Math.sqrt(distance);
-        }
-
-        public String getName() { return name; }
-        public double getDistance() { return distance; }
-        public void setDistance(double distance) {
-            this.distance = distance;
-        }
+        return tensor;
     }
 
 }
