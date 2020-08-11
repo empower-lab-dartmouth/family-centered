@@ -42,12 +42,21 @@ public class ColorDetectorAPI {
         int vibrantColorRgb = p.getVibrantColor(0);
         String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
         try{
+            //AssetFileDescriptor fileDescriptor = getAssets().openFd("model.tflite");
             Interpreter tflite = new Interpreter(loadModelFile(thisContent));
-            int[] inputArray = {0, 0, 0};
-            int[] outputArray = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            float[][] inputs = new float[1][3];
+            inputs[0][0] = 0;
+            inputs[0][1] = 0;
+            inputs[0][2] = 0;
+// populate the inputs float array above
+            float[][] outputs = new float[1][10];
+            //int[] inputArray = new int[int[]];
 
-            tflite.run(inputArray, outputArray);
-            System.out.println(outputArray);
+            //int[] outputArray = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+            tflite.run(inputs, outputs);
+
+            System.out.println(outputs[0]);
         } catch(IOException e){
             System.out.println(e);
         }
@@ -89,8 +98,8 @@ public class ColorDetectorAPI {
         rgb[0] = (rgbNum >> 16) & 255;
         rgb[1] = (rgbNum >> 8) & 255;
         rgb[2] = rgbNum & 255;
-
         return rgb;
+
     }
 
     //Creates an ArrayList of the common colors that children will be likely to guess
@@ -157,6 +166,7 @@ public class ColorDetectorAPI {
         int b = rgb[2];
         ArrayList<ColorName> colorList = initColorList();
 
+
         ColorName closestMatch1 = new ColorName();
         ColorName closestMatch2 = new ColorName();
         ColorName closestMatch3 = new ColorName();
@@ -187,6 +197,8 @@ public class ColorDetectorAPI {
         } else {
             return "Not confident!";
         }
+
+
     }
 
     //This inner class is used to encapsulate information about a color, including its string name
