@@ -1,5 +1,7 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
+import android.app.Activity;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 
@@ -8,10 +10,17 @@ import androidx.palette.graphics.Palette;
 import android.content.Context;
 
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 import java.io.*;
+
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
 /**
@@ -32,11 +41,50 @@ public class ColorDetectorAPI {
         int dominantColorRgb = p.getDominantColor(0);
         int vibrantColorRgb = p.getVibrantColor(0);
         String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
+        try{
+            TensorBuffer probabilityBuffer =
+                    TensorBuffer.createFixedSize(new int[]{1, 10}, DataType.UINT8);
+            Interpreter tflite = new Interpreter(loadModelFile(thisContent));
+            TensorBuffer inputBuffer =
+                    TensorBuffer.createFixedSize(new int[]{1, 3}, DataType.UINT8);
+            int[] input = makeTensorInput(dominantColorRgb);
+            inputBuffer.loadArray(input);
+
+
+            tflite.run(inputBuffer, probabilityBuffer);
+            System.out.println(probabilityBuffer.getFloatArray());
+        } catch(IOException e){
+
+        }
+
         this.color = dominantColorName;
     }
 
     public String getColor() {
         return color;
+    }
+
+    private MappedByteBuffer loadModelFile(Context context) throws IOException {
+        String MODEL_ASSETS_PATH = "model.tflite";
+        AssetFileDescriptor fileDescriptor = context.getAssets().openFd(MODEL_ASSETS_PATH);
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startOffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+    }
+
+    private int[] makeTensorInput(int rgbNum){
+        int[] rgb = new int[3];
+
+        rgb[0] = ((rgbNum >> 16) & 255) / 255;
+        rgb[1] = ((rgbNum >> 8) & 255) / 255;
+        rgb[2] = (rgbNum & 255) / 255;
+
+        int[][] tensor = new int[1][3];
+        tensor[0] = rgb;
+
+        return rgb;
     }
 
     //inspired from https://stackoverflow.com/questions/2262100/rgb-int-to-rgb-python
