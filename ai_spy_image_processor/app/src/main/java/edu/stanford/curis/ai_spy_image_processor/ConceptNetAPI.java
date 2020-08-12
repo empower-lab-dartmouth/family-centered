@@ -89,9 +89,6 @@ public class ConceptNetAPI {
             case CAPABLE_RELATION:
                 endpoint = handleCAPABLEGrammer(endpoint);
                 break;
-//            case SIMILAR_RELATION:
-//                endpoint = "a " + endpoint;
-//                break;
             case MADE_RELATION:
                 break;
         }

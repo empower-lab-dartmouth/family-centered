@@ -21,6 +21,7 @@ import android.provider.MediaStore;
 //import android.support.v4.content.FileProvider;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider; //added
 
 import java.io.File;
@@ -40,7 +41,7 @@ import static android.provider.MediaStore.Images.Media.*;
  * 2. select a photo from gallery
  * Upon successfully completing one of the above, the next Activity is called.
  */
-public class MainActivity extends BasicFunctionality{
+public class MainActivity extends AppCompatActivity {
 
     String currentPhotoPath;
     static final int REQUEST_TAKE_PHOTO = 1;

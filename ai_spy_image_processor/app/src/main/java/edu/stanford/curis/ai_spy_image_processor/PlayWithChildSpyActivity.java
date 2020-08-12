@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +32,7 @@ import java.util.concurrent.CountDownLatch;
  * In PlayWithChildSpyActivity, the computer guesses the chosen i spy object based off of clues given by the child
  */
 
-public class PlayWithChildSpyActivity extends BasicFunctionality {
+public class PlayWithChildSpyActivity extends AppCompatActivity {
     public CountDownLatch speakLatch;
 
     private final HashSet<String> commonColors;

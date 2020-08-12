@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.sql.Array;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.Set;
  * In PlayWithComputerSpyActivity, the child guesses the chosen i-spy object based off of clues given by the computer.
  * The child can choose between either color clues or location clues
  */
-public class PlayWithComputerSpyActivity extends BasicFunctionality {
+public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     //Views
     private TextView guessView;
@@ -77,6 +78,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.computer_spy);
 
+
         //Set views
         resultView = findViewById(R.id.result);
         guessView = findViewById(R.id.guess);
@@ -90,6 +92,8 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         reset();
         setISpyImage();
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
+
+
     }
 
 
@@ -272,17 +276,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         giveClue(clueType);
 
     }
-//    public void getChoiceInput(View view){
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-//
-//        if (intent.resolveActivity(getPackageManager()) != null){
-//            startActivityForResult(intent, 9);
-//        } else {
-//            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);

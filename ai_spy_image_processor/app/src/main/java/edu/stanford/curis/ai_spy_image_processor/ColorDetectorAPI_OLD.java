@@ -45,9 +45,6 @@ public class ColorDetectorAPI_OLD {
         String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
         this.color = dominantColorName;
 
-
-
-
     }
 
     public String getColor() {

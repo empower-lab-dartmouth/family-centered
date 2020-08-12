@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.api.services.vision.v1.model.Feature;
 
 
@@ -28,7 +30,7 @@ import java.util.HashMap;
  * the an AISpyImage singleton object is created as a representation of the image including all relevant meta-data. After
  * the AISpyImage is created, the user can navigate to the WelcomeActivity Intent and play a game of AISpy
  */
-public class DisplayImageActivity extends BasicFunctionality {
+public class DisplayImageActivity extends AppCompatActivity {
     private ImageView imageView;
     private Bitmap bitmap;
     private Feature feature;
@@ -53,34 +55,9 @@ public class DisplayImageActivity extends BasicFunctionality {
         setContentView(R.layout.display_image_layout);
         imageView = findViewById(R.id.imageView);
         imagePath = getIntent().getStringExtra("image_path");
-//        Bitmap picture = BitmapFactory.decodeFile(imagePath);
-//
-//        //correct Orientation
-//        try {
-//            ExifInterface exif = new ExifInterface(imagePath);
-//            int rotation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-//            int rotationInDegrees = exifToDegrees(rotation);
-//            Matrix matrix = new Matrix();
-//            if (rotation != 0) {matrix.preRotate(rotationInDegrees);}
-//            Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-//            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-//            imageView.setImageBitmap(rotatedBitmap);
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
 
         Bitmap picture = BitmapAPI.getCorrectOrientation(imagePath);
         imageView.setImageBitmap(picture);
-//        Matrix matrix = new Matrix();
-//        matrix.postRotate(90);
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-//        Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
-//        imageView.setImageBitmap(rotatedBitmap);
-
-
-
-
 
         allLabelsView = findViewById(R.id.allLabels);
         allLabelsView.setText("Processing...");

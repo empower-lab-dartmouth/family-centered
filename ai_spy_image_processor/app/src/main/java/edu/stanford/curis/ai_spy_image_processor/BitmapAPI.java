@@ -23,13 +23,6 @@ public class BitmapAPI {
 
 
     public static Bitmap getCroppedObject(DetectedObject detectedObject, String imagePath){
-//        Bitmap picture = BitmapFactory.decodeFile(imagePath);
-//
-//        //correct Orientation
-//        Matrix matrix = new Matrix();
-//        matrix.postRotate(90);
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-//        picture = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
         Bitmap picture = getCorrectOrientation(imagePath);
 

@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Locale;
@@ -20,7 +22,7 @@ import java.util.Set;
  * 1. Computer gives i-sy clues and user guesses (playWithComputerSpy)
  * 2. User gives i-spy clues and computer guesses (playWithChildSpy)
  */
-public class WelcomeActivity extends BasicFunctionality {
+public class WelcomeActivity extends AppCompatActivity {
     private TextToSpeech voice;
     private View view;
     private final String WELCOME_MSG = "Who would you like to do the spying?";
