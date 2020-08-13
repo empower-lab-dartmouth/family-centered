@@ -1,35 +1,48 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
-import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 
 import androidx.palette.graphics.Palette;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.ColorInfo;
+import com.google.api.services.vision.v1.model.DominantColorsAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.ImageProperties;
+
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.Collections;
+import java.util.Comparator;
 import java.io.*;
 
-import org.tensorflow.lite.DataType;
 import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 
 /**
  * This api is used to extract the name of the primary color of an object. The color name will be one of the most common colors that children would recognize
  */
 public class ColorDetectorAPI {
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyB3V8G7LLqTIMJ0m9xfpUELqsZwM9yrxYM";
+    private static final String TAG = MainActivity.class.getSimpleName();
     private String color;
     private Context thisContent;
-
     private String[] colorLabels = new String[]{ "red", "green", "blue", "orange", "yellow", "pink", "purple", "brown", "grey", "black"};
 
 
@@ -38,12 +51,153 @@ public class ColorDetectorAPI {
      * @param image is the bitmap image that this api will detect the primar color from
      */
     public ColorDetectorAPI(Bitmap image, Context thisContent){
+        //NEW
+
+
+        //OLD
         this.thisContent = thisContent;
-        Palette p = Palette.from(image).generate();
-        int dominantColorRgb = p.getDominantColor(0);
+
+
+        Palette p = Palette
+                .from(image)
+                .maximumColorCount(20)
+                .generate();
+        int dominantColorRgb = p.getVibrantColor(0);
+        float[] dominantVision = callCloudVision(image);
+
         this.color = getColorNameFromRGBUsingMLModel(dominantColorRgb);
+        String a = getColorNameFromRGBUsingMLModelCloudVision(dominantVision);
+        String b = getColorNameFromRGBUsingMLModel(dominantColorRgb);
+
+        //generateSwatch(p);
+
+    }
 
 
+    private static float[] getImageProperty(ImageProperties imageProperties) {
+        //String message = "";
+        DominantColorsAnnotation colors = imageProperties.getDominantColors();
+        ColorInfo dominant = colors.getColors().get(0);
+        float[] rgbValue = new float[]{dominant.getColor().getRed(), dominant.getColor().getGreen(), dominant.getColor().getBlue()};
+
+        return rgbValue;
+    }
+
+    private float[] callCloudVision(final Bitmap bitmap) {
+        // Switch text to loading
+        //mImageDetails.setText(R.string.loading_message);
+
+        // Do the real work in an async task, because we need to use the network anyway
+        try {
+            Vision.Images.Annotate mRequest = prepareAnnotationRequest(bitmap);
+            try {
+                Log.d(TAG, "created Cloud Vision request object, sending request");
+                BatchAnnotateImagesResponse response = mRequest.execute();
+                ImageProperties imageProperties = response.getResponses().get(0).getImagePropertiesAnnotation();
+                float[] rgb = getImageProperty(imageProperties);
+
+                return rgb;
+
+            } catch (GoogleJsonResponseException e) {
+                Log.d(TAG, "failed to make API request because " + e.getContent());
+            } catch (IOException e) {
+                Log.d(TAG, "failed to make API request because of other IOException " +
+                        e.getMessage());
+            }
+            //return "Cloud Vision API request failed. Check logs for details.";
+
+        } catch (IOException e) {
+            Log.d(TAG, "failed to make API request because of other IOException " +
+                    e.getMessage());
+        }
+        return null;
+    }
+
+    private Vision.Images.Annotate prepareAnnotationRequest(Bitmap bitmap) throws IOException {
+        HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+        VisionRequestInitializer requestInitializer =
+                new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
+                    /**
+                     * We override this so we can inject important identifying fields into the HTTP
+                     * headers. This enables use of a restricted cloud platform API key.
+                     */
+                    /*
+                    @Override
+                    protected void initializeVisionRequest(VisionRequest<?> visionRequest)
+                            throws IOException {
+                        super.initializeVisionRequest(visionRequest);
+
+                        String packageName = getPackageName();
+                        visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
+
+                        String sig = PackageManagerUtils.getSignature(getPackageManager(), packageName);
+
+                        visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
+                    }
+
+                    */
+                };
+
+        Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+        builder.setVisionRequestInitializer(requestInitializer);
+
+        Vision vision = builder.build();
+
+        BatchAnnotateImagesRequest batchAnnotateImagesRequest =
+                new BatchAnnotateImagesRequest();
+        batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+            AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+            annotateImageRequest.setImage(getImageEncodeImage(bitmap));
+            // add the features we want
+            annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
+                Feature labelDetection = new Feature();
+                labelDetection.setType("IMAGE_PROPERTIES");
+                //labelDetection.setMaxResults(MAX_LABEL_RESULTS);
+                add(labelDetection);
+            }});
+
+            // Add the list of one thing to the request
+            add(annotateImageRequest);
+        }});
+
+        Vision.Images.Annotate annotateRequest =
+                vision.images().annotate(batchAnnotateImagesRequest);
+        // Due to a bug: requests to Vision API containing large images fail when GZipped.
+        annotateRequest.setDisableGZipContent(true);
+        Log.d(TAG, "created Cloud Vision request object, sending request");
+
+        return annotateRequest;
+    }
+
+    private Image getImageEncodeImage(Bitmap bitmap) {
+        Image base64EncodedImage = new Image();
+        // Convert the bitmap to a JPEG
+        // Just in case it's a format that Android understands but Cloud Vision
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+        // Base64 encode the JPEG
+        base64EncodedImage.encodeContent(imageBytes);
+        return base64EncodedImage;
+    }
+
+    private static Comparator<Palette.Swatch> byPopulation()
+    {
+        return new Comparator<Palette.Swatch>()
+        {
+            @Override
+            public int compare(Palette.Swatch s1, Palette.Swatch s2)
+            {
+                return s1.getPopulation() - s2.getPopulation();
+            }
+        };
+    }
+    public void generateSwatch(Palette p){
+        ArrayList<Palette.Swatch> list =  new ArrayList<>(p.getSwatches());
+        Collections.sort(list, Collections.reverseOrder(byPopulation()));
+        System.out.println(list);
     }
 
     public String getColor() {
@@ -54,6 +208,19 @@ public class ColorDetectorAPI {
         float[][] outputs = new float[1][10];
         try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
             float[][] inputRGB = makeRGBInputTensor(rgb);
+            tflite.run(inputRGB, outputs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int i = argMax(outputs);
+        String color =  colorLabels[i];
+        return color;
+    }
+
+    private String getColorNameFromRGBUsingMLModelCloudVision(float[] rgb){
+        float[][] outputs = new float[1][10];
+        try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
+            float[][] inputRGB = makeRGBInputTensorCloudVision(rgb);
             tflite.run(inputRGB, outputs);
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,6 +263,18 @@ public class ColorDetectorAPI {
         rgb[0] = r / 255;
         rgb[1] = g / 255;
         rgb[2] = b / 255;
+
+        float[][] tensor = new float[1][3];
+        tensor[0] = rgb;
+
+        return tensor;
+    }
+    private float[][] makeRGBInputTensorCloudVision(float[] rgbValues){
+        float[] rgb = rgbValues;
+
+        rgb[0] = rgb[0] / 255;
+        rgb[1] = rgb[1] / 255;
+        rgb[2] = rgb[2] / 255;
 
         float[][] tensor = new float[1][3];
         tensor[0] = rgb;

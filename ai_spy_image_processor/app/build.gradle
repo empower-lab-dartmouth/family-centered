@@ -30,6 +30,10 @@ android {
         targetCompatibility = 1.8
     }
 
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:1.3.9'
+    }
+
 }
 
 dependencies {
@@ -68,4 +72,10 @@ dependencies {
     // The GPU delegate library is optional. Depend on it as needed.
     implementation 'org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly'
     implementation 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly'
+
+    compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0' exclude module: 'httpclient'
 }
+
+

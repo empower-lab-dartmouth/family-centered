@@ -39,7 +39,8 @@ public class BitmapAPI {
         if (width > origWidth) width = origWidth - left;
 
         System.out.println(left + top + width + height + origWidth + origHeight);
-        return (Bitmap.createBitmap(picture, left, top, width, height));
+        Bitmap ret = (Bitmap.createBitmap(picture, left, top, width, height));
+        return ret;
     }
 
     public static Bitmap getCorrectOrientation(String imagePath){
@@ -50,8 +51,10 @@ public class BitmapAPI {
             int rotationInDegrees = exifToDegrees(rotation);
             Matrix matrix = new Matrix();
             if (rotation != 0) {matrix.preRotate(rotationInDegrees);}
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+            //Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
+            //Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+            Bitmap rotatedBitmap = Bitmap.createBitmap(picture, 0, 0, picture.getWidth(), picture.getHeight(), matrix, true);
+
             return rotatedBitmap;
 
         } catch (IOException e) {
