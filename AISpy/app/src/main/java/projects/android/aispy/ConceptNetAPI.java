@@ -1,4 +1,4 @@
-package edu.stanford.curis.ai_spy_image_processor;
+package projects.android.aispy;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -118,8 +118,8 @@ public class ConceptNetAPI {
 
     private static String handleUSEDGrammer(String endpoint){
 
-        if (Character.isUpperCase(endpoint.charAt(0)) || endpoint.contains("ing ") || endpoint.contains("ship") || endpoint.contains("tion")) endpoint = "for " + endpoint; //Ex: "used for writing", "used for companionship", "used for hydration"
-        else if (endpoint.startsWith("a ")) endpoint = "as " + endpoint; //Ex: a pet => "used as a pet"
+        if (Character.isUpperCase(endpoint.charAt(0)) || endpoint.contains("ing ") || endpoint.contains("ship") || endpoint.contains("tion")) endpoint = "for " + endpoint; //Ex: "used for Art", "used for writing", "used for companionship", "used for hydration"
+         else if (endpoint.startsWith("a ")) endpoint = "as " + endpoint; //Ex: a pet => "used as a pet"
         else if (!endpoint.startsWith("to ")) endpoint = "to " + endpoint; //EX: "used to write"
         return endpoint;
     }

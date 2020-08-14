@@ -1,13 +1,11 @@
-package edu.stanford.curis.ai_spy_image_processor;
-
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-
-import androidx.palette.graphics.Palette;
+package projects.android.aispy;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
 import android.util.Log;
+
+import androidx.palette.graphics.Palette;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
@@ -25,14 +23,16 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.ImageProperties;
 
+import org.tensorflow.lite.Interpreter;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.io.*;
-
-import org.tensorflow.lite.Interpreter;
 
 
 /**
