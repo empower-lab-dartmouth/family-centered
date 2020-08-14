@@ -44,9 +44,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     //Necessary for Google Cloud Vision API
-    implementation 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
-    implementation 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
-    implementation 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0' exclude module: 'httpclient'
+    //implementation 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
+    //implementation 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+    //implementation 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0' exclude module: 'httpclient'
     //Necessary for ML Kit
     implementation 'com.google.mlkit:object-detection:16.0.0'
     implementation 'com.google.firebase:firebase-ml-vision:24.0.3'
@@ -73,6 +73,9 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly'
     implementation 'org.tensorflow:tensorflow-lite-support:0.0.0-nightly'
 
+    //compile 'com.google.api-client:google-api-client-android:1.23.0' exclude module: 'httpclient'
+    //compile 'com.google.http-client:google-http-client-gson:1.23.0' exclude module: 'httpclient'
+    //compile 'com.google.apis:google-api-services-vision:v1-rev369-1.23.0' exclude module: 'httpclient'
     compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
     compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
     compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0' exclude module: 'httpclient'

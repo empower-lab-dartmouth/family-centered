@@ -2,6 +2,7 @@ package edu.stanford.curis.ai_spy_image_processor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ExifInterface;
@@ -70,5 +71,43 @@ public class BitmapAPI {
         return 0;
     }
 
+
+    //NEW TASK: Creating a new white-background bitmap that contains the cropped image in the middle
+    public static Bitmap getBitmapForCloud(DetectedObject detectedObject, String imagePath){
+
+        Bitmap picture = getCorrectOrientation(imagePath);
+
+        Rect boundaryBox = detectedObject.getBoundingBox();
+        int left = boundaryBox.left;
+        int top = boundaryBox.top;
+        int width = boundaryBox.width();
+        int height = boundaryBox.height();
+
+        int newLeft = left - (int)(width*0.5);
+        int newTop = top - (int)(height*0.5);
+        if(newLeft < 0) {
+            newLeft = 0;
+        }
+        if(newTop < 0) {
+            newTop = 0;
+        }
+
+        int newWidth = width + (left - newLeft) + (int)(width*0.5);
+        int newHeight = height + (top - newTop) + (int)(height*0.5);
+
+        int origWidth = picture.getWidth();
+        int origHeight = picture.getHeight();
+
+        if(newWidth + newLeft >origWidth) {
+            newWidth = origWidth - newLeft;
+        }
+        if(newTop + newHeight > origHeight) {
+            newHeight = origHeight - newTop;
+        }
+
+        Bitmap ret = (Bitmap.createBitmap(picture, newLeft, newTop, newWidth, newHeight));
+        return ret;
+
+    }
 
 }
