@@ -36,60 +36,17 @@
         <Space
             android:layout_width="10dp"
             android:layout_height="match_parent"/>
-        <LinearLayout
-            android:layout_width="match_parent"
+
+
+        <Button
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="end"
+            android:text="Give Clue"
+            android:textSize="10dp"
+            android:onClick="giveClue"
+            />
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="Color"
-                    android:textSize="10dp"
-                    android:onClick="giveColorClue"
-                    />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="Location"
-                    android:textSize="10dp"
-                    android:onClick="giveLocationClue"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="Wiki"
-                    android:textSize="10dp"
-                    android:onClick="giveWikiClue"
-                    />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:text="ConceptNet"
-                    android:textSize="10dp"
-                    android:onClick="giveConceptNetClue"
-                    />
-
-            </LinearLayout>
-
-        </LinearLayout>
 
     </LinearLayout>
 

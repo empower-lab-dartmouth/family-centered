@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Random;
@@ -53,11 +54,17 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
     private final String CHILD_CORRECT = "You got it right! One point for you.";
     private final String ISPY_PRELUDE = "I spy something that ";
 
-    private final int COLOR_CLUE = 1;
-    private final int LOCATION_CLUE = 2;
-    private final int GENERAL_KNOWLEDGE_CLUE = 3;
-    private final int CONCEPTNET_CLUE= 4;
+
+    private final String COLOR_CLUE = "COLOR";
+    private final String LOCATION_CLUE = "LOCATION";
+    private final String WIKI_CLUE = "WIKI";
+    private final String CONCEPTNET_CLUE= "CONCEPTNET";
     private final int GUESS_INPUT_REQUEST = 10;
+    public final String TAG = "COMPUTER_SPY";
+
+    private int numCluesGiven;
+    private String clueType;
+    HashMap<String, ArrayList<String>> cluePool;
 
 
     @Override
@@ -132,7 +139,53 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
 
         chosenObject = aiSpyImage.chooseRandomObject();
+        Features features = aiSpyImage.getiSpyMap().get(chosenObject);
+        cluePool = makeCluePool(features);
+        numCluesGiven = 0;
+    }
 
+    private HashMap<String, ArrayList<String>> makeCluePool(Features features){
+        HashMap<String, ArrayList<String>> cluePool = new HashMap<>();
+        ArrayList<String> colorClue = new ArrayList<>();
+        colorClue.add(features.color);
+        ArrayList<String> wikiClue = new ArrayList<>();
+        wikiClue.add(features.wiki);
+        ArrayList<String> locationClues = makeLocationClues(features.locations);
+        ArrayList<String> conceptNetClues = makeConceptNetClues(features.conceptNet);
+
+        cluePool.put(COLOR_CLUE, colorClue);
+        cluePool.put(LOCATION_CLUE, locationClues);
+        cluePool.put(WIKI_CLUE, wikiClue);
+        cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
+        return cluePool;
+    }
+
+    private ArrayList<String> makeConceptNetClues(HashMap<String, ArrayList<String>> conceptNetMap){
+        ArrayList<String> conceptNetClues = new ArrayList<>();
+        for (String relation : conceptNetMap.keySet()){
+            for (String endpoint : conceptNetMap.get(relation)){
+                String conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+                conceptNetClues.add(conceptNetClue);
+            }
+        }
+        return conceptNetClues;
+    }
+
+    private ArrayList<String> makeLocationClues(HashMap<String, HashSet<AISpyObject>> locations){
+        ArrayList<String> locationClues = new ArrayList<>();
+        for (String direction : locations.keySet()){
+            for (AISpyObject object : locations.get(direction)){
+                String locationClue = "";
+                String label = object.getPossibleLabels().get(0); //Get the top label
+                if (direction == "above" || direction == "below"){
+                    locationClue = "is " + direction + " the " + label.toLowerCase();
+                } else if (direction == "right" || direction == "left"){
+                    locationClue = "is to the " + direction + " of the " + label.toLowerCase();
+                }
+                locationClues.add(locationClue);
+            }
+        }
+        return locationClues;
     }
 
     private void setISpyImage(){
@@ -193,83 +246,53 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         reset();
     }
 
-    private void giveClue(int clueType){
+    /**
+     * Randomly chooses a clueType from whatever clue types are available in the cluePool keys. Then randomly selects a clue from that
+     * clueType to use for the current iSpyClue. Removes that clue from the cluePool so that there are no repeat clues
+     * @param view
+     */
+    public void giveClue(View view){
         TextView iSpyClueView = findViewById(R.id.iSpyClue);
-        Features features = aiSpyImage.getiSpyMap().get(chosenObject);
+        Random rand = new Random();
+        ArrayList<String> clueTypes = new ArrayList<>();
+        if(!cluePool.keySet().isEmpty()){
+            clueTypes.addAll(cluePool.keySet());
+            clueType = clueTypes.get(rand.nextInt(cluePool.keySet().size()));
 
-        switch(clueType){
-            case COLOR_CLUE:
-                iSpyClue = "is " + features.color;
-                break;
-            case LOCATION_CLUE:
-                iSpyClue = getLocationClue(features);
-                break;
-            case GENERAL_KNOWLEDGE_CLUE:
-                iSpyClue = features.wiki;
-                break;
-            case CONCEPTNET_CLUE:
-                iSpyClue = getConceptNetClue(features);
+            switch(clueType){
+                case COLOR_CLUE:
+                    iSpyClue = "is " + cluePool.get(COLOR_CLUE).get(0);
+                    cluePool.remove(COLOR_CLUE);
+                    break;
+                case LOCATION_CLUE:
+                    ArrayList<String> locations = cluePool.get(LOCATION_CLUE);
+                    int i = rand.nextInt(locations.size());
+                    iSpyClue = locations.get(i);
+                    locations.remove(i);
+                    if (locations.size() == 0) cluePool.remove(LOCATION_CLUE);
+                    break;
+                case WIKI_CLUE:
+                    iSpyClue = cluePool.get(WIKI_CLUE).get(0);
+                    cluePool.remove(WIKI_CLUE);
+                    break;
+                case CONCEPTNET_CLUE:
+                    ArrayList<String> conceptNetClues = cluePool.get(CONCEPTNET_CLUE);
+                    i = rand.nextInt(conceptNetClues.size());
+                    iSpyClue = conceptNetClues.get(i);
+                    conceptNetClues.remove(i);
+                    if (conceptNetClues.size() == 0) cluePool.remove(CONCEPTNET_CLUE);
+                    break;
+            }
+        } else {
+            Log.i(TAG, "out of clues");
+            iSpyClue = "out of clues";
         }
+
 
         iSpyClueView.setText(iSpyClue);
+        numCluesGiven++;
+
         voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
-
-    }
-
-    private String getConceptNetClue(Features features){
-        String conceptNetClue = "";
-        Random rand = new Random();
-        if (features.conceptNet != null){
-            int numRelations = features.conceptNet.keySet().size();
-            if (numRelations != 0){
-                String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
-                ArrayList<String> endpoints = features.conceptNet.get(relation);
-                String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
-                conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
-            }
-        }
-
-        return conceptNetClue;
-    }
-
-    private String getLocationClue(Features features){
-        String locationClue = "";
-        Random rand = new Random();
-        int numDirections = features.locations.keySet().size();
-        if (numDirections != 0){
-            String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
-            int numObjectsForDirection = features.locations.get(direction).size();
-            AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
-            int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
-            String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
-
-            if (direction == "above" || direction == "below"){
-                locationClue = "is " + direction + " the " + label.toLowerCase();
-            } else if (direction == "right" || direction == "left"){
-                locationClue = "is to the " + direction + " of the " + label.toLowerCase();
-            }
-        }
-        return locationClue;
-    }
-
-    public void giveConceptNetClue(View view){
-        int clueType = CONCEPTNET_CLUE;
-        giveClue(clueType);
-    }
-
-    public void giveWikiClue(View view){
-        int clueType = GENERAL_KNOWLEDGE_CLUE;
-        giveClue(clueType);
-    }
-
-    public void giveColorClue(View view) {
-        int clueType = COLOR_CLUE;
-        giveClue(clueType);
-    }
-
-    public void giveLocationClue(View view) {
-        int clueType = LOCATION_CLUE;
-        giveClue(clueType);
 
     }
 
