@@ -335,7 +335,7 @@ AISpyImage implements Serializable {
         unhelpfulLabels.add("tan");
         unhelpfulLabels.add("pattern");
         unhelpfulLabels.add("sky");
-
+        unhelpfulLabels.add("land vehicle");
     }
 }
 

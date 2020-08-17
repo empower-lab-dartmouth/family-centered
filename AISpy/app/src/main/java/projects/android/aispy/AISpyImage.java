@@ -69,6 +69,7 @@ AISpyImage implements Serializable {
 
         ArrayList<AISpyObject> aiSpyObjects = new ArrayList<>();
 
+
         /** 2) detect all detectable "objects" and get their boundary boxes **/
         ArrayList<DetectedObject> detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContext, imagePath);
 
@@ -78,12 +79,13 @@ AISpyImage implements Serializable {
             /** a) Crop out the corresponding bitmap for the detected object **/
             Bitmap croppedObject = BitmapAPI.getCroppedObject(detectedObject, imagePath);
 
+
             //Save the object image
             String newFilePath = createNewImageFile(storageDir);
             try {
                 File file = new File(newFilePath);
                 FileOutputStream fOut = new FileOutputStream(file);
-                croppedObject.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                croppedObject.compress(Bitmap.CompressFormat.PNG, 100, fOut);
                 fOut.flush();
                 fOut.close();
             }
@@ -104,18 +106,37 @@ AISpyImage implements Serializable {
             }
 
             /** c) Find the object's color **/
-            //Find the dominant color in the object (only send to colorDetector if there isn't already a label with a color)
+            //Find the dominant color in the object
             String color = (findColorInLabels(objectLabels));
-            if(color == null){ color = new ColorDetectorAPI(croppedObject, thisContext).getColor(); }
+            //create a new Bitmap for color detection
+            Bitmap croppedForColorObject = null;
+            if(color == null){
+                croppedForColorObject = BitmapAPI.getBitmapForCloud(detectedObject, imagePath);
+            }
 
             /** d) Store all that data into an AISpyObject object**/
             if (objectLabels.size() > 0){
-                AISpyObject aiSpyObject = new AISpyObject(croppedObject, newFilePath, detectedObject.getBoundingBox(), objectLabels, color);
+                AISpyObject aiSpyObject = new AISpyObject(croppedObject, croppedForColorObject, newFilePath, detectedObject.getBoundingBox(), objectLabels, color);
                 aiSpyObjects.add(aiSpyObject);
             }
 
 
         }
+        //Detect colors for those objects whose color == null
+        ArrayList<AISpyObject> refineColorList = new ArrayList<>();
+
+        //Add those objects without a color labels into a list
+        for(AISpyObject object : aiSpyObjects) {
+            if(object.getColor() == null){
+                refineColorList.add(object);
+            }
+        }
+        //remove these objects
+        for(AISpyObject object : refineColorList) {
+            aiSpyObjects.remove(object);
+        }
+        //add them back after naming their colors.
+        aiSpyObjects.addAll(new ColorDetectorAPI(refineColorList, thisContext).getReturnList());
         allObjects = aiSpyObjects;
 
         /** 4) Create the ISpy Map to map objects to their corresponding features **/
@@ -229,11 +250,11 @@ AISpyImage implements Serializable {
      * base of that relative location. For example, the location features of one object might include:
      * String("right of") -> HashSet({'stop sign', 'car', 'sidewalk'})
      */
-    private HashMap<String, HashSet<AISpyObject>> generateLocationFeatures(AISpyObject obj){
+    private HashMap<String,HashSet<AISpyObject>> generateLocationFeatures(AISpyObject obj){
         HashSet<AISpyObject> above = new HashSet<>();
         HashSet<AISpyObject> below = new HashSet<>();
         HashSet<AISpyObject> rightOf = new HashSet<>();
-        HashSet<AISpyObject> leftOf = new HashSet<>();
+        HashSet<AISpyObject>leftOf = new HashSet<>();
 
         Rect objLocation = obj.getLocation();
 
@@ -253,7 +274,7 @@ AISpyImage implements Serializable {
             }
         }
 
-        HashMap<String, HashSet<AISpyObject>> locationMap = new HashMap<>();
+        HashMap<String,HashSet<AISpyObject>> locationMap = new HashMap<>();
         if (above.size() > 0) locationMap.put("above", above);
         if (below.size() > 0) locationMap.put("below", below);
         if (rightOf.size() > 0) locationMap.put("right", rightOf);
@@ -313,7 +334,8 @@ AISpyImage implements Serializable {
         unhelpfulLabels.add("technology");
         unhelpfulLabels.add("tan");
         unhelpfulLabels.add("pattern");
-
+        unhelpfulLabels.add("sky");
+        unhelpfulLabels.add("land vehicle");
     }
 }
 

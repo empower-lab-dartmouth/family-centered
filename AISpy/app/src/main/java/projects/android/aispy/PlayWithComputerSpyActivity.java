@@ -154,9 +154,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         ArrayList<String> conceptNetClues = makeConceptNetClues(features.conceptNet);
 
         cluePool.put(COLOR_CLUE, colorClue);
-        cluePool.put(LOCATION_CLUE, locationClues);
         cluePool.put(WIKI_CLUE, wikiClue);
-        cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
+        if (locationClues.size() != 0) cluePool.put(LOCATION_CLUE, locationClues);
+        if (conceptNetClues.size() != 0) cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
         return cluePool;
     }
 

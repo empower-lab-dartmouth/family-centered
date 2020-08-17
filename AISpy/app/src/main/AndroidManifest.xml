@@ -37,7 +37,7 @@
 
         </provider>
 
-        <activity android:name=".DisplayImageActivity"
+        <activity android:name=".ProcessingImageActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".PlayWithComputerSpyActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"/>

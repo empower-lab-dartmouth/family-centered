@@ -5,8 +5,6 @@ import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import androidx.palette.graphics.Palette;
-
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
@@ -31,48 +29,36 @@ import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 
 /**
  * This api is used to extract the name of the primary color of an object. The color name will be one of the most common colors that children would recognize
+ * This API is inspired by Google Cloud Vision sample for Android
+ * https://github.com/GoogleCloudPlatform/cloud-vision/blob/master/android/CloudVision/app/src/main/java/com/google/sample/cloudvision/MainActivity.java
  */
 public class ColorDetectorAPI {
     private static final String CLOUD_VISION_API_KEY = "AIzaSyB3V8G7LLqTIMJ0m9xfpUELqsZwM9yrxYM";
     private static final String TAG = MainActivity.class.getSimpleName();
-    private String color;
+    private ArrayList<AISpyObject> returnList;
     private Context thisContent;
     private String[] colorLabels = new String[]{ "red", "green", "blue", "orange", "yellow", "pink", "purple", "brown", "grey", "black"};
 
-
     /**
      * Constructor for a ColorDetectorAPI object. Instantiating this object gives access to the getColor() method which returns an image's primary color.
-     * @param image is the bitmap image that this api will detect the primar color from
+     * @param image is the bitmap image that this api will detect the primary color from
      */
-    public ColorDetectorAPI(Bitmap image, Context thisContent){
-        //NEW
-
-
-        //OLD
+    public ColorDetectorAPI(ArrayList<AISpyObject> objectList, Context thisContent){
         this.thisContent = thisContent;
-
-
+        /*
         Palette p = Palette
                 .from(image)
                 .maximumColorCount(20)
                 .generate();
-        int dominantColorRgb = p.getVibrantColor(0);
-        float[] dominantVision = callCloudVision(image);
-
-        this.color = getColorNameFromRGBUsingMLModel(dominantColorRgb);
-        String a = getColorNameFromRGBUsingMLModelCloudVision(dominantVision);
-        String b = getColorNameFromRGBUsingMLModel(dominantColorRgb);
-
-        //generateSwatch(p);
+        int dominantColorRgb = p.getDominantColor(0);
+         */
+        this.returnList = callCloudVision(objectList);
 
     }
-
 
     private static float[] getImageProperty(ImageProperties imageProperties) {
         //String message = "";
@@ -83,20 +69,27 @@ public class ColorDetectorAPI {
         return rgbValue;
     }
 
-    private float[] callCloudVision(final Bitmap bitmap) {
-        // Switch text to loading
-        //mImageDetails.setText(R.string.loading_message);
-
-        // Do the real work in an async task, because we need to use the network anyway
+    private ArrayList<AISpyObject> callCloudVision(ArrayList<AISpyObject> objectList) {
         try {
-            Vision.Images.Annotate mRequest = prepareAnnotationRequest(bitmap);
+            Vision.Images.Annotate mRequest = prepareAnnotationRequest(objectList);
             try {
                 Log.d(TAG, "created Cloud Vision request object, sending request");
                 BatchAnnotateImagesResponse response = mRequest.execute();
-                ImageProperties imageProperties = response.getResponses().get(0).getImagePropertiesAnnotation();
-                float[] rgb = getImageProperty(imageProperties);
 
-                return rgb;
+                //Get responses
+                int i = 0;
+                for(AISpyObject object : objectList) {
+                    ImageProperties imageProperties = response.getResponses().get(i).getImagePropertiesAnnotation();
+                    float[] rgb = getImageProperty(imageProperties);
+                    if(rgb == null) {
+                        object.setColor("Not available!");
+                    } else {
+                        object.setColor(getColorNameFromRGBUsingMLModelCloudVision(rgb));
+                    }
+                    i++;
+                }
+
+                return objectList;
 
             } catch (GoogleJsonResponseException e) {
                 Log.d(TAG, "failed to make API request because " + e.getContent());
@@ -113,7 +106,7 @@ public class ColorDetectorAPI {
         return null;
     }
 
-    private Vision.Images.Annotate prepareAnnotationRequest(Bitmap bitmap) throws IOException {
+    private Vision.Images.Annotate prepareAnnotationRequest(ArrayList<AISpyObject> objectList) throws IOException {
         HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
         JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
 
@@ -148,19 +141,21 @@ public class ColorDetectorAPI {
         BatchAnnotateImagesRequest batchAnnotateImagesRequest =
                 new BatchAnnotateImagesRequest();
 
-        batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
-            AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
-            annotateImageRequest.setImage(getImageEncodeImage(bitmap));
-            // add the features we want
-            annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
-                Feature labelDetection = new Feature();
-                labelDetection.setType("IMAGE_PROPERTIES");
-                //labelDetection.setMaxResults(MAX_LABEL_RESULTS);
-                add(labelDetection);
-            }});
+        ArrayList<Feature> feature = new ArrayList<Feature>() {{
+            Feature imageProperties = new Feature();
+            imageProperties.setType("IMAGE_PROPERTIES");
+            add(imageProperties);
+        }};
 
-            // Add the list of one thing to the request
-            add(annotateImageRequest);
+        batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+            for(AISpyObject object : objectList) {
+                AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+                annotateImageRequest.setImage(getImageEncodeImage(object.getImageForColorDetection()));
+                // add the features we want
+                annotateImageRequest.setFeatures(feature);
+                // Add the list of one thing to the request
+                add(annotateImageRequest);
+            }
         }});
 
         Vision.Images.Annotate annotateRequest =
@@ -174,37 +169,22 @@ public class ColorDetectorAPI {
 
     private Image getImageEncodeImage(Bitmap bitmap) {
         Image base64EncodedImage = new Image();
-        // Convert the bitmap to a JPEG
+        // Convert the bitmap to a PNG
         // Just in case it's a format that Android understands but Cloud Vision
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
         byte[] imageBytes = byteArrayOutputStream.toByteArray();
-        // Base64 encode the JPEG
+        // Base64 encode the PNG
         base64EncodedImage.encodeContent(imageBytes);
         return base64EncodedImage;
     }
 
-    private static Comparator<Palette.Swatch> byPopulation()
-    {
-        return new Comparator<Palette.Swatch>()
-        {
-            @Override
-            public int compare(Palette.Swatch s1, Palette.Swatch s2)
-            {
-                return s1.getPopulation() - s2.getPopulation();
-            }
-        };
-    }
-    public void generateSwatch(Palette p){
-        ArrayList<Palette.Swatch> list =  new ArrayList<>(p.getSwatches());
-        Collections.sort(list, Collections.reverseOrder(byPopulation()));
-        System.out.println(list);
+
+    public ArrayList<AISpyObject> getReturnList() {
+        return this.returnList;
     }
 
-    public String getColor() {
-        return color;
-    }
-
+    /*OLD VERSION USING PALLETE
     private String getColorNameFromRGBUsingMLModel(int rgb){
         float[][] outputs = new float[1][10];
         try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
@@ -217,6 +197,8 @@ public class ColorDetectorAPI {
         String color =  colorLabels[i];
         return color;
     }
+
+     */
 
     private String getColorNameFromRGBUsingMLModelCloudVision(float[] rgb){
         float[][] outputs = new float[1][10];
@@ -253,13 +235,13 @@ public class ColorDetectorAPI {
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
     }
 
+    /* OLD VERSION USING PALETTE
     private float[][] makeRGBInputTensor(int rgbNum){
         float[] rgb = new float[3];
 
         float r = (float) ((rgbNum >> 16) & 255);
         float g = (float) ((rgbNum >> 8) & 255);
         float b = (float) (rgbNum & 255);
-
 
         rgb[0] = r / 255;
         rgb[1] = g / 255;
@@ -270,6 +252,7 @@ public class ColorDetectorAPI {
 
         return tensor;
     }
+    */
     private float[][] makeRGBInputTensorCloudVision(float[] rgbValues){
         float[] rgb = rgbValues;
 

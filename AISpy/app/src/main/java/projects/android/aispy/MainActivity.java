@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startDisplayImageActivity(){
-        Intent intent = new Intent(this, DisplayImageActivity.class);
+        Intent intent = new Intent(this, ProcessingImageActivity.class);
         intent.putExtra("image_path", currentPhotoPath);
         startActivity(intent);
     }

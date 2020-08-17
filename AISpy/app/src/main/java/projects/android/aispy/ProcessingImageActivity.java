@@ -27,7 +27,7 @@ import java.util.HashMap;
  * the an AISpyImage singleton object is created as a representation of the image including all relevant meta-data. After
  * the AISpyImage is created, the user can navigate to the WelcomeActivity Intent and play a game of AISpy
  */
-public class DisplayImageActivity extends AppCompatActivity {
+public class ProcessingImageActivity extends AppCompatActivity {
     private ImageView imageView;
     private Bitmap bitmap;
     private Feature feature;
@@ -80,45 +80,23 @@ public class DisplayImageActivity extends AppCompatActivity {
             }
 
             protected void onPostExecute(AISpyImage generatedAiSpyImage) {
-                displayAISpyObjects(generatedAiSpyImage);
 
                 aiSpyImage = generatedAiSpyImage;
 
-                handleBadImage(thisContent);
+                if(aiSpyImage.getAllObjects().size() == 0){
+                    handleBadImage(thisContent);
+                } else {
+                    playAISpy();
+                }
             }
         }.execute();
 
     }
 
     /**
-     * Creates a readable representation of all detected AISpyObjects and displays it to the screen
-     * @param generatedAiSpyImage
-     */
-    private void displayAISpyObjects(AISpyImage generatedAiSpyImage){
-        String allLabelsText = generatedAiSpyImage.getAllLabelsText();
-        allLabelsView.setText(allLabelsText);
-
-        ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
-        TextView[] objectText = {findViewById(R.id.objectText1), findViewById(R.id.objectText2), findViewById(R.id.objectText3), findViewById(R.id.objectText4), findViewById(R.id.objectText5), findViewById(R.id.objectText6)};
-
-        ArrayList<AISpyObject> allObjects = generatedAiSpyImage.getAllObjects();
-        HashMap<AISpyObject, Features> iSpyMap = generatedAiSpyImage.getiSpyMap();
-        for (int i = 0; i < allObjects.size() && i < objectImages.length; i++){
-            AISpyObject object = allObjects.get(i);
-            objectImages[i].setImageBitmap(allObjects.get(i).getImage());
-            String wiki = iSpyMap.get(object).wiki;
-            if ( wiki == null) wiki = "";
-            objectText[i].setMovementMethod(new ScrollingMovementMethod());
-            HashMap<String, ArrayList<String>> conceptNetMap = iSpyMap.get(object).conceptNet;
-            objectText[i].setText("Labels:" + "\n" + object.getLabelsText() + "\n\n" + "Color: " + object.getColor() + "\n\n" + "Wiki:" + wiki+ "\n\n" + ConceptNetAPI.getReadableRepresentation(conceptNetMap));
-        }
-    }
-
-    /**
      * Starts the WelcomeActivity Intent
-     * @param view
      */
-    public void playAISpy(View view) {
+    private void playAISpy() {
         if (aiSpyImage != null) {
             Intent intent = new Intent(this, WelcomeActivity.class);
             startActivity(intent);
@@ -132,12 +110,10 @@ public class DisplayImageActivity extends AppCompatActivity {
      * If no objects were detected in the image, prompts the user to try choosing another photo and takes user back to MainActivity
      */
     private void handleBadImage(Context thisContent){
-        if (aiSpyImage.getAllObjects().size() == 0){
-            Toast toast= Toast.makeText(getApplicationContext(),BAD_PHOTO_PROMPT, Toast.LENGTH_SHORT);
-            toast.show();
+        Toast toast= Toast.makeText(getApplicationContext(),BAD_PHOTO_PROMPT, Toast.LENGTH_SHORT);
+        toast.show();
 
-            Intent intent = new Intent(thisContent, MainActivity.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(thisContent, MainActivity.class);
+        startActivity(intent);
     }
 }

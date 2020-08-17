@@ -17,18 +17,23 @@ import java.util.HashSet;
 public class AISpyObject implements Serializable {
     private String imageFileName;
     private Bitmap image;
+    private Bitmap imageForColorDetection;
     private ArrayList<FirebaseVisionImageLabel> labels;
     private String color;
     private Rect location;
 
-    public AISpyObject(Bitmap image, String imageFileName, Rect location, ArrayList<FirebaseVisionImageLabel> labels, String color){
+    public AISpyObject(Bitmap image, Bitmap imageForColorDetection, String imageFileName, Rect location, ArrayList<FirebaseVisionImageLabel> labels, String color){
         this.image = image;
+        this.imageForColorDetection = imageForColorDetection;
         this.imageFileName = imageFileName;
         this.location = location;
         this.labels = labels;
         this.color = color;
     }
 
+    public void setColor(String color) {
+        this.color = color;
+    }
     public String getColor() {
         return color;
     }
@@ -36,6 +41,8 @@ public class AISpyObject implements Serializable {
     public Bitmap getImage(){
         return this.image;
     }
+
+    public Bitmap getImageForColorDetection() { return this.imageForColorDetection; }
 
     /**
      * @return labelsText is a string representation of all the detected labels and their confidence levels

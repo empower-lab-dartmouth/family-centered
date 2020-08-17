@@ -48,7 +48,8 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
 
     @Override
     protected void onPostExecute(ArrayList<String> results){
-        if (results.size() > 0){
+
+        if (results != null && results.size() > 0){
             map.put(this.relation, results);
         }
         latch.countDown();
