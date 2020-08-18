@@ -14,10 +14,10 @@ public class ConceptNetAPI {
     private final static String HAS_RELATION = "HasA";
     private final static String USED_RELATION = "UsedFor";
     private final static String CAPABLE_RELATION = "CapableOf";
-    private final static String SIMILAR_RELATION = "SimilarTo";
+//    private final static String SIMILAR_RELATION = "SimilarTo";
     private final static String MADE_RELATION = "MadeOf";
-    private final static String[] RELATIONS = new String[]{IS_RELATION, HAS_RELATION, USED_RELATION, CAPABLE_RELATION, SIMILAR_RELATION, MADE_RELATION};
-    private final static String[] RELATIONS_NATURAL = new String[]{"is ", "has ", "is used ", "is capable of ", "is similar to ", "is made of "};
+    private final static String[] RELATIONS = new String[]{IS_RELATION, HAS_RELATION, USED_RELATION, CAPABLE_RELATION, MADE_RELATION};
+    private final static String[] RELATIONS_NATURAL = new String[]{"is ", "has ", "is used ", "is capable of ", "is made of "};
 
     private static HashMap<String, ArrayList<String>> knowledgeGraph;
 
@@ -54,6 +54,8 @@ public class ConceptNetAPI {
     public static String getReadableRepresentation(HashMap<String, ArrayList<String>> map){
         String display = "ConceptNet Map:";
 
+        if (map == null) return display;
+
         for (String relation : map.keySet()){
             ArrayList<String> endPoints = map.get(relation);
             String results = endPoints.size() > 0 ? endPoints.toString() : "No results for this relation";
@@ -74,7 +76,7 @@ public class ConceptNetAPI {
 
 
         String clue = "";
-
+        endpoint = endpoint + " ";
         switch (relation){
             case IS_RELATION:
                 endpoint = handleISGrammer(endpoint);
@@ -86,9 +88,6 @@ public class ConceptNetAPI {
                 break;
             case CAPABLE_RELATION:
                 endpoint = handleCAPABLEGrammer(endpoint);
-                break;
-            case SIMILAR_RELATION:
-                endpoint = "a " + endpoint;
                 break;
             case MADE_RELATION:
                 break;
@@ -106,6 +105,11 @@ public class ConceptNetAPI {
         vowels.add('o');
         vowels.add('u');
 
+        if (endpoint.endsWith("ness")) endpoint = endpoint.replace("ness", "");
+        if (endpoint.contains("a ") || endpoint.contains(("an "))) return endpoint;
+
+        if (endpoint.charAt(endpoint.length() - 1) == 's') return endpoint;
+
         if (vowels.contains(endpoint.charAt(0))) endpoint = "an " + endpoint;
         else endpoint = "a " + endpoint;
 
@@ -113,17 +117,53 @@ public class ConceptNetAPI {
     }
 
     private static String handleUSEDGrammer(String endpoint){
-        if (endpoint.contains("ing")) endpoint = "for " + endpoint;
-        else endpoint = "to " + endpoint;
+
+        if (Character.isUpperCase(endpoint.charAt(0)) || endpoint.contains("ing ") || endpoint.contains("ship") || endpoint.contains("tion")) endpoint = "for " + endpoint; //Ex: "used for writing", "used for companionship", "used for hydration"
+        else if (endpoint.startsWith("a ")) endpoint = "as " + endpoint; //Ex: a pet => "used as a pet"
+        else if (!endpoint.startsWith("to ")) endpoint = "to " + endpoint; //EX: "used to write"
         return endpoint;
     }
 
     private static String handleCAPABLEGrammer(String endpoint){
+        //Ex: "capable of hydration", "capable of companionship"
+        if(endpoint.contains("tion") || endpoint.contains("ship")) return endpoint;
+
+        int i = endpoint.indexOf(" ");
+        String begin = endpoint;
+        String end = "";
+
+        if (i != -1) {
+            begin = endpoint.substring(0, i);
+            end = endpoint.substring(i);
+        }
+
+        //Handle adding "ing"
         String newEndpoint = endpoint;
-        if (!endpoint.contains("ing")){
-            int i = endpoint.indexOf(" ");
-            String begin = endpoint.substring(0, i);
-            String end = endpoint.substring(i);
+        if (!begin.contains("ing")){
+
+            //Handle double consonants before adding "ing"
+            switch (begin.charAt(begin.length() - 1)){
+                case 'p':
+                    begin = begin + "p"; //Ex: stop => "capable of stopping"
+                    break;
+                case 't':
+                    begin = begin + "t"; //Ex: hit => "capable of hitting"
+                    break;
+                case 'b':
+                    begin = begin + "b"; //Ex: rub => "capable of rubbing"
+                    break;
+            }
+
+            //Handle possibly removing a final 'e' before adding "ing"
+            if(!begin.equals("be") && begin.charAt(begin.length() - 1) == 'e' && !begin.endsWith("se")){
+                begin = begin.substring(0, begin.length() - 1); //Ex: bite => "capable of biting"
+            }
+
+            //Handle possibly removing a final 's' before adding "ing"
+            if(begin.charAt(begin.length() - 1) == 's' && !begin.endsWith("ss")){
+                begin = begin.substring(0, begin.length() - 1); //Ex: jumps => "capable of jumping"
+            }
+
             newEndpoint = begin + "ing" + end;
         }
         return newEndpoint;

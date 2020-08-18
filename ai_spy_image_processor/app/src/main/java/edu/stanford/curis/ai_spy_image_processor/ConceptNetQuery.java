@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import com.android.volley.Request;
@@ -24,6 +25,7 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
     private Context context;
     private CountDownLatch latch;
     private HashMap<String, ArrayList<String>> map;
+    private HashSet<String> badWordsScreen;
 
     private final int MAX_NUM_RESULTS = 3;
 
@@ -33,6 +35,7 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
         this.context = context;
         this.latch = latch;
         this.map = map;
+        initializeBadWordsScreen();
     }
 
     @Override
@@ -77,7 +80,7 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
                     JSONObject edge = (JSONObject) edges.get(i);
                     JSONObject end = (JSONObject) edge.get("end");
                     String label = (String) end.get("label");
-                    if (!label.contains(target)){
+                    if (!label.contains(target) && !badWordsScreen.contains(label)){
                         results.add(label);
                         numResults++;
                     }
@@ -91,6 +94,12 @@ public class ConceptNetQuery extends AsyncTask<Void, Void, ArrayList<String>> {
             // exception handling
         }
         return null;
+    }
+
+    //Sometimes ConceptNet returns bad words. This screen is to prevent those.
+    private void initializeBadWordsScreen(){
+        badWordsScreen = new HashSet<>();
+        badWordsScreen.add("bitch");
     }
 }
 

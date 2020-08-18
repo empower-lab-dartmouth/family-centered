@@ -31,6 +31,7 @@ AISpyImage implements Serializable {
     private ArrayList<AISpyObject> allObjects;
     private ArrayList<FirebaseVisionImageLabel> allLabels;
     private AISpyObject correct;
+    private static HashSet<String> unhelpfulLabels;
 
     private final HashSet<String> COMMON_COLORS = new HashSet<>(Arrays.asList("white", "black", "grey", "red", "green", "blue", "yellow", "orange", "purple", "pink", "brown"));
 
@@ -40,42 +41,51 @@ AISpyImage implements Serializable {
         return instance;
     }
 
-    public static void setInstance(Context thisContent, File storageDir, String imagePath) throws IOException {
-        instance = new AISpyImage(thisContent, storageDir, imagePath);
+    public static void setInstance(Context thisContext, File storageDir, String imagePath) throws IOException {
+        instance = new AISpyImage(thisContext, storageDir, imagePath);
     }
 
     /**
      * Constructor to create an AISpyImage representation. This constructor is private so that AISpyImage is a "Singleton" (only one instantiation can exist at a time). This
      * allows the current instantiation of AISpyImage to be easily accessible from every class.
-     * @param thisContent the Context that the picture was taken in
+     * @param thisContext the Context that the picture was taken in
      * @param storageDir the File directory where the full AISpy image is stored
      * @param imagePath the String path where the full AISpy image is stored.
      * @throws IOException
      */
-    private AISpyImage(Context thisContent, File storageDir, String imagePath) throws IOException {
+    private AISpyImage(Context thisContext, File storageDir, String imagePath) throws IOException {
+        fillUnhelpfulLabels();
 
         this.fullImagePath = imagePath;
 
-        allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, imagePath));
+        /** 1) find all labels that can be detected for the full image **/
+        allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels));
 
-        ArrayList<Bitmap> croppedObjects;
-        ArrayList<DetectedObject> detectedObjects;
+        //Create hash set to quickly check if a label is present or not
+        HashSet<String> allLabelsSet = new HashSet<>();
+        for (FirebaseVisionImageLabel label : allLabels){
+            allLabelsSet.add(label.getText());
+        }
+
         ArrayList<AISpyObject> aiSpyObjects = new ArrayList<>();
 
-        //Locate objects in the image and get their boundary boxes
-        detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContent, imagePath);
 
-        //Get each object's dominant color and store cropped bitmaps in files
+        /** 2) detect all detectable "objects" and get their boundary boxes **/
+        ArrayList<DetectedObject> detectedObjects = (ArrayList<DetectedObject>) ObjectDetectionAPI.getObjectBoundaryBoxes(thisContext, imagePath);
+
+        /** 3) loop through all detected objects and... **/
         for (DetectedObject detectedObject: detectedObjects){
 
+            /** a) Crop out the corresponding bitmap for the detected object **/
             Bitmap croppedObject = BitmapAPI.getCroppedObject(detectedObject, imagePath);
+
 
             //Save the object image
             String newFilePath = createNewImageFile(storageDir);
             try {
                 File file = new File(newFilePath);
                 FileOutputStream fOut = new FileOutputStream(file);
-                croppedObject.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+                croppedObject.compress(Bitmap.CompressFormat.PNG, 100, fOut);
                 fOut.flush();
                 fOut.close();
             }
@@ -83,24 +93,54 @@ AISpyImage implements Serializable {
                 e.printStackTrace();
             }
 
+            /** b) Find all labels in the cropped image of that detected object **/
             //Detect the labels for the object
-            ArrayList<FirebaseVisionImageLabel> objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContent, newFilePath));
+            ArrayList<FirebaseVisionImageLabel> objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, newFilePath, unhelpfulLabels));
 
-            //Find the dominant color in the object (only send to colorDetector if there isn't already a label with a color)
+            //Add to allLabels if not already there
+            for (FirebaseVisionImageLabel label : objectLabels){
+                if (!allLabelsSet.contains(label.getText())){
+                    allLabelsSet.add(label.getText());
+                    allLabels.add(label);
+                }
+            }
+
+            /** c) Find the object's color **/
+            //Find the dominant color in the object
             String color = (findColorInLabels(objectLabels));
-            if(color == null){ color = new ColorDetectorAPI(croppedObject, thisContent).getColor(); }
+            //create a new Bitmap for color detection
+            Bitmap croppedForColorObject = null;
+            if(color == null){
+                croppedForColorObject = BitmapAPI.getBitmapForCloud(detectedObject, imagePath);
+            }
 
-            //Store object info in AISpyObject
+            /** d) Store all that data into an AISpyObject object**/
             if (objectLabels.size() > 0){
-                AISpyObject aiSpyObject = new AISpyObject(croppedObject, newFilePath, detectedObject.getBoundingBox(), objectLabels, color);
+                AISpyObject aiSpyObject = new AISpyObject(croppedObject, croppedForColorObject, newFilePath, detectedObject.getBoundingBox(), objectLabels, color);
                 aiSpyObjects.add(aiSpyObject);
             }
 
 
         }
+        //Detect colors for those objects whose color == null
+        ArrayList<AISpyObject> refineColorList = new ArrayList<>();
+
+        //Add those objects without a color labels into a list
+        for(AISpyObject object : aiSpyObjects) {
+            if(object.getColor() == null){
+                refineColorList.add(object);
+            }
+        }
+        //remove these objects
+        for(AISpyObject object : refineColorList) {
+            aiSpyObjects.remove(object);
+        }
+        //add them back after naming their colors.
+        aiSpyObjects.addAll(new ColorDetectorAPI(refineColorList, thisContext).getReturnList());
         allObjects = aiSpyObjects;
 
-        generateISpyMap(thisContent);
+        /** 4) Create the ISpy Map to map objects to their corresponding features **/
+        generateISpyMap(thisContext);
     }
 
     /****** Public Methods *******/
@@ -144,13 +184,25 @@ AISpyImage implements Serializable {
      * @return null if no color found; the String color name if a color is found
      */
     private String findColorInLabels(ArrayList<FirebaseVisionImageLabel> labels){
+        String trueColor = null;
+        Boolean foundTrueColor = false;
+        ArrayList<FirebaseVisionImageLabel> toRemove = new ArrayList<>();
+
         for (FirebaseVisionImageLabel label : labels){
-            if (COMMON_COLORS.contains(label.getText().toLowerCase())){
-                labels.remove(label);
-                return label.getText().toLowerCase();
+            String text = label.getText().toLowerCase();
+            if (COMMON_COLORS.contains(text)){
+                if (!foundTrueColor){
+                    trueColor = text;
+                    foundTrueColor = true;
+                }
+                toRemove.add(label);
             }
         }
-        return null;
+
+        for(FirebaseVisionImageLabel label : toRemove){
+            labels.remove(label);
+        }
+        return trueColor;
     }
 
 
@@ -176,7 +228,7 @@ AISpyImage implements Serializable {
     /**
      * Creates a hashmap mapping each detected object to the objects Features
      */
-    private void generateISpyMap(Context thisContent){
+    private void generateISpyMap(Context thisContext){
         iSpyMap = new HashMap<>();
 
 
@@ -185,8 +237,8 @@ AISpyImage implements Serializable {
             Features features = new Features();
             features.color = object.getColor();
             features.locations = generateLocationFeatures(object);
-            features.wiki = getWiki(object, thisContent);
-            features.conceptNet = getConceptNet(object, thisContent);
+            features.wiki = getWiki(object, thisContext);
+            features.conceptNet = getConceptNet(object, thisContext);
 
             iSpyMap.put(object, features);
         }
@@ -234,9 +286,9 @@ AISpyImage implements Serializable {
     /**
      * Loops through the labels of an object and for whichever one first successfully queries wiki, returns that result
      */
-    private String getWiki(AISpyObject obj, Context thisContent){
+    private String getWiki(AISpyObject obj, Context thisContext){
         for (String label : obj.getPossibleLabels()){
-            String wiki = WikiClueAPI.getWikiClue(label, thisContent);
+            String wiki = WikiClueAPI.getWikiClue(label, thisContext);
             if (wiki != null){
                 return wiki;
             }
@@ -245,23 +297,45 @@ AISpyImage implements Serializable {
         return null;
     }
 
-    private HashMap<String, ArrayList<String>> getConceptNet(AISpyObject obj, Context thisContent){
+    /**
+     * getConceptNet calls ConceptNetAPI.getConceptNetMap and returns the first concept net map that is populated with meaningful content
+     * @param obj
+     * @param thisContext
+     * @return
+     */
+    private HashMap<String, ArrayList<String>> getConceptNet(AISpyObject obj, Context thisContext){
         HashMap<String, ArrayList<String>> conceptNetMap = null;
-        int bestScore = 0;
         for (String label : obj.getPossibleLabels()){
-            HashMap<String, ArrayList<String>> possibleConceptNetMap = ConceptNetAPI.getConceptNetMap(label, thisContent);
+            HashMap<String, ArrayList<String>> possibleConceptNetMap = ConceptNetAPI.getConceptNetMap(label, thisContext);
             if (ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap) != 0){
                 conceptNetMap = possibleConceptNetMap;
                 return conceptNetMap;
             }
-//            int curScore = ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap);
-//            if (curScore > bestScore){
-//                bestScore = curScore;
-//                conceptNetMap = possibleConceptNetMap;
-//            }
         }
 
         return conceptNetMap;
+    }
+
+    /**
+     * Creates a hash set with labels commonly returned by Google Firebase Label Detector API that are unhelpful in a game of AISpy
+     */
+    private static void fillUnhelpfulLabels(){
+        unhelpfulLabels = new HashSet<>();
+        unhelpfulLabels.add("furniture");
+        unhelpfulLabels.add("property");
+        unhelpfulLabels.add("wood");
+        unhelpfulLabels.add("mammal");
+        unhelpfulLabels.add("canidae");
+        unhelpfulLabels.add("electronics");
+        unhelpfulLabels.add("interior design");
+        unhelpfulLabels.add("darkness");
+        unhelpfulLabels.add("light");
+        unhelpfulLabels.add("automotive exterior");
+        unhelpfulLabels.add("technology");
+        unhelpfulLabels.add("tan");
+        unhelpfulLabels.add("pattern");
+        unhelpfulLabels.add("sky");
+        unhelpfulLabels.add("land vehicle");
     }
 }
 

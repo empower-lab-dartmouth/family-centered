@@ -11,6 +11,8 @@ import com.google.firebase.ml.vision.label.FirebaseVisionImageLabeler;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.google.android.gms.tasks.Tasks.await;
@@ -20,7 +22,7 @@ import static com.google.android.gms.tasks.Tasks.await;
  */
 public class LabelDetectionAPI {
 
-    public static List<FirebaseVisionImageLabel> getImageLabels(Context content, String imagePath){
+    public static List<FirebaseVisionImageLabel> getImageLabels(Context content, String imagePath, HashSet<String> unhelpfulLabels){
         FirebaseVisionImage image = null;
         try {
             image = FirebaseVisionImage.fromFilePath(content, Uri.fromFile(new File(imagePath)));
@@ -41,13 +43,24 @@ public class LabelDetectionAPI {
             //Pass image to processor and get a list of detected objects
             try {
                 List<FirebaseVisionImageLabel> labels = await(labeler.processImage(image));
-                return labels;
+                List<FirebaseVisionImageLabel> toReturn = filterUnhelpfulLabels(labels, unhelpfulLabels);
+                return toReturn;
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
         return null;
+    }
+
+    private static List<FirebaseVisionImageLabel> filterUnhelpfulLabels(List<FirebaseVisionImageLabel> labels, HashSet<String> unhelpfulLabels){
+        List<FirebaseVisionImageLabel> toReturn = new ArrayList<>();
+        for (FirebaseVisionImageLabel label : labels){
+            if (!unhelpfulLabels.contains(label.getText().toLowerCase())){
+                toReturn.add(label);
+            }
+        }
+        return toReturn;
     }
 
 }

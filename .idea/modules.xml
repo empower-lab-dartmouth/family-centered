@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/storytime.iml" filepath="$PROJECT_DIR$/.idea/storytime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/AISpy.iml" filepath="$PROJECT_DIR$/.idea/modules/AISpy.iml" group="AISpy" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="AISpy/app" />
     </modules>
   </component>
 </project>

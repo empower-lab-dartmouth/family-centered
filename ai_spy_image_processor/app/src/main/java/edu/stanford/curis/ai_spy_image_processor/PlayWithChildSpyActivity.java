@@ -2,11 +2,13 @@ package edu.stanford.curis.ai_spy_image_processor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 import android.util.Log;
@@ -14,8 +16,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -26,7 +32,7 @@ import java.util.concurrent.CountDownLatch;
  * In PlayWithChildSpyActivity, the computer guesses the chosen i spy object based off of clues given by the child
  */
 
-public class PlayWithChildSpyActivity extends BasicFunctionality {
+public class PlayWithChildSpyActivity extends AppCompatActivity {
     public CountDownLatch speakLatch;
 
     private final HashSet<String> commonColors;
@@ -88,6 +94,9 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
     private HashSet<AISpyObject> alreadyGuessedObjects;
     private String[] clueEssentials;
     private boolean desperateMode;
+
+    private final int CLUE_INPUT_REQUEST = 11;
+    private final int FEEDBACK_INPUT_REQUEST = 12;
 
 
 
@@ -201,7 +210,7 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         if (desperateMode){ //Make desperate guess if can't find object
             guess = getDesperateGuess();
         }
-        else if(numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < 3 && numDesperateGuesses < computerGuess.getPossibleLabels().size()){ //Guess another label for current object if have only made 1 other guess for that object
+        else if(numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < 3 && numGuessesForCurrentObject < computerGuess.getPossibleLabels().size()){ //Guess another label for current object if have only made 1 other guess for that object
             guess = computerGuess.getPossibleLabels().get(numGuessesForCurrentObject);
             numGuessesForCurrentObject++;
         } else { //Try finding a new object
@@ -298,19 +307,23 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         guessView.setText(guess);
     }
 
-    public void getSpeechInput(View view) {
-    }
-
     public void playAgain(View view) {
         reset();
     }
 
     public void handleCorrectGuess(View view) {
+        handleCorrectGuess();
+    }
+    private void handleCorrectGuess(){
         resultView.setText(COMPUTER_WON_REMARK);
         voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     public void handleIncorrectGuess(View view) throws InterruptedException {
+        handleIncorrectGuess();
+    }
+
+    private void handleIncorrectGuess(){
         if (numGuesses == 5) return;
         String toSay = "";
         this.numGuesses++;
@@ -367,5 +380,61 @@ public class PlayWithChildSpyActivity extends BasicFunctionality {
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
         voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, null);
     }
+
+    
+    /***** Methods for speech recognition *******/
+
+    public void getSpeechClueInput(View view){
+        startSpeechRecognition(CLUE_INPUT_REQUEST);
+    }
+
+    public void getSpeechFeedbackInput(View view) {
+        startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
+    }
+
+    private void startSpeechRecognition(int request){
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+
+        if (intent.resolveActivity(getPackageManager()) != null){
+            startActivityForResult(intent, request);
+        } else {
+            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        System.out.println("*************" + requestCode);
+
+        switch(requestCode){
+            case CLUE_INPUT_REQUEST:
+                if (resultCode == RESULT_OK && data != null){
+
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    iSpyClueView = findViewById(R.id.iSpyClue);
+                    String guess = result.get(0).toLowerCase();
+                    iSpyClueView.setText(guess);
+                    startComputerGuessing(findViewById(R.id.startComputerGuessingButton));
+                }
+                break;
+            case FEEDBACK_INPUT_REQUEST:
+                if (resultCode == RESULT_OK && data != null){
+
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String feedback = result.get(0).toLowerCase();
+                    if (feedback.contains("yes")){
+                        handleCorrectGuess();
+                    } else if (feedback.contains("no")){
+                        handleIncorrectGuess();
+                    }
+                }
+
+        }
+    }
+
+
 }
 

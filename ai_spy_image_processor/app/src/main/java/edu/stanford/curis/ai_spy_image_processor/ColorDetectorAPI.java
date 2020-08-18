@@ -1,191 +1,273 @@
 package edu.stanford.curis.ai_spy_image_processor;
 
-import android.content.res.AssetManager;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 
 import androidx.palette.graphics.Palette;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 
-import java.nio.Buffer;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.ColorInfo;
+import com.google.api.services.vision.v1.model.DominantColorsAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.services.vision.v1.model.Image;
+import com.google.api.services.vision.v1.model.ImageProperties;
+
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Stack;
+import java.util.Collections;
+import java.util.Comparator;
 import java.io.*;
+
+import org.tensorflow.lite.Interpreter;
 
 
 /**
  * This api is used to extract the name of the primary color of an object. The color name will be one of the most common colors that children would recognize
+ * This API is inspired by Google Cloud Vision sample for Android
+ * https://github.com/GoogleCloudPlatform/cloud-vision/blob/master/android/CloudVision/app/src/main/java/com/google/sample/cloudvision/MainActivity.java
  */
 public class ColorDetectorAPI {
-    private String color;
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyB3V8G7LLqTIMJ0m9xfpUELqsZwM9yrxYM";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private ArrayList<AISpyObject> returnList;
     private Context thisContent;
-
+    private String[] colorLabels = new String[]{ "red", "green", "blue", "orange", "yellow", "pink", "purple", "brown", "grey", "black"};
 
     /**
      * Constructor for a ColorDetectorAPI object. Instantiating this object gives access to the getColor() method which returns an image's primary color.
-     * @param image is the bitmap image that this api will detect the primar color from
+     * @param image is the bitmap image that this api will detect the primary color from
      */
-    public ColorDetectorAPI(Bitmap image, Context thisContent){
+    public ColorDetectorAPI(ArrayList<AISpyObject> objectList, Context thisContent){
         this.thisContent = thisContent;
-        Palette p = Palette.from(image).generate();
+        /*
+        Palette p = Palette
+                .from(image)
+                .maximumColorCount(20)
+                .generate();
         int dominantColorRgb = p.getDominantColor(0);
-        int vibrantColorRgb = p.getVibrantColor(0);
-        String dominantColorName = getColorNameFromRGB(getRGB(dominantColorRgb));
-        this.color = dominantColorName;
+         */
+        this.returnList = callCloudVision(objectList);
+
     }
 
-    public String getColor() {
+    private static float[] getImageProperty(ImageProperties imageProperties) {
+        //String message = "";
+        DominantColorsAnnotation colors = imageProperties.getDominantColors();
+        ColorInfo dominant = colors.getColors().get(0);
+        float[] rgbValue = new float[]{dominant.getColor().getRed(), dominant.getColor().getGreen(), dominant.getColor().getBlue()};
+
+        return rgbValue;
+    }
+
+    private ArrayList<AISpyObject> callCloudVision(ArrayList<AISpyObject> objectList) {
+        try {
+            Vision.Images.Annotate mRequest = prepareAnnotationRequest(objectList);
+            try {
+                Log.d(TAG, "created Cloud Vision request object, sending request");
+                BatchAnnotateImagesResponse response = mRequest.execute();
+
+                //Get responses
+                int i = 0;
+                for(AISpyObject object : objectList) {
+                    ImageProperties imageProperties = response.getResponses().get(i).getImagePropertiesAnnotation();
+                    float[] rgb = getImageProperty(imageProperties);
+                    if(rgb == null) {
+                        object.setColor("Not available!");
+                    } else {
+                        object.setColor(getColorNameFromRGBUsingMLModelCloudVision(rgb));
+                    }
+                    i++;
+                }
+
+                return objectList;
+
+            } catch (GoogleJsonResponseException e) {
+                Log.d(TAG, "failed to make API request because " + e.getContent());
+            } catch (IOException e) {
+                Log.d(TAG, "failed to make API request because of other IOException " +
+                        e.getMessage());
+            }
+            //return "Cloud Vision API request failed. Check logs for details.";
+
+        } catch (IOException e) {
+            Log.d(TAG, "failed to make API request because of other IOException " +
+                    e.getMessage());
+        }
+        return null;
+    }
+
+    private Vision.Images.Annotate prepareAnnotationRequest(ArrayList<AISpyObject> objectList) throws IOException {
+        HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+        VisionRequestInitializer requestInitializer =
+                new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
+                    /**
+                     * We override this so we can inject important identifying fields into the HTTP
+                     * headers. This enables use of a restricted cloud platform API key.
+                     */
+                    /*
+                    @Override
+                    protected void initializeVisionRequest(VisionRequest<?> visionRequest)
+                            throws IOException {
+                        super.initializeVisionRequest(visionRequest);
+
+                        String packageName = getPackageName();
+                        visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
+
+                        String sig = PackageManagerUtils.getSignature(getPackageManager(), packageName);
+
+                        visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
+                    }
+
+                    */
+                };
+
+        Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+        builder.setVisionRequestInitializer(requestInitializer);
+
+        Vision vision = builder.build();
+
+        BatchAnnotateImagesRequest batchAnnotateImagesRequest =
+                new BatchAnnotateImagesRequest();
+
+        ArrayList<Feature> feature = new ArrayList<Feature>() {{
+            Feature imageProperties = new Feature();
+            imageProperties.setType("IMAGE_PROPERTIES");
+            add(imageProperties);
+        }};
+
+        batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+            for(AISpyObject object : objectList) {
+                AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+                annotateImageRequest.setImage(getImageEncodeImage(object.getImageForColorDetection()));
+                // add the features we want
+                annotateImageRequest.setFeatures(feature);
+                // Add the list of one thing to the request
+                add(annotateImageRequest);
+            }
+        }});
+
+        Vision.Images.Annotate annotateRequest =
+                vision.images().annotate(batchAnnotateImagesRequest);
+        // Due to a bug: requests to Vision API containing large images fail when GZipped.
+        annotateRequest.setDisableGZipContent(true);
+        Log.d(TAG, "created Cloud Vision request object, sending request");
+
+        return annotateRequest;
+    }
+
+    private Image getImageEncodeImage(Bitmap bitmap) {
+        Image base64EncodedImage = new Image();
+        // Convert the bitmap to a PNG
+        // Just in case it's a format that Android understands but Cloud Vision
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+        // Base64 encode the PNG
+        base64EncodedImage.encodeContent(imageBytes);
+        return base64EncodedImage;
+    }
+
+
+    public ArrayList<AISpyObject> getReturnList() {
+        return this.returnList;
+    }
+
+    /*OLD VERSION USING PALLETE
+    private String getColorNameFromRGBUsingMLModel(int rgb){
+        float[][] outputs = new float[1][10];
+        try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
+            float[][] inputRGB = makeRGBInputTensor(rgb);
+            tflite.run(inputRGB, outputs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int i = argMax(outputs);
+        String color =  colorLabels[i];
         return color;
     }
 
-    //inspired from https://stackoverflow.com/questions/2262100/rgb-int-to-rgb-python
-    private int[] getRGB (int rgbNum){
-        int[] rgb = new int[3];
+     */
 
-        rgb[0] = (rgbNum >> 16) & 255;
-        rgb[1] = (rgbNum >> 8) & 255;
-        rgb[2] = rgbNum & 255;
-
-        return rgb;
+    private String getColorNameFromRGBUsingMLModelCloudVision(float[] rgb){
+        float[][] outputs = new float[1][10];
+        try (Interpreter tflite = new Interpreter(loadModelFile(thisContent))) {
+            float[][] inputRGB = makeRGBInputTensorCloudVision(rgb);
+            tflite.run(inputRGB, outputs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int i = argMax(outputs);
+        String color =  colorLabels[i];
+        return color;
     }
 
-    //Creates an ArrayList of the common colors that children will be likely to guess
-    private ArrayList<ColorName> initColorList() {
-        ArrayList<ColorName> colorList = new ArrayList<ColorName>();
-        //read training data in assets folder
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(this.thisContent.getAssets().open("training.txt")));
-            String strLine;
-            //Read File Line By Line
-            while ((strLine = reader.readLine()) != null)   {
-                // Print the content on the console
-                System.out.println(strLine);
-                String[] res = strLine.split("[,]", 0);
-                int r = Integer.parseInt(res[0]);
-                int g = Integer.parseInt(res[1]);
-                int b = Integer.parseInt(res[2]);
-                colorList.add(new ColorName(res[3], r, g, b,0));
+    private int argMax(float[][] outputs){
+        float max = 0;
+        int maxIndex = -1;
+        for (int i = 0; i < outputs[0].length; i++){
+            if (outputs[0][i] > max){
+                max = outputs[0][i];
+                maxIndex = i;
             }
-        } catch (Exception e){//Catch exception if any
-            System.err.println("Error: " + e.getMessage());
         }
-        /*
-        colorList.add(new ColorName("white", 0xFF, 0xFF, 0xFF));
-        */
-
-        return colorList;
+        return maxIndex;
     }
-    //*********************************ORIGINAL FUNCTION***************************************
-    //This old function works by finding and returning the string name  of the common colors has the smallest difference in rgb value to the object color
-    //Inspired from https://cindyxiaoxiaoli.wordpress.com/2014/02/15/convert-an-rgb-valuehex-valuejava-color-object-to-a-color-name-in-java/
-    /*
-    private String getColorNameFromRgb(int[] rgb) {
-        int r = rgb[0];
-        int g = rgb[1];
-        int b = rgb[2];
-        ArrayList<ColorName> colorList = initColorList();
-        Stack<ColorName> topColors = new Stack<>();
 
-        ColorName closestMatch = null;
-        int minMSE = Integer.MAX_VALUE;
-        int mse;
-        for (ColorName c : colorList) {
-            mse = c.computeMSE(r, g, b);
-            if (mse < minMSE) {
-                minMSE = mse;
-                closestMatch = c;
-                topColors.push(c);
-            }
-        }
+    private MappedByteBuffer loadModelFile(Context context) throws IOException {
+        String MODEL_ASSETS_PATH = "model.tflite";
+        AssetFileDescriptor fileDescriptor = context.getAssets().openFd(MODEL_ASSETS_PATH);
+        FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        FileChannel fileChannel = inputStream.getChannel();
+        long startOffset = fileDescriptor.getStartOffset();
+        long declaredLength = fileDescriptor.getDeclaredLength();
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+    }
 
-        if (closestMatch != null) { //TODO: maybe instead of returning one color, return the top 3 from topColors as long as the mse < 3,000 (have a primary, secondary, and tertiary option sense color is subjective)
-            return closestMatch.getName();
-        } else {
-            return "No matched color name.";
-        }
+    /* OLD VERSION USING PALETTE
+    private float[][] makeRGBInputTensor(int rgbNum){
+        float[] rgb = new float[3];
+
+        float r = (float) ((rgbNum >> 16) & 255);
+        float g = (float) ((rgbNum >> 8) & 255);
+        float b = (float) (rgbNum & 255);
+
+        rgb[0] = r / 255;
+        rgb[1] = g / 255;
+        rgb[2] = b / 255;
+
+        float[][] tensor = new float[1][3];
+        tensor[0] = rgb;
+
+        return tensor;
     }
     */
-    //New function that using kNN technique to detect color.
-    private String getColorNameFromRGB(int[] rgb) {
-        int r = rgb[0];
-        int g = rgb[1];
-        int b = rgb[2];
-        ArrayList<ColorName> colorList = initColorList();
+    private float[][] makeRGBInputTensorCloudVision(float[] rgbValues){
+        float[] rgb = rgbValues;
 
-        ColorName closestMatch1 = null;
-        ColorName closestMatch2 = null;
-        ColorName closestMatch3 = null;
+        rgb[0] = rgb[0] / 255;
+        rgb[1] = rgb[1] / 255;
+        rgb[2] = rgb[2] / 255;
 
-        double min1 = Integer.MAX_VALUE;
-        double min2 = Integer.MAX_VALUE;
-        double min3 = Integer.MAX_VALUE;
+        float[][] tensor = new float[1][3];
+        tensor[0] = rgb;
 
-        double distance;
-        for (ColorName c : colorList) {
-            distance = c.calculateDistance(r, g, b);
-            if (distance < min1) {
-                min3 = min2;
-                min2 = min1;
-                min1 = distance;
-                closestMatch1 = c;
-                closestMatch1.setDistance(distance);
-            } else if (distance < min2) {
-                min3 = min2;
-                min2 = distance;
-                closestMatch2 = c;
-                closestMatch2.setDistance(distance);
-
-            } else if (distance < min3) {
-                min3 = distance;
-                closestMatch3 = c;
-                closestMatch3.setDistance(distance);
-
-            }
-        }
-        if(closestMatch1.getName().equalsIgnoreCase(closestMatch2.getName())) {
-            return closestMatch1.getName();
-        } else if(closestMatch1.getName().equalsIgnoreCase(closestMatch3.getName())) {
-            return closestMatch1.getName();
-        } else if(closestMatch2.getName().equalsIgnoreCase(closestMatch3.getName())) {
-            return closestMatch2.getName();
-        } else {
-            return "Not confident!";
-        }
-    }
-
-    //This inner class is used to encapsulate information about a color, including its string name
-    public class ColorName {
-        private double distance;
-        public int r, g, b;
-        public String name;
-
-        public ColorName(String name, int r, int g, int b, double distance) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.name = name;
-            this.distance = 0;
-        }
-       /*
-        public int computeMSE(int pixR, int pixG, int pixB) {
-            return (int) (((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
-                    * (pixB - b)) / 3);
-        }
-        */
-        public double calculateDistance(int pixR, int pixG, int pixB) {
-            double distance = ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b)
-                    * (pixB - b));
-            return Math.sqrt(distance);
-        }
-
-        public String getName() {
-            return name;
-        }
-        public void setDistance(double distance) {
-            this.distance = distance;
-        }
+        return tensor;
     }
 
 }

@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.sql.Array;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ import java.util.Set;
  * In PlayWithComputerSpyActivity, the child guesses the chosen i-spy object based off of clues given by the computer.
  * The child can choose between either color clues or location clues
  */
-public class PlayWithComputerSpyActivity extends BasicFunctionality {
+public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     //Views
     private TextView guessView;
@@ -60,6 +61,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private final int LOCATION_CLUE = 2;
     private final int GENERAL_KNOWLEDGE_CLUE = 3;
     private final int CONCEPTNET_CLUE= 4;
+    private final int GUESS_INPUT_REQUEST = 10;
 
 
     @Override
@@ -76,6 +78,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.computer_spy);
 
+
         //Set views
         resultView = findViewById(R.id.result);
         guessView = findViewById(R.id.guess);
@@ -89,6 +92,8 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         reset();
         setISpyImage();
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
+
+
     }
 
 
@@ -138,6 +143,12 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         ImageView fullImage = findViewById(R.id.fullImage);
         Bitmap fullImageBitmap = BitmapAPI.getCorrectOrientation(aiSpyImage.getFullImagePath());
         fullImage.setImageBitmap(fullImageBitmap);
+    }
+
+
+    public void checkGuess(View view){
+        String guess = guessView.getText().toString();
+        checkGuess(guess);
     }
 
 
@@ -212,13 +223,16 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
     private String getConceptNetClue(Features features){
         String conceptNetClue = "";
         Random rand = new Random();
-        int numRelations = features.conceptNet.keySet().size();
-        if (numRelations != 0){
-            String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
-            ArrayList<String> endpoints = features.conceptNet.get(relation);
-            String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
-            conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+        if (features.conceptNet != null){
+            int numRelations = features.conceptNet.keySet().size();
+            if (numRelations != 0){
+                String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
+                ArrayList<String> endpoints = features.conceptNet.get(relation);
+                String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
+                conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+            }
         }
+
         return conceptNetClue;
     }
 
@@ -262,17 +276,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         giveClue(clueType);
 
     }
-//    public void getChoiceInput(View view){
-//        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-//        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-//
-//        if (intent.resolveActivity(getPackageManager()) != null){
-//            startActivityForResult(intent, 9);
-//        } else {
-//            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-//        }
-//    }
+
     //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -280,7 +284,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
 
         if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, 10);
+            startActivityForResult(intent, GUESS_INPUT_REQUEST);
         } else {
             Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
         }
@@ -292,7 +296,7 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
         System.out.println("*************" + requestCode);
 
         switch(requestCode){
-            case 10:
+            case GUESS_INPUT_REQUEST:
                 if (resultCode == RESULT_OK && data != null){
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
@@ -301,22 +305,6 @@ public class PlayWithComputerSpyActivity extends BasicFunctionality {
                     guessView.setText(guess);
                     checkGuess(guess);
                 }
-//            case 9:
-//                if (resultCode == RESULT_OK && data != null){
-//
-//                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-//                    String input = result.get(0);
-//                    System.out.println("*********************************" + result.get(0));
-//                    if (input.contains("color") || input.contains("colors")) {
-//                        giveColorClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("location") || input.contains("locations")) {
-//                        giveLocationClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("Wiki") || input.contains("Wikipedia")){
-//                        giveWikiClue(findViewById(R.id.iSpyClue));
-//                    } else if (input.contains("concept") || input.contains("net") || input.contains("knowledge")){
-//                        giveConceptNetClue(findViewById(R.id.iSpyClue));
-//                    }
-//                }
         }
     }
 

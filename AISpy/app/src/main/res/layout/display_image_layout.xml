@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ProcessingImageActivity">>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinnerVisionApi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="100dp" />
+
+            <TextView
+                android:id="@+id/allLabels"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:text="TextView" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+                android:padding="4dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/objectView1"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText1"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+                <ImageView
+                    android:id="@+id/objectView2"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText2"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/objectView3"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText3"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+                <ImageView
+                    android:id="@+id/objectView4"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText4"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/objectView5"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText5"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+                <ImageView
+                    android:id="@+id/objectView6"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:padding="4dp" />
+                <TextView
+                    android:id="@+id/objectText6"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scrollbars = "vertical"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+<!--        <Button-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:text="Play AI Spy"-->
+<!--            android:onClick="playAISpy"-->
+<!--            />-->
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

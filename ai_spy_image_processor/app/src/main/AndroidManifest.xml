@@ -38,9 +38,12 @@
 
         </provider>
 
-        <activity android:name=".DisplayImageActivity"/>
-        <activity android:name=".PlayWithComputerSpyActivity"/>
-        <activity android:name=".PlayWithChildSpyActivity"/>
+        <activity android:name=".DisplayImageActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name=".PlayWithComputerSpyActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
+        <activity android:name=".PlayWithChildSpyActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".WelcomeActivity"/>
 
         <activity android:name=".MainActivity">

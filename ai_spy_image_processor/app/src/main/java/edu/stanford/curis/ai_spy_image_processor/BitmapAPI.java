@@ -2,6 +2,7 @@ package edu.stanford.curis.ai_spy_image_processor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ExifInterface;
@@ -23,13 +24,6 @@ public class BitmapAPI {
 
 
     public static Bitmap getCroppedObject(DetectedObject detectedObject, String imagePath){
-//        Bitmap picture = BitmapFactory.decodeFile(imagePath);
-//
-//        //correct Orientation
-//        Matrix matrix = new Matrix();
-//        matrix.postRotate(90);
-//        Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-//        picture = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
 
         Bitmap picture = getCorrectOrientation(imagePath);
 
@@ -46,7 +40,8 @@ public class BitmapAPI {
         if (width > origWidth) width = origWidth - left;
 
         System.out.println(left + top + width + height + origWidth + origHeight);
-        return (Bitmap.createBitmap(picture, left, top, width, height));
+        Bitmap ret = (Bitmap.createBitmap(picture, left, top, width, height));
+        return ret;
     }
 
     public static Bitmap getCorrectOrientation(String imagePath){
@@ -57,8 +52,10 @@ public class BitmapAPI {
             int rotationInDegrees = exifToDegrees(rotation);
             Matrix matrix = new Matrix();
             if (rotation != 0) {matrix.preRotate(rotationInDegrees);}
-            Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
-            Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+            //Bitmap scaledBitmap = Bitmap.createScaledBitmap(picture, picture.getWidth(), picture.getHeight(), true);
+            //Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+            Bitmap rotatedBitmap = Bitmap.createBitmap(picture, 0, 0, picture.getWidth(), picture.getHeight(), matrix, true);
+
             return rotatedBitmap;
 
         } catch (IOException e) {
@@ -74,5 +71,43 @@ public class BitmapAPI {
         return 0;
     }
 
+
+    //NEW TASK: Creating a new white-background bitmap that contains the cropped image in the middle
+    public static Bitmap getBitmapForCloud(DetectedObject detectedObject, String imagePath){
+
+        Bitmap picture = getCorrectOrientation(imagePath);
+
+        Rect boundaryBox = detectedObject.getBoundingBox();
+        int left = boundaryBox.left;
+        int top = boundaryBox.top;
+        int width = boundaryBox.width();
+        int height = boundaryBox.height();
+
+        int newLeft = left - (int)(width*0.5);
+        int newTop = top - (int)(height*0.5);
+        if(newLeft < 0) {
+            newLeft = 0;
+        }
+        if(newTop < 0) {
+            newTop = 0;
+        }
+
+        int newWidth = width + (left - newLeft) + (int)(width*0.5);
+        int newHeight = height + (top - newTop) + (int)(height*0.5);
+
+        int origWidth = picture.getWidth();
+        int origHeight = picture.getHeight();
+
+        if(newWidth + newLeft >origWidth) {
+            newWidth = origWidth - newLeft;
+        }
+        if(newTop + newHeight > origHeight) {
+            newHeight = origHeight - newTop;
+        }
+
+        Bitmap ret = (Bitmap.createBitmap(picture, newLeft, newTop, newWidth, newHeight));
+        return ret;
+
+    }
 
 }

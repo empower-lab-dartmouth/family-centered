@@ -115,7 +115,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25dp"
+            android:textSize="15dp"
             android:text=" Enter your guess here: "/>
         <EditText
             android:id="@+id/guess"
@@ -127,6 +127,12 @@
             android:layout_height="100px"
             android:src="@drawable/ic_mic"
             android:onClick="getSpeechInput"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:text="submit"
+            android:onClick="checkGuess"/>
 
     </LinearLayout>
     <TextView
