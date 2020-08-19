@@ -99,6 +99,7 @@ public class DisplayImageActivity extends AppCompatActivity {
      */
     private void displayAISpyObjects(AISpyImage generatedAiSpyImage){
         String allLabelsText = generatedAiSpyImage.getAllLabelsText();
+        allLabelsView.setMovementMethod(new ScrollingMovementMethod());
         allLabelsView.setText(allLabelsText);
 
         ImageView[] objectImages = {findViewById(R.id.objectView1), findViewById(R.id.objectView2), findViewById(R.id.objectView3), findViewById(R.id.objectView4), findViewById(R.id.objectView5), findViewById(R.id.objectView6)};
