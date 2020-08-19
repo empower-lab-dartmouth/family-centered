@@ -56,8 +56,8 @@ public class ProcessingImageActivity extends AppCompatActivity {
         Bitmap picture = BitmapAPI.getCorrectOrientation(imagePath);
         imageView.setImageBitmap(picture);
 
-        allLabelsView = findViewById(R.id.allLabels);
-        allLabelsView.setText("Processing...");
+//        allLabelsView = findViewById(R.id.allLabels);
+//        allLabelsView.setText("Processing...");
 
         Context thisContent = this.getApplicationContext();
 
