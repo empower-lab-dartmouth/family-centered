@@ -27,7 +27,7 @@ import java.util.Set;
  * In PlayWithComputerSpyActivity, the child guesses the chosen i-spy object based off of clues given by the computer.
  * The child can choose between either color clues or location clues
  */
-public class PlayWithComputerSpyActivity extends AppCompatActivity {
+public class PlayWithComputerSpyActivity extends ConversationActivity {
 
     //Views
     private TextView guessView;
@@ -42,7 +42,6 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
     private AISpyImage aiSpyImage;
     private String iSpyClue;
     private AISpyObject chosenObject;
-    private TextToSpeech voice;
     private int numGuesses;
 
     //String constants
@@ -64,18 +63,12 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     private int numCluesGiven;
     private String clueType;
-    HashMap<String, ArrayList<String>> cluePool;
+    private HashMap<String, ArrayList<String>> cluePool;
 
-
-    @Override
-    protected void onDestroy() {
-        if (voice != null){
-            voice.stop();
-            voice.shutdown();
-        }
-        super.onDestroy();
-    }
-
+    /**
+     * Initializes and resets all views and instance variables
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +84,7 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
         this.aiSpyImage = AISpyImage.getInstance();
 
-        setUpAIVoice();
+        super.setUpAIVoice(COMPUTER_INIT);
         reset();
         setISpyImage();
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
@@ -99,33 +92,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     }
 
-
-    private void setUpAIVoice(){
-        voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS){
-                    int result = voice.setLanguage(Locale.US);
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        Log.e("TTS", "Language not supported");
-                    } else {
-
-                    }
-
-                    voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
-                }
-            }
-        }, "com.google.android.tts");
-
-        //https://stackoverflow.com/questions/9815245/android-text-to-speech-male-voice
-        Set<String> a=new HashSet<>();
-        a.add("male");//here you can give male if you want to select male voice.
-        Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,a);
-        voice.setVoice(v);
-        voice.setSpeechRate(0.8f);
-    }
-
+    /**
+     * Resets all aspects of the i-spy game PlayWithComputerSpyActivity except for the picture
+     */
     private void reset(){
         this.numGuesses = 0;
 
@@ -144,6 +113,11 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         numCluesGiven = 0;
     }
 
+    /**
+     * makes string clues for every feature/clue type of a detected object: color, location, wiki, and conceptnet
+     * @param features
+     * @return a HashMap that maps from the clue type to an ArrayList of possible clues
+     */
     private HashMap<String, ArrayList<String>> makeCluePool(Features features){
         HashMap<String, ArrayList<String>> cluePool = new HashMap<>();
         ArrayList<String> colorClue = new ArrayList<>();
@@ -160,6 +134,11 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         return cluePool;
     }
 
+    /**
+     * Converts all relations and endpoints of the concept net to an ArrayList of string clues
+     * @param conceptNetMap
+     * @return ArrayList of string concept net clues
+     */
     private ArrayList<String> makeConceptNetClues(HashMap<String, ArrayList<String>> conceptNetMap){
         ArrayList<String> conceptNetClues = new ArrayList<>();
         for (String relation : conceptNetMap.keySet()){
@@ -171,6 +150,11 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         return conceptNetClues;
     }
 
+    /**
+     * Converts all directions and endpoints of location features to an ArrayList of string clues
+     * @param locations
+     * @return ArrayList of string location clues
+     */
     private ArrayList<String> makeLocationClues(HashMap<String, HashSet<AISpyObject>> locations){
         ArrayList<String> locationClues = new ArrayList<>();
         for (String direction : locations.keySet()){
@@ -188,6 +172,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         return locationClues;
     }
 
+    /**
+     * Sets an ImageView on the screen with the user-chosen image
+     */
     private void setISpyImage(){
         ImageView fullImage = findViewById(R.id.fullImage);
         Bitmap fullImageBitmap = BitmapAPI.getCorrectOrientation(aiSpyImage.getFullImagePath());
@@ -195,14 +182,21 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * calls the private method checkGuess, passing in the text from the guessView
+     * @param view
+     */
     public void checkGuess(View view){
         String guess = guessView.getText().toString();
         checkGuess(guess);
     }
 
-
+    /**
+     * Loops through all possible answers to see if the guess is correct. If it is correct, calls handleCorrectGuess()
+     * If it is incorrect, calls handleIncorrectGuess()
+     * @param guess
+     */
     private void checkGuess(String guess) {
-//        String guess = guessView.getText().toString();
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
 
         for (String possibleAnswer: possibleAnswers){
@@ -215,6 +209,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         handleIncorrectGuess();
     }
 
+    /**
+     * Prompts the computer to speak the appropriate congratulatory message
+     */
     private void handleCorrectGuess(){
         if (numGuesses == 0){
             resultView.setText(CHILD_CORRECT_FIRST_TRY);
@@ -225,6 +222,10 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * If there are still guesses remaining, calls setUpNextGuess()
+     * Otherwise, prompts the computer to speak the COMPUTER_WINS message
+     */
     private void handleIncorrectGuess(){
         this.numGuesses++;
         if (numGuesses < NUM_GUESSES_ALLOWED){
@@ -235,6 +236,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Resets the guessView and prompts the computer to speak the next remark prompting the user to make another guess
+     */
     private void setUpNextGuess(){
         guessView.setText("");
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
@@ -288,7 +292,6 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
             iSpyClue = "out of clues";
         }
 
-
         iSpyClueView.setText(iSpyClue);
         numCluesGiven++;
 
@@ -296,17 +299,8 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     }
 
-    //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, GUESS_INPUT_REQUEST);
-        } else {
-            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-        }
+        super.startSpeechRecognition(GUESS_INPUT_REQUEST);
     }
 
     @Override

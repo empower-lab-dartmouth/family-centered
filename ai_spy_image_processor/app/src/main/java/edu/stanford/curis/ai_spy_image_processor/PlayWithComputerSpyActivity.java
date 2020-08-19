@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.sql.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Random;
@@ -30,7 +31,7 @@ import java.util.Set;
  * In PlayWithComputerSpyActivity, the child guesses the chosen i-spy object based off of clues given by the computer.
  * The child can choose between either color clues or location clues
  */
-public class PlayWithComputerSpyActivity extends AppCompatActivity {
+public class PlayWithComputerSpyActivity extends ConversationActivity {
 
     //Views
     private TextView guessView;
@@ -39,13 +40,13 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
     private TextView resultView;
     private TextView computerRemarkView;
 
-    //constants
+    //Constants
     private final int NUM_GUESSES_ALLOWED = 5;
 
+    //Instance variables
     private AISpyImage aiSpyImage;
     private String iSpyClue;
     private AISpyObject chosenObject;
-    private TextToSpeech voice;
     private int numGuesses;
 
     //String constants
@@ -57,27 +58,25 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
     private final String CHILD_CORRECT = "You got it right! One point for you.";
     private final String ISPY_PRELUDE = "I spy something that ";
 
-    private final int COLOR_CLUE = 1;
-    private final int LOCATION_CLUE = 2;
-    private final int GENERAL_KNOWLEDGE_CLUE = 3;
-    private final int CONCEPTNET_CLUE= 4;
+    private final String COLOR_CLUE = "COLOR";
+    private final String LOCATION_CLUE = "LOCATION";
+    private final String WIKI_CLUE = "WIKI";
+    private final String CONCEPTNET_CLUE= "CONCEPTNET";
     private final int GUESS_INPUT_REQUEST = 10;
+    public final String TAG = "COMPUTER_SPY";
 
+    private int numCluesGiven;
+    private String clueType;
+    private HashMap<String, ArrayList<String>> cluePool;
 
-    @Override
-    protected void onDestroy() {
-        if (voice != null){
-            voice.stop();
-            voice.shutdown();
-        }
-        super.onDestroy();
-    }
-
+    /**
+     * Initializes and resets all views and instance variables
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.computer_spy);
-
 
         //Set views
         resultView = findViewById(R.id.result);
@@ -88,7 +87,7 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
         this.aiSpyImage = AISpyImage.getInstance();
 
-        setUpAIVoice();
+        super.setUpAIVoice(COMPUTER_INIT);
         reset();
         setISpyImage();
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
@@ -96,33 +95,9 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
     }
 
-
-    private void setUpAIVoice(){
-        voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS){
-                    int result = voice.setLanguage(Locale.US);
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        Log.e("TTS", "Language not supported");
-                    } else {
-
-                    }
-
-                    voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
-                }
-            }
-        }, "com.google.android.tts");
-
-        //https://stackoverflow.com/questions/9815245/android-text-to-speech-male-voice
-        Set<String> a=new HashSet<>();
-        a.add("male");//here you can give male if you want to select male voice.
-        Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,a);
-        voice.setVoice(v);
-        voice.setSpeechRate(0.8f);
-    }
-
+    /**
+     * Resets all aspects of the i-spy game PlayWithComputerSpyActivity except for the picture
+     */
     private void reset(){
         this.numGuesses = 0;
 
@@ -136,36 +111,107 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
 
 
         chosenObject = aiSpyImage.chooseRandomObject();
-
+        Features features = aiSpyImage.getiSpyMap().get(chosenObject);
+        cluePool = makeCluePool(features);
+        numCluesGiven = 0;
     }
 
+    /**
+     * makes string clues for every feature/clue type of a detected object: color, location, wiki, and conceptnet
+     * @param features
+     * @return a HashMap that maps from the clue type to an ArrayList of possible clues
+     */
+    private HashMap<String, ArrayList<String>> makeCluePool(Features features){
+        HashMap<String, ArrayList<String>> cluePool = new HashMap<>();
+        ArrayList<String> colorClue = new ArrayList<>();
+        colorClue.add(features.color);
+        ArrayList<String> wikiClue = new ArrayList<>();
+        wikiClue.add(features.wiki);
+        ArrayList<String> locationClues = makeLocationClues(features.locations);
+        ArrayList<String> conceptNetClues = makeConceptNetClues(features.conceptNet);
+
+        cluePool.put(COLOR_CLUE, colorClue);
+        cluePool.put(WIKI_CLUE, wikiClue);
+        if (locationClues.size() != 0) cluePool.put(LOCATION_CLUE, locationClues);
+        if (conceptNetClues.size() != 0) cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
+        return cluePool;
+    }
+
+    /**
+     * Converts all relations and endpoints of the concept net to an ArrayList of string clues
+     * @param conceptNetMap
+     * @return ArrayList of string concept net clues
+     */
+    private ArrayList<String> makeConceptNetClues(HashMap<String, ArrayList<String>> conceptNetMap){
+        ArrayList<String> conceptNetClues = new ArrayList<>();
+        for (String relation : conceptNetMap.keySet()){
+            for (String endpoint : conceptNetMap.get(relation)){
+                String conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
+                conceptNetClues.add(conceptNetClue);
+            }
+        }
+        return conceptNetClues;
+    }
+
+    /**
+     * Converts all directions and endpoints of location features to an ArrayList of string clues
+     * @param locations
+     * @return ArrayList of string location clues
+     */
+    private ArrayList<String> makeLocationClues(HashMap<String, HashSet<AISpyObject>> locations){
+        ArrayList<String> locationClues = new ArrayList<>();
+        for (String direction : locations.keySet()){
+            for (AISpyObject object : locations.get(direction)){
+                String locationClue = "";
+                String label = object.getPossibleLabels().get(0); //Get the top label
+                if (direction == "above" || direction == "below"){
+                    locationClue = "is " + direction + " the " + label.toLowerCase();
+                } else if (direction == "right" || direction == "left"){
+                    locationClue = "is to the " + direction + " of the " + label.toLowerCase();
+                }
+                locationClues.add(locationClue);
+            }
+        }
+        return locationClues;
+    }
+
+    /**
+     * Sets an ImageView on the screen with the user-chosen image
+     */
     private void setISpyImage(){
         ImageView fullImage = findViewById(R.id.fullImage);
         Bitmap fullImageBitmap = BitmapAPI.getCorrectOrientation(aiSpyImage.getFullImagePath());
         fullImage.setImageBitmap(fullImageBitmap);
     }
 
-
+    /**
+     * calls the private method checkGuess, passing in the text from the guessView
+     * @param view
+     */
     public void checkGuess(View view){
         String guess = guessView.getText().toString();
         checkGuess(guess);
     }
 
-
+    /**
+     * Loops through all possible answers to see if the guess is correct. If it is correct, calls handleCorrectGuess()
+     * If it is incorrect, calls handleIncorrectGuess()
+     * @param guess
+     */
     private void checkGuess(String guess) {
-//        String guess = guessView.getText().toString();
         ArrayList<String> possibleAnswers = chosenObject.getPossibleLabels();
-
         for (String possibleAnswer: possibleAnswers){
             if (guess.toLowerCase().contains(possibleAnswer)){
                 handleCorrectGuess();
                 return;
             }
         }
-
         handleIncorrectGuess();
     }
 
+    /**
+     * Prompts the computer to speak the appropriate congratulatory message
+     */
     private void handleCorrectGuess(){
         if (numGuesses == 0){
             resultView.setText(CHILD_CORRECT_FIRST_TRY);
@@ -176,16 +222,23 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * If there are still guesses remaining, calls setUpNextGuess()
+     * Otherwise, prompts the computer to speak the COMPUTER_WINS message
+     */
     private void handleIncorrectGuess(){
         this.numGuesses++;
         if (numGuesses < NUM_GUESSES_ALLOWED){
             setUpNextGuess();
         } else {
-            resultView.setText(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0));
-            voice.speak(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0), TextToSpeech.QUEUE_FLUSH, null, null);
+            resultView.setText(COMPUTER_WINS + chosenObject.getPrimaryLabel());
+            voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, null);
         }
     }
 
+    /**
+     * Resets the guessView and prompts the computer to speak the next remark prompting the user to make another guess
+     */
     private void setUpNextGuess(){
         guessView.setText("");
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
@@ -197,97 +250,91 @@ public class PlayWithComputerSpyActivity extends AppCompatActivity {
         reset();
     }
 
-    private void giveClue(int clueType){
+    /**
+     * Randomly chooses a clueType from whatever clue types is passed in. Then randomly selects a clue from that
+     * clueType to use for the current iSpyClue. Removes that clue from the cluePool so that there are no repeat clues
+     * @param clueType is the clueType to give a clue for
+     */
+    private void giveClue(String clueType){
         TextView iSpyClueView = findViewById(R.id.iSpyClue);
-        Features features = aiSpyImage.getiSpyMap().get(chosenObject);
+        Random rand = new Random();
+        if(!cluePool.keySet().isEmpty()){
 
-        switch(clueType){
-            case COLOR_CLUE:
-                iSpyClue = "is " + features.color;
-                break;
-            case LOCATION_CLUE:
-                iSpyClue = getLocationClue(features);
-                break;
-            case GENERAL_KNOWLEDGE_CLUE:
-                iSpyClue = features.wiki;
-                break;
-            case CONCEPTNET_CLUE:
-                iSpyClue = getConceptNetClue(features);
+            switch(clueType){
+                case COLOR_CLUE:
+                    if(cluePool.containsKey(COLOR_CLUE)){
+                        iSpyClue = "is " + cluePool.get(COLOR_CLUE).get(0);
+                        cluePool.remove(COLOR_CLUE);
+                    } else {
+                        iSpyClue = "no more color clues";
+                    }
+                    break;
+                case LOCATION_CLUE:
+                    if(cluePool.containsKey(LOCATION_CLUE)){
+                        ArrayList<String> locations = cluePool.get(LOCATION_CLUE);
+                        int i = rand.nextInt(locations.size());
+                        iSpyClue = locations.get(i);
+                        locations.remove(i);
+                        if (locations.size() == 0) cluePool.remove(LOCATION_CLUE);
+                    } else {
+                        iSpyClue = "no more location clues";
+                    }
+                    break;
+                case WIKI_CLUE:
+                    if(cluePool.containsKey(WIKI_CLUE)){
+                        iSpyClue = cluePool.get(WIKI_CLUE).get(0);
+                        cluePool.remove(WIKI_CLUE);
+                    } else {
+                        iSpyClue = "no more wiki clues";
+                    }
+                    break;
+                case CONCEPTNET_CLUE:
+                    if(cluePool.containsKey(CONCEPTNET_CLUE)){
+                        ArrayList<String> conceptNetClues = cluePool.get(CONCEPTNET_CLUE);
+                        int i = rand.nextInt(conceptNetClues.size());
+                        iSpyClue = conceptNetClues.get(i);
+                        conceptNetClues.remove(i);
+                        if (conceptNetClues.size() == 0) cluePool.remove(CONCEPTNET_CLUE);
+                    } else {
+                        iSpyClue = "no more concept net clues";
+                    }
+                    break;
+            }
+        } else {
+            Log.i(TAG, "out of clues");
+            iSpyClue = "out of clues";
         }
 
         iSpyClueView.setText(iSpyClue);
+        numCluesGiven++;
+
         voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
 
     }
 
-    private String getConceptNetClue(Features features){
-        String conceptNetClue = "";
-        Random rand = new Random();
-        if (features.conceptNet != null){
-            int numRelations = features.conceptNet.keySet().size();
-            if (numRelations != 0){
-                String relation = features.conceptNet.keySet().toArray(new String[numRelations])[rand.nextInt(numRelations)]; //Get random direction from location features
-                ArrayList<String> endpoints = features.conceptNet.get(relation);
-                String endpoint = endpoints.get(rand.nextInt(endpoints.size())); //Get random endpoint from chosen relation
-                conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
-            }
-        }
-
-        return conceptNetClue;
-    }
-
-    private String getLocationClue(Features features){
-        String locationClue = "";
-        Random rand = new Random();
-        int numDirections = features.locations.keySet().size();
-        if (numDirections != 0){
-            String direction = features.locations.keySet().toArray(new String[numDirections])[rand.nextInt(numDirections)]; //Get random direction from location features
-            int numObjectsForDirection = features.locations.get(direction).size();
-            AISpyObject object = features.locations.get(direction).toArray(new AISpyObject[numObjectsForDirection])[rand.nextInt(numObjectsForDirection)]; //Get random object from chosen direction
-            int numLabelsForObject = object.getPossibleLabels().size(); //Get random label from chosen object
-            String label = object.getPossibleLabels().get(rand.nextInt(numLabelsForObject));
-
-            if (direction == "above" || direction == "below"){
-                locationClue = "is " + direction + " the " + label.toLowerCase();
-            } else if (direction == "right" || direction == "left"){
-                locationClue = "is to the " + direction + " of the " + label.toLowerCase();
-            }
-        }
-        return locationClue;
-    }
-
     public void giveConceptNetClue(View view){
-        int clueType = CONCEPTNET_CLUE;
+        String clueType = CONCEPTNET_CLUE;
         giveClue(clueType);
     }
 
     public void giveWikiClue(View view){
-        int clueType = GENERAL_KNOWLEDGE_CLUE;
+        String clueType = WIKI_CLUE;
         giveClue(clueType);
     }
 
     public void giveColorClue(View view) {
-        int clueType = COLOR_CLUE;
+        String clueType = COLOR_CLUE;
         giveClue(clueType);
     }
 
     public void giveLocationClue(View view) {
-        int clueType = LOCATION_CLUE;
+        String clueType = LOCATION_CLUE;
         giveClue(clueType);
 
     }
 
-    //https://www.youtube.com/watch?v=0bLwXw5aFOs
     public void getSpeechInput(View view){
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, GUESS_INPUT_REQUEST);
-        } else {
-            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-        }
+        super.startSpeechRecognition(GUESS_INPUT_REQUEST);
     }
 
     @Override

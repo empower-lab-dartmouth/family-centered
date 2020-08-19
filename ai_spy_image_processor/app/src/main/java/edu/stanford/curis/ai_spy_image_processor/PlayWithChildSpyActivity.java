@@ -32,9 +32,10 @@ import java.util.concurrent.CountDownLatch;
  * In PlayWithChildSpyActivity, the computer guesses the chosen i spy object based off of clues given by the child
  */
 
-public class PlayWithChildSpyActivity extends AppCompatActivity {
+public class PlayWithChildSpyActivity extends ConversationActivity {
     public CountDownLatch speakLatch;
 
+    //Used as key words to detect if a clue is a color clue
     private final HashSet<String> commonColors;
     {
         commonColors = new HashSet<>();
@@ -51,13 +52,29 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         commonColors.add("purple");
     }
 
-    private final HashSet<String> commonRelativeLocations;
+    //Used as key words to detect if a clue is a location clue
+    private final HashMap<String,HashSet<String>> commonRelativeLocations;
     {
-        commonRelativeLocations = new HashSet<>();
-        commonRelativeLocations.add("right");
-        commonRelativeLocations.add("left");
-        commonRelativeLocations.add("above");
-        commonRelativeLocations.add("below");
+        commonRelativeLocations = new HashMap<>();
+        HashSet<String> commonIndicatorsOfRight = new HashSet<>();
+        commonIndicatorsOfRight.add("right");
+        commonRelativeLocations.put("right", commonIndicatorsOfRight);
+
+        HashSet<String> commonIndicatorsOfLeft = new HashSet<>();
+        commonIndicatorsOfRight.add("left");
+        commonRelativeLocations.put("left", commonIndicatorsOfLeft);
+
+        HashSet<String> commonIndicatorsOfAbove = new HashSet<>();
+        commonIndicatorsOfAbove.add("above");
+        commonIndicatorsOfAbove.add("over");
+        commonIndicatorsOfAbove.add("top");
+        commonRelativeLocations.put("above", commonIndicatorsOfAbove);
+
+        HashSet<String> commonIndicatorsOfBelow = new HashSet<>();
+        commonIndicatorsOfBelow.add("below");
+        commonIndicatorsOfBelow.add("under");
+        commonIndicatorsOfBelow.add("top");
+        commonRelativeLocations.put("below", commonIndicatorsOfBelow);
     }
 
     //Views
@@ -69,9 +86,9 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
 
     //constants
     private final int NUM_GUESSES_ALLOWED = 5;
+    private final int MAX_GUESSES_FOR_ONE_OBJECT = 3;
     private final int COLOR_CLUE = 1;
     private final int LOCATION_CLUE = 2;
-    private final int GENERAL_KNOWLEDGE_CLUE = 3;
 
     //String constants
     private final String COMPUTER_INIT = "Great, you do the spying";
@@ -86,7 +103,6 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
     private HashMap<AISpyObject, Features> iSpyMap;
     private String iSpyClue;
     private AISpyObject computerGuess;
-    private TextToSpeech voice;
     private int numGuesses;
     private int numDesperateGuesses;
     private int numGuessesForCurrentObject;
@@ -98,22 +114,15 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
     private final int CLUE_INPUT_REQUEST = 11;
     private final int FEEDBACK_INPUT_REQUEST = 12;
 
-
-
-    @Override
-    protected void onDestroy() {
-        if (voice != null){
-            voice.stop();
-            voice.shutdown();
-        }
-        super.onDestroy();
-    }
-
+    /**
+     * Initializes and resets all views and instance variables
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.child_spy);
-        setUpAIVoice();
+        super.setUpAIVoice(COMPUTER_INIT);
 
         this.aiSpyImage = AISpyImage.getInstance();
         this.clueType = 0;
@@ -135,82 +144,65 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         fullImage.setImageBitmap(fullImageBitmap);
     }
 
-    private void setUpAIVoice(){
-        voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS){
-                    int result = voice.setLanguage(Locale.US);
-
-                    if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
-                        Log.e("TTS", "Language not supported");
-                    } else {
-
-                    }
-
-                    voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
-                }
-            }
-        }, "com.google.android.tts");
-
-        //https://stackoverflow.com/questions/9815245/android-text-to-speech-male-voice
-        Set<String> a=new HashSet<>();
-        a.add("male");//here you can give male if you want to select male voice.
-        Voice v=new Voice("en-us-x-sfg#male_2-local",new Locale("en","US"),400,200,true,a);
-        voice.setVoice(v);
-        voice.setSpeechRate(0.8f);
-    }
-
     /***** Methods for computer guessing *****/
 
+    /**
+     * Searches the given clue for key words in order to determine the clue type
+     * PlayWithChildSpyActivity currently is only able to detect location and color clues.
+     * If the clue is neither, the computer will guess in desperateMode
+     */
     private void determineClueType(){
         iSpyClue = iSpyClueView.getText().toString();
         String args[] = new String[1];
-        Context thisContext = this.getApplicationContext();
 
-
-        for (String relativeLocation: commonRelativeLocations){ //Check if clue is relative location clue
-            if (iSpyClue.contains(relativeLocation)){
-                clueType = LOCATION_CLUE;
-                getClueEssentials(relativeLocation);
-                return;
+        //Check if clue is relative location clue
+        for (String relativeLocation: commonRelativeLocations.keySet()){
+            for (String commonIndicator: commonRelativeLocations.get(relativeLocation)) {
+                if (iSpyClue.contains(commonIndicator)) {
+                    clueType = LOCATION_CLUE;
+                    getClueEssentials(relativeLocation);
+                    return;
+                }
             }
         }
 
-        for (String color : commonColors){ //Check if clue is a color clue
+        //Check if clue is a color clue
+        for (String color : commonColors){
             if (iSpyClue.contains(color)){
                 clueType = COLOR_CLUE;
                 getClueEssentials(color);
                 return;
             }
         }
-        //TODO: Check if general knowledge clue type
     }
 
+    /**
+     * Fills clueEssentials with important clue information. clueEssentials[0] stores the primary information (the color or the relative direction)
+     * clueEssentials[1] stores the entire clue given
+     */
     private void getClueEssentials(String primary){
-
         if (clueType == COLOR_CLUE){
             clueEssentials[0] = primary;
         } else if (clueType == LOCATION_CLUE){
             clueEssentials[0] = primary;
             clueEssentials[1] = iSpyClue;
-            //TODO: Put noun phrase of iSpyClue in clueEssentials[1]
-        } else if (clueType == GENERAL_KNOWLEDGE_CLUE){
-            //TODO
-            return;
         }
         else{
             return;
         }
     }
 
+    /**
+     * Returns the computers next guess. First tries to find an AISpyObject that matches the clue given. Will make up to MAX_GUESSES_FOR_ONE_OBJECT label guesses
+     * based off of a found matching AISpyObject. If can't find a matching AISpyObject, will go to desperateMode and guess labels from the top of allLabels that were detected
+     */
     private String makeGuess(){
         String guess = "";
 
         if (desperateMode){ //Make desperate guess if can't find object
             guess = getDesperateGuess();
         }
-        else if(numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < 3 && numGuessesForCurrentObject < computerGuess.getPossibleLabels().size()){ //Guess another label for current object if have only made 1 other guess for that object
+        else if(canMakeAnotherGuessForCurrentObject()){ //Guess another label for current object if have only made 1 other guess for that object
             guess = computerGuess.getPossibleLabels().get(numGuessesForCurrentObject);
             numGuessesForCurrentObject++;
         } else { //Try finding a new object
@@ -222,12 +214,9 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
                 case LOCATION_CLUE:
                     computerGuess = findObjectFromLocation();
                     break;
-                case GENERAL_KNOWLEDGE_CLUE:
-                    computerGuess = findObjectFromGeneralKnowledge(); //TODO
-                    break;
             }
 
-            if (computerGuess == null){
+            if (computerGuess == null){ //If couldn't find a possible object based on the clue, go to desperate mode
                 desperateMode = true;
                 guess = makeGuess();
             } else {
@@ -240,6 +229,18 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         return guess;
     }
 
+    /**
+     * Returns true if it is not the first guess for the currentObject that has been found, but is also less than MAX_GUESSES_FOR_ONE_OBJECT
+     * @return
+     */
+    private boolean canMakeAnotherGuessForCurrentObject(){
+        return numGuessesForCurrentObject != 0 && numGuessesForCurrentObject < MAX_GUESSES_FOR_ONE_OBJECT && numGuessesForCurrentObject < computerGuess.getPossibleLabels().size();
+    }
+
+    /**
+     * Only called when in desperateMode. Returns a label from allLabels that have been detected by the computer. The label returned is located at the
+     * index of this.numDesperateGuesses
+     */
     private String getDesperateGuess(){
         if (this.numDesperateGuesses < aiSpyImage.getAllLabels().size()){
             String guess = aiSpyImage.getAllLabels().get(this.numDesperateGuesses).getText();
@@ -251,6 +252,10 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Returns a detected AISpyObject that has a matching color to the given clue. Skips any AISpyObject that has already been guessed.
+     * Returns null if there are no matching AISpyObjects
+     */
     private AISpyObject findObjectFromColor(){
         String colorClue = clueEssentials[0];
         for (AISpyObject object: iSpyMap.keySet()){
@@ -262,6 +267,10 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     * Returns a detected AISpyObject that has a matching relative location to the given clue. Skips any AISpyObject that has already been guessed.
+     * Returns null if there are no matching AISpyObjects
+     */
     private AISpyObject findObjectFromLocation(){
 
         String direction = clueEssentials[0];
@@ -271,7 +280,7 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
             if (alreadyGuessedObjects.contains(object)) continue;
             HashMap<String, HashSet<AISpyObject>> locationsMao = iSpyMap.get(object).locations;
             if (locationsMao.containsKey(direction)){
-                for (AISpyObject possibleRelativeObject: locationsMao.get(direction)){ //TODO: make faster by having locationsMap map to a hash set string of labels instead of objects
+                for (AISpyObject possibleRelativeObject: locationsMao.get(direction)){
                     for (String label : possibleRelativeObject.getPossibleLabels()){
                         if (wholeClue.contains(label.toLowerCase())){
                             return object;
@@ -283,15 +292,12 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         return null;
     }
 
-    private AISpyObject findObjectFromGeneralKnowledge(){
-        //TODO
-        return null;
-    }
-
-
-
     /****** Public listener Methods ********/
 
+    /**
+     * Computer makes the first guess after determining clue type.
+     * @param view
+     */
     public void startComputerGuessing(View view) {
         makeRemark();
         determineClueType();
@@ -311,20 +317,24 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         reset();
     }
 
-    public void handleCorrectGuess(View view) {
-        handleCorrectGuess();
-    }
+    /**
+     * Prompts computer to speak COMPUTER_WON_REMARK
+     */
     private void handleCorrectGuess(){
         resultView.setText(COMPUTER_WON_REMARK);
         voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, null);
     }
-
-    public void handleIncorrectGuess(View view) throws InterruptedException {
-        handleIncorrectGuess();
+    public void handleCorrectGuess(View view) {
+        handleCorrectGuess();
     }
 
+    /**
+     * Does nothing if user has already reached max NUM_GUESSES_ALLOWED. If this incorrect guess puts the computer
+     * at max NUM_GUESSES_ALLOWED, prompts the computer to speak COMPUTER_LOST_REMARK. Otherwise, if the computer
+     * still has guesses remaining, the computer makes another guess
+     */
     private void handleIncorrectGuess(){
-        if (numGuesses == 5) return;
+        if (numGuesses == NUM_GUESSES_ALLOWED) return;
         String toSay = "";
         this.numGuesses++;
         if (numGuesses != NUM_GUESSES_ALLOWED){
@@ -351,9 +361,16 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
         voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, null);
 
     }
+    public void handleIncorrectGuess(View view) throws InterruptedException {
+        handleIncorrectGuess();
+    }
+
 
     /****** Other Helper Methods *******/
 
+    /**
+     * Resets all aspects of the ispy game PlayWithChildSpyActivity except for the picture
+     */
     private void reset(){
         this.numGuesses = 0;
         this.numDesperateGuesses = 0;
@@ -370,12 +387,16 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
 
     }
 
+
     private void updateRemainingGuesses(){
         remainingGuessesView = findViewById(R.id.remainingGuesses);
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
     }
 
 
+    /**
+     * Prompts the computer to speak a remark depending on which guess the computer is on.
+     */
     private void makeRemark() {
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
         voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, null);
@@ -385,23 +406,11 @@ public class PlayWithChildSpyActivity extends AppCompatActivity {
     /***** Methods for speech recognition *******/
 
     public void getSpeechClueInput(View view){
-        startSpeechRecognition(CLUE_INPUT_REQUEST);
+        super.startSpeechRecognition(CLUE_INPUT_REQUEST);
     }
 
     public void getSpeechFeedbackInput(View view) {
-        startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
-    }
-
-    private void startSpeechRecognition(int request){
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-
-        if (intent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(intent, request);
-        } else {
-            Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
-        }
+        super.startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
     }
 
     @Override

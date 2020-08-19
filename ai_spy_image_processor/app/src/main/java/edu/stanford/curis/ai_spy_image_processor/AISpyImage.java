@@ -299,6 +299,7 @@ AISpyImage implements Serializable {
 
     /**
      * getConceptNet calls ConceptNetAPI.getConceptNetMap and returns the first concept net map that is populated with meaningful content
+     * Which ever label creates the most populated concept net is stored as the AISpyObject's "primary label"
      * @param obj
      * @param thisContext
      * @return
@@ -309,6 +310,7 @@ AISpyImage implements Serializable {
             HashMap<String, ArrayList<String>> possibleConceptNetMap = ConceptNetAPI.getConceptNetMap(label, thisContext);
             if (ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap) != 0){
                 conceptNetMap = possibleConceptNetMap;
+                obj.setPrimaryLabel(label);
                 return conceptNetMap;
             }
         }

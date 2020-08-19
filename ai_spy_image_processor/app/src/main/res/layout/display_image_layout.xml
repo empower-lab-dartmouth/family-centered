@@ -25,7 +25,8 @@
                 android:id="@+id/allLabels"
                 android:layout_width="wrap_content"
                 android:layout_height="200dp"
-                android:text="TextView" />
+                android:text="TextView"
+                android:scrollbars = "vertical"/>
 
             <ImageView
                 android:id="@+id/imageView"
