@@ -49,6 +49,7 @@ public class AISpyObject implements Serializable {
     public void setColor(String color) {
         this.color = color;
     }
+
     public String getColor() {
         return color;
     }
