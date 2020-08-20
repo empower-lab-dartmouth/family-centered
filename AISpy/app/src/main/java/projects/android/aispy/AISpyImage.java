@@ -85,7 +85,7 @@ AISpyImage implements Serializable {
             try {
                 File file = new File(newFilePath);
                 FileOutputStream fOut = new FileOutputStream(file);
-                croppedObject.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+                croppedObject.compress(Bitmap.CompressFormat.JPEG, 80, fOut);
                 fOut.flush();
                 fOut.close();
             }
@@ -108,7 +108,7 @@ AISpyImage implements Serializable {
             /** c) Find the object's color **/
             //Find the dominant color in the object
             String color = (findColorInLabels(objectLabels));
-            //create a new Bitmap for color detection
+            //create a new customized bitmap for color detection
             Bitmap croppedForColorObject = null;
             if(color == null){
                 croppedForColorObject = BitmapAPI.getBitmapForCloud(detectedObject, imagePath);
@@ -119,8 +119,6 @@ AISpyImage implements Serializable {
                 AISpyObject aiSpyObject = new AISpyObject(croppedObject, croppedForColorObject, newFilePath, detectedObject.getBoundingBox(), objectLabels, color);
                 aiSpyObjects.add(aiSpyObject);
             }
-
-
         }
         //Detect colors for those objects whose color == null
         ArrayList<AISpyObject> refineColorList = new ArrayList<>();
@@ -137,6 +135,8 @@ AISpyImage implements Serializable {
         }
         //add them back after naming their colors.
         aiSpyObjects.addAll(new ColorDetectorAPI(refineColorList, thisContext).getReturnList());
+        System.out.println("Test time 2");
+
         allObjects = aiSpyObjects;
 
         /** 4) Create the ISpy Map to map objects to their corresponding features **/
@@ -299,6 +299,7 @@ AISpyImage implements Serializable {
 
     /**
      * getConceptNet calls ConceptNetAPI.getConceptNetMap and returns the first concept net map that is populated with meaningful content
+     * Which ever label creates the most populated concept net is stored as the AISpyObject's "primary label"
      * @param obj
      * @param thisContext
      * @return
@@ -309,6 +310,7 @@ AISpyImage implements Serializable {
             HashMap<String, ArrayList<String>> possibleConceptNetMap = ConceptNetAPI.getConceptNetMap(label, thisContext);
             if (ConceptNetAPI.getConceptNetMapScore(possibleConceptNetMap) != 0){
                 conceptNetMap = possibleConceptNetMap;
+                obj.setPrimaryLabel(label);
                 return conceptNetMap;
             }
         }

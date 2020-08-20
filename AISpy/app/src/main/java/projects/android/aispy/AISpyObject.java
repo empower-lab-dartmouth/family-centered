@@ -18,6 +18,7 @@ public class AISpyObject implements Serializable {
     private String imageFileName;
     private Bitmap image;
     private Bitmap imageForColorDetection;
+    private String primaryLabel;
     private ArrayList<FirebaseVisionImageLabel> labels;
     private String color;
     private Rect location;
@@ -31,9 +32,21 @@ public class AISpyObject implements Serializable {
         this.color = color;
     }
 
+    public void setPrimaryLabel(String primaryLabel) {
+        this.primaryLabel = primaryLabel;
+    }
+
+    public String getPrimaryLabel(){
+        if (this.primaryLabel == null){
+            return labels.get(0).getText().toLowerCase();
+        }
+        return this.primaryLabel;
+    }
+
     public void setColor(String color) {
         this.color = color;
     }
+
     public String getColor() {
         return color;
     }
