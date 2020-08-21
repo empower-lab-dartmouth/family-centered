@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
 import android.view.View;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class WelcomeActivity extends ConversationActivity {
 //    private TextToSpeech voice;
     private View view;
     private final String WELCOME_MSG = "Who would you like to do the spying?";
+    private final String INCORRECT_INPUT_MSG = "Sorry I didn't catch that. Who would you like to be the spy?";
     private final int WHO_TO_SPY_INPUT_REQUEST = 9;
 
     @Override
@@ -43,10 +45,12 @@ public class WelcomeActivity extends ConversationActivity {
                     String input = result.get(0);
                     if (input.contains("child") || input.contains("me") || input.contains("I")) {
                         playWithChildSpy(view);
-                    } else if (input.contains("computer") || input.contains("you")) {
+                    } else if (input.contains("computer") || input.contains("you") || input.contains("dragon")) {
                         playWithComputerSpy(view);
                     } else {
-                        voice.speak("Sorry I didn't catch that. Who would you like to be the spy?", TextToSpeech.QUEUE_FLUSH, null, null);
+                        TextView textView = (TextView) findViewById(R.id.textview);
+                        textView.setText(INCORRECT_INPUT_MSG);
+                        voice.speak(INCORRECT_INPUT_MSG, TextToSpeech.QUEUE_FLUSH, null, null);
                     }
                 }
         }
