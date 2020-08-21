@@ -40,13 +40,6 @@
             android:layout_height="80dp"
             android:layout_weight="1"
             android:hint="Type a clue here!"/>
-        <ImageView
-            android:id="@+id/speechInput"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:layout_weight="1.5"
-            android:src="@drawable/ic_mic"
-            android:onClick="getSpeechClueInput"/>
 
     </LinearLayout>
 
@@ -109,7 +102,7 @@
         android:layout_height="60dp"
         android:src="@drawable/ic_mic"
         android:layout_gravity="center"
-        android:onClick="getSpeechFeedbackInput"/>
+        android:onClick="getSpeechInput"/>
 
     <TextView
         android:id="@+id/remainingGuesses"

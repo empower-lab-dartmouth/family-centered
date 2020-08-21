@@ -97,6 +97,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     private HashSet<AISpyObject> alreadyGuessedObjects;
     private String[] clueEssentials;
     private boolean desperateMode;
+    private boolean hasGivenClue;
 
     private final int CLUE_INPUT_REQUEST = 11;
     private final int FEEDBACK_INPUT_REQUEST = 12;
@@ -365,6 +366,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         this.alreadyGuessedObjects = new HashSet<>();
         this.clueEssentials = new String[2];
         this.desperateMode = false;
+        this.hasGivenClue = false;
 
         guessView.setText("");
         iSpyClueView.setText("");
@@ -392,12 +394,12 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     
     /***** Methods for speech recognition *******/
 
-    public void getSpeechClueInput(View view){
-        super.startSpeechRecognition(CLUE_INPUT_REQUEST);
-    }
-
-    public void getSpeechFeedbackInput(View view) {
-        super.startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
+    public void getSpeechInput(View view) {
+        if (!hasGivenClue){
+            super.startSpeechRecognition(CLUE_INPUT_REQUEST);
+        } else {
+            super.startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
+        }
     }
 
     @Override
@@ -414,6 +416,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                     String guess = result.get(0).toLowerCase();
                     iSpyClueView.setText(guess);
                     startComputerGuessing(findViewById(R.id.startComputerGuessingButton));
+                    hasGivenClue = true;
                 }
                 break;
             case FEEDBACK_INPUT_REQUEST:

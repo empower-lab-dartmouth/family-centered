@@ -5,22 +5,16 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Random;
-import java.util.Set;
 
 
 /**
@@ -37,21 +31,23 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private TextView computerRemarkView;
 
     //constants
-    private final int NUM_GUESSES_ALLOWED = 5;
+    private final int NUM_GUESSES_UNTIL_CHECKIN = 3;
 
     private AISpyImage aiSpyImage;
-    private String iSpyClue;
     private AISpyObject chosenObject;
     private int numGuesses;
 
     //String constants
-    private final String COMPUTER_INIT = "Great, I'll do the spying";
+    private final String COMPUTER_INIT = "Great, I'll do the spying. ";
     private final String[] COMPUTER_REMARKS = new String[]{"Can you guess what it is?", "Sorry, try again", "That's still not right, sorry. Try again!", "I'm thinking of something else, try again!", "Wanna give up?"};
     private final String MOTIVATION = "You can do it!";
     private final String COMPUTER_WINS = "Gotcha! One point for me. It's the ";
     private final String CHILD_CORRECT_FIRST_TRY = "Wow, you're right on the first try! One point for you";
     private final String CHILD_CORRECT = "You got it right! One point for you.";
     private final String ISPY_PRELUDE = "I spy something that ";
+    private final String PLAY_AGAIN_PROMPT_A = "Do you want to play again with a new image? Or do you want to use the same image?";
+    private final String PLAY_AGAIN_PROMPT_B = "Okay, I can't see anything else in this image, so let's choose a new one";
+    private final String CHECKIN = "That's still not right. Do you want to keep guessing with another clue? Or do you want to give up?";
 
 
     private final String COLOR_CLUE = "COLOR";
@@ -59,11 +55,16 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private final String WIKI_CLUE = "WIKI";
     private final String CONCEPTNET_CLUE= "CONCEPTNET";
     private final int GUESS_INPUT_REQUEST = 10;
+    private final int PLAY_AGAIN_REQUEST = 20;
+    private final int CHECKIN_REQUEST = 30;
     public final String TAG = "COMPUTER_SPY";
 
     private int numCluesGiven;
     private String clueType;
     private HashMap<String, ArrayList<String>> cluePool;
+    private ArrayList<AISpyObject> objectPool;
+    private boolean playAgainRequestInProgress;
+    private boolean checkinInProgress;
 
     /**
      * Initializes and resets all views and instance variables
@@ -83,9 +84,12 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         computerRemarkView = findViewById(R.id.computerRemark);
 
         this.aiSpyImage = AISpyImage.getInstance();
+        objectPool = aiSpyImage.getAllObjects();
 
-        super.setUpAIVoice(COMPUTER_INIT);
-        reset();
+        setUpPlayForCurrentImage();
+
+        String firstClue = ISPY_PRELUDE + getClue();
+        super.setUpAIVoice(COMPUTER_INIT + firstClue + COMPUTER_REMARKS[numGuesses]);
         setISpyImage();
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
 
@@ -95,22 +99,34 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     /**
      * Resets all aspects of the i-spy game PlayWithComputerSpyActivity except for the picture
      */
-    private void reset(){
+    private void setUpPlayForCurrentImage(){
         this.numGuesses = 0;
 
         //Clear old views
         resultView.setText("");
         guessView.setText("");
         iSpyClueView.setText("");
-        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_UNTIL_CHECKIN - numGuesses));
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
-        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
 
 
-        chosenObject = aiSpyImage.chooseRandomObject();
+        chosenObject = chooseRandomObject();
         Features features = aiSpyImage.getiSpyMap().get(chosenObject);
         cluePool = makeCluePool(features);
         numCluesGiven = 0;
+        playAgainRequestInProgress = false;
+        checkinInProgress = false;
+    }
+
+    /**
+     * Chooses a random AISpyObject from objectPool, the pool of detected AISpy objects. Deletes it from objectPool so that
+     * it can't be chosen a second time
+     */
+    private AISpyObject chooseRandomObject(){
+        Random rand = new Random();
+        AISpyObject chosenObject = this.objectPool.get(rand.nextInt(this.objectPool.size()));
+        objectPool.remove(chosenObject);
+        return chosenObject;
     }
 
     /**
@@ -228,11 +244,13 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void handleIncorrectGuess(){
         this.numGuesses++;
-        if (numGuesses < NUM_GUESSES_ALLOWED){
+        if (numGuesses < NUM_GUESSES_UNTIL_CHECKIN){
             setUpNextGuess();
         } else {
-            resultView.setText(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0));
-            voice.speak(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0), TextToSpeech.QUEUE_FLUSH, null, null);
+            checkinInProgress = true;
+            voice.speak(CHECKIN, TextToSpeech.QUEUE_FLUSH, null, null);
+//            resultView.setText(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0));
+//            voice.speak(COMPUTER_WINS + chosenObject.getPossibleLabels().get(0), TextToSpeech.QUEUE_FLUSH, null, null);
         }
     }
 
@@ -241,22 +259,57 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void setUpNextGuess(){
         guessView.setText("");
-        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_UNTIL_CHECKIN - numGuesses));
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
         voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     public void playAgain(View view) {
-        reset();
+        playAgain();
+    }
+
+    private void playAgain(){
+        if (this.objectPool.size() != 0){
+            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, null);
+            playAgainRequestInProgress = true;
+
+        } else { //Go back to first screen and choose a new image
+            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, null);
+            playAgainNewImage();
+        }
+    }
+
+    private void playAgainSameImage(){
+        setUpPlayForCurrentImage();
+        String clue = getClue();
+        voice.speak(COMPUTER_INIT + ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+    private void playAgainNewImage(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+
+    public void giveClue(View view){
+        giveClue();
+    }
+
+    private void giveClue(){
+        String clue = getClue();
+        this.numGuesses = 0;
+        guessView.setText("");
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_UNTIL_CHECKIN - numGuesses));
+        voice.speak(ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     /**
      * Randomly chooses a clueType from whatever clue types are available in the cluePool keys. Then randomly selects a clue from that
      * clueType to use for the current iSpyClue. Removes that clue from the cluePool so that there are no repeat clues
-     * @param view
      */
-    public void giveClue(View view){
+    private String getClue(){
         TextView iSpyClueView = findViewById(R.id.iSpyClue);
+        String iSpyClue = "";
         Random rand = new Random();
         ArrayList<String> clueTypes = new ArrayList<>();
         if(!cluePool.keySet().isEmpty()){
@@ -294,13 +347,20 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
 
         iSpyClueView.setText(iSpyClue);
         numCluesGiven++;
+        iSpyClue += ".";
+        return iSpyClue;
 
-        voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
-
+//        voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
     public void getSpeechInput(View view){
-        super.startSpeechRecognition(GUESS_INPUT_REQUEST);
+        if (playAgainRequestInProgress){
+            super.startSpeechRecognition(PLAY_AGAIN_REQUEST);
+        } else if (checkinInProgress){
+            super.startSpeechRecognition(CHECKIN_REQUEST);
+        } else {
+            super.startSpeechRecognition(GUESS_INPUT_REQUEST);
+        }
     }
 
     @Override
@@ -318,8 +378,31 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
                     guessView.setText(guess);
                     checkGuess(guess);
                 }
+                break;
+            case PLAY_AGAIN_REQUEST:
+                if (resultCode == RESULT_OK && data != null){
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String response = result.get(0);
+                    if (response.contains("new")){
+                        playAgainNewImage();
+                    } else if (response.contains("same")){
+                        playAgainSameImage();
+                    }
+                }
+                break;
+            case CHECKIN_REQUEST:
+                if (resultCode == RESULT_OK && data != null){
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String response = result.get(0);
+                    if (response.contains("give up")){
+                        resultView.setText(COMPUTER_WINS + chosenObject.getPrimaryLabel());
+                        checkinInProgress = false;
+                        voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, null);
+                    } else if (response.contains("another") || response.contains("clue") || response.contains("keep")){
+                        checkinInProgress = false;
+                        giveClue();
+                    }
+                }
         }
     }
-
-
 }

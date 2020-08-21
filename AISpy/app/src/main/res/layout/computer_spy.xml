@@ -32,20 +32,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="15dp"
-            android:text="  I spy something that...(clue type)"/>
+            android:text="  I spy something that..."/>
         <Space
             android:layout_width="10dp"
             android:layout_height="match_parent"/>
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:text="Give Clue"
-            android:textSize="10dp"
-            android:onClick="giveClue"
-            />
 
 
     </LinearLayout>
@@ -84,12 +74,6 @@
             android:layout_height="100px"
             android:src="@drawable/ic_mic"
             android:onClick="getSpeechInput"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15dp"
-            android:text="submit"
-            android:onClick="checkGuess"/>
 
     </LinearLayout>
     <TextView
