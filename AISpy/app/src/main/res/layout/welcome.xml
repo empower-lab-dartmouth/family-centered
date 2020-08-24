@@ -19,7 +19,7 @@
         android:background="#FFFFFF"
         android:text="Who would you like to do the spying?"
         android:textColor="#009520"
-        android:textSize="50dp"
+        android:textSize="40sp"
         app:autoSizeTextType="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
@@ -48,10 +48,10 @@
         android:onClick="playWithComputerSpy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/imageView3"
-        app:layout_constraintHorizontal_bias="0.206"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview"
-        app:layout_constraintVertical_bias="0.136"
+        app:layout_constraintVertical_bias="0.154"
         app:srcCompat="@drawable/drachenlooking" />
 
     <ImageView
@@ -65,7 +65,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview"
-        app:layout_constraintVertical_bias="0.153"
+        app:layout_constraintVertical_bias="0.168"
         app:srcCompat="@drawable/boy" />
 
 
