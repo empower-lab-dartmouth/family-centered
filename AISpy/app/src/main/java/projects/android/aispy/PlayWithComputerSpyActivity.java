@@ -78,7 +78,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
 
         //Set views
         resultView = findViewById(R.id.result);
-        guessView = findViewById(R.id.guess);
+            guessView = findViewById(R.id.guess);
         iSpyClueView = findViewById(R.id.iSpyClue);
         remainingGuessesView = findViewById(R.id.remainingGuesses);
         computerRemarkView = findViewById(R.id.computerRemark);
