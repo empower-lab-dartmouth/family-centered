@@ -245,7 +245,7 @@ AISpyImage implements Serializable {
             Features features = new Features();
             features.color = object.getColor();
             features.locations = generateLocationFeatures(object);
-            features.wiki = getWiki(object, thisContext);
+//            features.wiki = getWiki(object, thisContext);
             features.conceptNet = getConceptNet(object, thisContext);
 
             iSpyMap.put(object, features);
@@ -289,20 +289,6 @@ AISpyImage implements Serializable {
         if (leftOf.size() > 0) locationMap.put("left", leftOf);
 
         return locationMap;
-    }
-
-    /**
-     * Loops through the labels of an object and for whichever one first successfully queries wiki, returns that result
-     */
-    private String getWiki(AISpyObject obj, Context thisContext){
-        for (String label : obj.getPossibleLabels()){
-            String wiki = WikiClueAPI.getWikiClue(label, thisContext);
-            if (wiki != null){
-                return wiki;
-            }
-        }
-
-        return null;
     }
 
     /**
