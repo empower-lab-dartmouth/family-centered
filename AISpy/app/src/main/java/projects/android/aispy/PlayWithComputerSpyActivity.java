@@ -300,20 +300,20 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
 
             switch(clueType){
                 case COLOR_CLUE:
-                    iSpyClue = "is " + cluePool.get(COLOR_CLUE).get(0);
+                    iSpyClue = ISPY_PRELUDE + "is " + cluePool.get(COLOR_CLUE).get(0);
                     cluePool.remove(COLOR_CLUE);
                     break;
                 case LOCATION_CLUE:
                     ArrayList<String> locations = cluePool.get(LOCATION_CLUE);
                     int i = rand.nextInt(locations.size());
-                    iSpyClue = locations.get(i);
+                    iSpyClue = ISPY_PRELUDE + locations.get(i);
                     locations.remove(i);
                     if (locations.size() == 0) cluePool.remove(LOCATION_CLUE);
                     break;
                 case CONCEPTNET_CLUE:
                     ArrayList<String> conceptNetClues = cluePool.get(CONCEPTNET_CLUE);
                     i = rand.nextInt(conceptNetClues.size());
-                    iSpyClue = conceptNetClues.get(i);
+                    iSpyClue = ISPY_PRELUDE + conceptNetClues.get(i);
                     conceptNetClues.remove(i);
                     if (conceptNetClues.size() == 0) cluePool.remove(CONCEPTNET_CLUE);
                     break;
