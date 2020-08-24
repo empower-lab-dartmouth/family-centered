@@ -64,13 +64,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         commonRelativeLocations.put("below", commonIndicatorsOfBelow);
     }
 
-    //Views
-    TextView guessView;
-    EditText iSpyClueView;
-    TextView remainingGuessesView;
-    TextView resultView;
-    TextView computerRemarkView;
-
     //constants
     private final int NUM_GUESSES_ALLOWED = 5;
     private final int MAX_GUESSES_FOR_ONE_OBJECT = 3;
@@ -124,13 +117,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
 
         objectPool = aiSpyImage.getAllObjects();
 
-        //Set views
-        guessView = findViewById(R.id.computerGuess);
-        iSpyClueView = findViewById(R.id.iSpyClue);
-        remainingGuessesView = findViewById(R.id.remainingGuesses);
-        resultView = findViewById(R.id.result);
-        computerRemarkView = findViewById(R.id.computerRemark);
-
         reset();
 
         //Set image
@@ -147,7 +133,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      * If the clue is neither, the computer will guess in desperateMode
      */
     private void determineClueType(){
-        iSpyClue = iSpyClueView.getText().toString();
         String args[] = new String[1];
 
         //Check if clue is relative location clue
@@ -220,7 +205,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                 numGuessesForCurrentObject++;
             }
         }
-
         return guess;
     }
 
@@ -244,7 +228,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         } else {
             return null;
         }
-
     }
 
     /**
@@ -297,14 +280,11 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         determineClueType();
         String guess = makeGuess();
         if (guess != null) {
-            guessView.setText(guess);
-            voice.speak(COMPUTER_GUESS + guess, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(COMPUTER_GUESS + guess, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_GUESS);
         }
         else {
-            resultView.setText(COMPUTER_LOST_REMARK);
-            voice.speak(COMPUTER_LOST_REMARK, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(COMPUTER_LOST_REMARK, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_LOST_REMARK);
         }
-        guessView.setText(guess);
     }
 
     public void playAgain(View view) {
@@ -324,12 +304,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         this.desperateMode = false;
         this.hasGivenClue = false;
         this.playAgainRequestInProgress = false;
-
-        guessView.setText("");
-        iSpyClueView.setText("");
-        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
-        resultView.setText("");
-        computerRemarkView.setText("");
     }
 
     /**
@@ -338,11 +312,11 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      */
     private void playAgain(){
         if (this.objectPool.size() != 0){
-            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_A);
             playAgainRequestInProgress = true;
 
         } else { //Go back to first screen and choose a new image
-            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_B);
             playAgainNewImage();
         }
     }
@@ -352,7 +326,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      */
     private void playAgainSameImage(){
         reset();
-        voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_INIT);
     }
 
     /**
@@ -367,9 +341,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      * Prompts computer to speak COMPUTER_WON_REMARK
      */
     private void handleCorrectGuess(){
-        resultView.setText(COMPUTER_WON_REMARK);
         objectPool.remove(computerGuess);
-        voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_WON_REMARK);
     }
     public void handleCorrectGuess(View view) {
         handleCorrectGuess();
@@ -385,27 +358,19 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         String toSay = "";
         this.numGuesses++;
         if (numGuesses != NUM_GUESSES_ALLOWED){
-            computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
             toSay += COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length];
-
-            updateRemainingGuesses();
             String guess = makeGuess();
             if (guess != null) {
-                guessView.setText(guess);
                 toSay += (COMPUTER_GUESS + guess);
             }
             else {
-
-                resultView.setText(COMPUTER_OUT_OF_GUESSES);
                 toSay += (COMPUTER_OUT_OF_GUESSES);
             }
         } else {
-
-            resultView.setText(COMPUTER_LOST_REMARK);
             toSay += (COMPUTER_LOST_REMARK);
         }
 
-        voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, toSay);
 
     }
     public void handleIncorrectGuess(View view) throws InterruptedException {
@@ -413,20 +378,11 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     }
 
 
-    /****** Other Helper Methods *******/
-
-    private void updateRemainingGuesses(){
-        remainingGuessesView = findViewById(R.id.remainingGuesses);
-        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
-    }
-
-
     /**
      * Prompts the computer to speak a remark depending on which guess the computer is on.
      */
     private void makeRemark() {
-        computerRemarkView.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
-        voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
     }
 
     
@@ -452,9 +408,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                 if (resultCode == RESULT_OK && data != null){
 
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                    iSpyClueView = findViewById(R.id.iSpyClue);
                     String guess = result.get(0).toLowerCase();
-                    iSpyClueView.setText(guess);
+                    iSpyClue = guess;
                     startComputerGuessing();
                     hasGivenClue = true;
                 }
@@ -482,10 +437,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                     }
                 }
                 break;
-
         }
     }
-
-
 }
 

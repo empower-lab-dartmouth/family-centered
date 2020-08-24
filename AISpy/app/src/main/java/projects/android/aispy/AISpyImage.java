@@ -62,7 +62,7 @@ AISpyImage implements Serializable {
         /** 1) find all labels that can be detected for the full image **/
         List<FirebaseVisionImageLabel> labels = LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels);
         if (labels != null) {
-            allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels));
+            allLabels = new ArrayList<>(labels);
         } else {
             System.out.println("nothing detected");
             return;
@@ -103,7 +103,14 @@ AISpyImage implements Serializable {
 
             /** b) Find all labels in the cropped image of that detected object **/
             //Detect the labels for the object
-            ArrayList<FirebaseVisionImageLabel> objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, newFilePath, unhelpfulLabels));
+            ArrayList<FirebaseVisionImageLabel> objectLabels;
+            List<FirebaseVisionImageLabel> objectLabelsApiReturn = LabelDetectionAPI.getImageLabels(thisContext, newFilePath, unhelpfulLabels);
+            if (objectLabelsApiReturn != null) {
+                objectLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, newFilePath, unhelpfulLabels));
+            } else {
+                System.out.println("nothing detected");
+                return;
+            }
 
             //Add to allLabels if not already there
             for (FirebaseVisionImageLabel label : objectLabels){

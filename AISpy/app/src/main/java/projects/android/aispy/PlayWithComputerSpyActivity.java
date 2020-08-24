@@ -209,9 +209,9 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void handleCorrectGuess(){
         if (numGuessesForClue == 0){
-            voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT_FIRST_TRY);
         } else {
-            voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT);
         }
     }
 
@@ -226,7 +226,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
             setUpNextGuess();
         } else {
             checkinInProgress = true;
-            voice.speak(CHECKIN, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(CHECKIN, TextToSpeech.QUEUE_FLUSH, null, CHECKIN);
         }
     }
 
@@ -235,7 +235,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void setUpNextGuess(){
         guess = "";
-        voice.speak(COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuessesForClue]);
     }
 
     /**
@@ -251,11 +251,11 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void playAgain(){
         if (this.objectPool.size() != 0){
-            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_A);
             playAgainRequestInProgress = true;
 
         } else { //Go back to first screen and choose a new image
-            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_B);
             playAgainNewImage();
         }
     }
@@ -266,7 +266,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private void playAgainSameImage(){
         setUpPlayForCurrentImage();
         String clue = getClue();
-        voice.speak(COMPUTER_INIT + ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_INIT + ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_INIT);
     }
 
     private void playAgainNewImage(){
@@ -282,7 +282,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private void giveClue(){
         String clue = getClue();
         this.numGuessesForClue = 0;
-        voice.speak(ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, ISPY_PRELUDE);
     }
 
     /**
@@ -371,7 +371,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
                     String response = result.get(0);
                     if (response.contains("give up")){
                         checkinInProgress = false;
-                        voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, null);
+                        voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, COMPUTER_WINS);
                     } else if (response.contains("another") || response.contains("clue") || response.contains("keep")){
                         checkinInProgress = false;
                         giveClue();

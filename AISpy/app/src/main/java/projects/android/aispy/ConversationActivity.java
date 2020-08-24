@@ -3,6 +3,7 @@ package projects.android.aispy;
 import android.content.Intent;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 import android.util.Log;
 import android.widget.Toast;
@@ -18,6 +19,7 @@ import java.util.Set;
  */
 public class ConversationActivity extends AppCompatActivity {
     protected TextToSpeech voice;
+    private boolean aiIsSpeaking;
 
     /**
      * Destroys the TextToSpeech voice when the activity is ended
@@ -36,6 +38,7 @@ public class ConversationActivity extends AppCompatActivity {
      * //TODO: change the voice to be less annoying
      */
     protected void setUpAIVoice(String initMessage){
+        aiIsSpeaking = false;
         voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -48,7 +51,24 @@ public class ConversationActivity extends AppCompatActivity {
 
                     }
 
-                    voice.speak(initMessage, TextToSpeech.QUEUE_FLUSH, null, null);
+                    voice.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onDone(String utteranceId) {
+                            // Log.d("MainActivity", "TTS finished");
+                            aiIsSpeaking = false;
+                        }
+
+                        @Override
+                        public void onError(String utteranceId) {
+                        }
+
+                        @Override
+                        public void onStart(String utteranceId) {
+                            aiIsSpeaking = true;
+                        }
+                    });
+
+                    voice.speak(initMessage, TextToSpeech.QUEUE_FLUSH, null, initMessage);
                 }
             }
         }, "com.google.android.tts");
@@ -76,5 +96,12 @@ public class ConversationActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Your device doesn't support speech input", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * @return true if ai is currently speaking, false if otherwise
+     */
+    protected boolean isAISpeaking(){
+        return aiIsSpeaking;
     }
 }

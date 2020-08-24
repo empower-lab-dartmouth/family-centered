@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 import android.util.Log;
 import android.view.View;
@@ -20,6 +21,7 @@ import java.util.Set;
  */
 public class ConversationActivity extends AppCompatActivity {
     protected TextToSpeech voice;
+    protected boolean aiIsSpeaking;
 
     /**
      * Destroys the TextToSpeech voice when the activity is ended
@@ -38,6 +40,7 @@ public class ConversationActivity extends AppCompatActivity {
      * //TODO: change the voice to be less annoying
      */
     protected void setUpAIVoice(String initMessage){
+        aiIsSpeaking = false;
         voice = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -49,6 +52,25 @@ public class ConversationActivity extends AppCompatActivity {
                     } else {
 
                     }
+
+                    voice.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onDone(String utteranceId) {
+                            // Log.d("MainActivity", "TTS finished");
+                            aiIsSpeaking = false;
+                            System.out.println("Finished speaking!!!!!!!!!!!!");
+                        }
+
+                        @Override
+                        public void onError(String utteranceId) {
+                        }
+
+                        @Override
+                        public void onStart(String utteranceId) {
+                            aiIsSpeaking = true;
+                            System.out.println("Started speaking!!!!!!!!!!!!!");
+                        }
+                    });
 
                     voice.speak(initMessage, TextToSpeech.QUEUE_FLUSH, null, null);
                 }

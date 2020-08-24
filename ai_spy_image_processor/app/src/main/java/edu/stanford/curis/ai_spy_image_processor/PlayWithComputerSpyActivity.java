@@ -107,7 +107,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         iSpyClueView.setText("");
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
-        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuesses]);
 
 
         chosenObject = aiSpyImage.chooseRandomObject();
@@ -215,10 +215,10 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private void handleCorrectGuess(){
         if (numGuesses == 0){
             resultView.setText(CHILD_CORRECT_FIRST_TRY);
-            voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT_FIRST_TRY);
         } else {
             resultView.setText(CHILD_CORRECT);
-            voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT);
         }
     }
 
@@ -232,7 +232,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
             setUpNextGuess();
         } else {
             resultView.setText(COMPUTER_WINS + chosenObject.getPrimaryLabel());
-            voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, null);
+            voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, COMPUTER_WINS);
         }
     }
 
@@ -243,7 +243,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         guessView.setText("");
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
         computerRemarkView.setText(COMPUTER_REMARKS[numGuesses]);
-        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(COMPUTER_REMARKS[numGuesses], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuesses]);
     }
 
     public void playAgain(View view) {
@@ -308,7 +308,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         iSpyClueView.setText(iSpyClue);
         numCluesGiven++;
 
-        voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, null);
+        voice.speak(ISPY_PRELUDE+ iSpyClue, TextToSpeech.QUEUE_FLUSH, null, ISPY_PRELUDE);
 
     }
 
