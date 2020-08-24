@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -59,7 +60,14 @@ AISpyImage implements Serializable {
         this.fullImagePath = imagePath;
 
         /** 1) find all labels that can be detected for the full image **/
-        allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels));
+        List<FirebaseVisionImageLabel> labels = LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels);
+        if (labels != null) {
+            allLabels = new ArrayList<>(LabelDetectionAPI.getImageLabels(thisContext, imagePath, unhelpfulLabels));
+        } else {
+            System.out.println("nothing detected");
+            return;
+        }
+
 
         //Create hash set to quickly check if a label is present or not
         HashSet<String> allLabelsSet = new HashSet<>();

@@ -48,8 +48,6 @@ public class WelcomeActivity extends ConversationActivity {
                     } else if (input.contains("computer") || input.contains("you") || input.contains("dragon")) {
                         playWithComputerSpy(view);
                     } else {
-                        TextView textView = (TextView) findViewById(R.id.textview);
-                        textView.setText(INCORRECT_INPUT_MSG);
                         voice.speak(INCORRECT_INPUT_MSG, TextToSpeech.QUEUE_FLUSH, null, null);
                     }
                 }
