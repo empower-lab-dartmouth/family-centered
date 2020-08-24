@@ -84,6 +84,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     private final String COMPUTER_LOST_REMARK = "I give up. Great job! One Point for you. What is it?";
     private final String COMPUTER_WON_REMARK = "I did it! One point for me.";
     private final String COMPUTER_GUESS = "Is it the ";
+    private final String PLAY_AGAIN_PROMPT_A = "Do you want to play again with a new image? Or do you want to use the same image?";
+    private final String PLAY_AGAIN_PROMPT_B = "Okay, I can't see anything else in this image, so let's choose a new one";
 
     //Instance variables
     private AISpyImage aiSpyImage;
@@ -98,9 +100,12 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     private String[] clueEssentials;
     private boolean desperateMode;
     private boolean hasGivenClue;
+    private boolean playAgainRequestInProgress;
+    private ArrayList<AISpyObject> objectPool;
 
     private final int CLUE_INPUT_REQUEST = 11;
     private final int FEEDBACK_INPUT_REQUEST = 12;
+    private final int PLAY_AGAIN_REQUEST = 20;
 
     /**
      * Initializes and resets all views and instance variables
@@ -116,6 +121,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         this.clueType = 0;
         this.iSpyMap = aiSpyImage.getiSpyMap();
         this.speakLatch = new CountDownLatch(0);
+
+        objectPool = aiSpyImage.getAllObjects();
 
         //Set views
         guessView = findViewById(R.id.computerGuess);
@@ -284,9 +291,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
 
     /**
      * Computer makes the first guess after determining clue type.
-     * @param view
      */
-    public void startComputerGuessing(View view) {
+    public void startComputerGuessing() {
         makeRemark();
         determineClueType();
         String guess = makeGuess();
@@ -303,6 +309,58 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
 
     public void playAgain(View view) {
         reset();
+        playAgain();
+    }
+
+    /**
+     * Resets all aspects of the ispy game PlayWithChildSpyActivity except for the picture
+     */
+    private void reset(){
+        this.numGuesses = 0;
+        this.numDesperateGuesses = 0;
+        this.numGuessesForCurrentObject = 0;
+        this.alreadyGuessedObjects = new HashSet<>();
+        this.clueEssentials = new String[2];
+        this.desperateMode = false;
+        this.hasGivenClue = false;
+        this.playAgainRequestInProgress = false;
+
+        guessView.setText("");
+        iSpyClueView.setText("");
+        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
+        resultView.setText("");
+        computerRemarkView.setText("");
+    }
+
+    /**
+     * If there are still objects in objectPool, prompts you to choose between playing again with the same image or a new image
+     * prompts you to play again by returning to the home screen and choosing a new image
+     */
+    private void playAgain(){
+        if (this.objectPool.size() != 0){
+            voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, null);
+            playAgainRequestInProgress = true;
+
+        } else { //Go back to first screen and choose a new image
+            voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, null);
+            playAgainNewImage();
+        }
+    }
+
+    /**
+     * Resets the screen and instance variables to play again with the same image
+     */
+    private void playAgainSameImage(){
+        reset();
+        voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+    /**
+     * Returns user to the main screen to choose an image
+     */
+    private void playAgainNewImage(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -310,6 +368,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      */
     private void handleCorrectGuess(){
         resultView.setText(COMPUTER_WON_REMARK);
+        objectPool.remove(computerGuess);
         voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, null);
     }
     public void handleCorrectGuess(View view) {
@@ -356,27 +415,6 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
 
     /****** Other Helper Methods *******/
 
-    /**
-     * Resets all aspects of the ispy game PlayWithChildSpyActivity except for the picture
-     */
-    private void reset(){
-        this.numGuesses = 0;
-        this.numDesperateGuesses = 0;
-        this.numGuessesForCurrentObject = 0;
-        this.alreadyGuessedObjects = new HashSet<>();
-        this.clueEssentials = new String[2];
-        this.desperateMode = false;
-        this.hasGivenClue = false;
-
-        guessView.setText("");
-        iSpyClueView.setText("");
-        remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
-        resultView.setText("");
-        computerRemarkView.setText("");
-
-    }
-
-
     private void updateRemainingGuesses(){
         remainingGuessesView = findViewById(R.id.remainingGuesses);
         remainingGuessesView.setText("Number of Guesses remaining: " + (NUM_GUESSES_ALLOWED - numGuesses));
@@ -395,7 +433,9 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
     /***** Methods for speech recognition *******/
 
     public void getSpeechInput(View view) {
-        if (!hasGivenClue){
+        if (playAgainRequestInProgress){
+            super.startSpeechRecognition(PLAY_AGAIN_REQUEST);
+        } else if (!hasGivenClue){
             super.startSpeechRecognition(CLUE_INPUT_REQUEST);
         } else {
             super.startSpeechRecognition(FEEDBACK_INPUT_REQUEST);
@@ -415,7 +455,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                     iSpyClueView = findViewById(R.id.iSpyClue);
                     String guess = result.get(0).toLowerCase();
                     iSpyClueView.setText(guess);
-                    startComputerGuessing(findViewById(R.id.startComputerGuessingButton));
+                    startComputerGuessing();
                     hasGivenClue = true;
                 }
                 break;
@@ -430,6 +470,18 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
                         handleIncorrectGuess();
                     }
                 }
+                break;
+            case PLAY_AGAIN_REQUEST:
+                if (resultCode == RESULT_OK && data != null){
+                    ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                    String response = result.get(0);
+                    if (response.contains("new")){
+                        playAgainNewImage();
+                    } else if (response.contains("same")){
+                        playAgainSameImage();
+                    }
+                }
+                break;
 
         }
     }

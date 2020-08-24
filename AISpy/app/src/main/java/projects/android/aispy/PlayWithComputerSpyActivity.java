@@ -238,10 +238,17 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         voice.speak(COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
+    /**
+     * If there are still objects in objectPool, prompts you to choose between playing again with the same image or a new image
+     * prompts you to play again by returning to the home screen and choosing a new image
+     */
     public void playAgain(View view) {
         playAgain();
     }
 
+    /**
+     * Returns user to the main screen to choose an image
+     */
     private void playAgain(){
         if (this.objectPool.size() != 0){
             voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, null);
@@ -253,6 +260,9 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         }
     }
 
+    /**
+     * Resets the screen and instance variables to play again with the same image
+     */
     private void playAgainSameImage(){
         setUpPlayForCurrentImage();
         String clue = getClue();
