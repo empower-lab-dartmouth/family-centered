@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout"
-    android:background="#9DF9EF"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#9DF9EF"
     tools:context=".WelcomeActivity">
 
 
@@ -19,7 +19,7 @@
         android:background="#FFFFFF"
         android:padding="10dp"
         android:text="Who would you like to do the spying?"
-        android:textColor="#009520"
+        android:textColor="#000000"
         android:textSize="40sp"
         app:autoSizeTextType="none"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,33 +41,43 @@
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="204dp"
-        android:layout_height="216dp"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="8dp"
         android:background="#00FBFBFB"
         android:onClick="playWithComputerSpy"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/imageView3"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintEnd_toStartOf="@+id/guideline6"
+        app:layout_constraintHorizontal_bias="0.414"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview"
-        app:layout_constraintVertical_bias="0.154"
+        app:layout_constraintVertical_bias="0.163"
         app:srcCompat="@drawable/drachenlooking" />
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="194dp"
-        android:layout_height="208dp"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="8dp"
         android:background="#00FBFBFB"
         android:onClick="playWithChildSpy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline6"
         app:layout_constraintTop_toBottomOf="@+id/textview"
         app:layout_constraintVertical_bias="0.168"
         app:srcCompat="@drawable/boy" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
