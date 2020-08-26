@@ -125,8 +125,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         ArrayList<String> conceptNetClues = makeConceptNetClues(features.conceptNet);
 
         cluePool.put(COLOR_CLUE, colorClue);
-        if (locationClues.size() != 0) cluePool.put(LOCATION_CLUE, locationClues);
-        if (conceptNetClues.size() != 0) cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
+        if (locationClues != null && locationClues.size() != 0) cluePool.put(LOCATION_CLUE, locationClues);
+        if (conceptNetClues != null && conceptNetClues.size() != 0) cluePool.put(CONCEPTNET_CLUE, conceptNetClues);
         return cluePool;
     }
 
@@ -137,6 +137,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private ArrayList<String> makeConceptNetClues(HashMap<String, ArrayList<String>> conceptNetMap){
         ArrayList<String> conceptNetClues = new ArrayList<>();
+        if (conceptNetMap == null) return null;
+
         for (String relation : conceptNetMap.keySet()){
             for (String endpoint : conceptNetMap.get(relation)){
                 String conceptNetClue = ConceptNetAPI.makeConceptNetClue(relation, endpoint);
@@ -153,6 +155,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private ArrayList<String> makeLocationClues(HashMap<String, HashSet<AISpyObject>> locations){
         ArrayList<String> locationClues = new ArrayList<>();
+        if (locations == null) return null;
+
         for (String direction : locations.keySet()){
             for (AISpyObject object : locations.get(direction)){
                 String locationClue = "";

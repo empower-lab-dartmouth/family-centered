@@ -56,6 +56,9 @@ public class ConversationActivity extends AppCompatActivity {
                         public void onDone(String utteranceId) {
                             // Log.d("MainActivity", "TTS finished");
                             aiIsSpeaking = false;
+
+                            //TODO: add UI code to light up the user box
+
                         }
 
                         @Override
@@ -65,6 +68,8 @@ public class ConversationActivity extends AppCompatActivity {
                         @Override
                         public void onStart(String utteranceId) {
                             aiIsSpeaking = true;
+
+                            //TODO: add UI code to light up the ai box
                         }
                     });
 
