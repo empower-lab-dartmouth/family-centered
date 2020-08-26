@@ -208,9 +208,12 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      * Prompts the computer to speak the appropriate congratulatory message
      */
     private void handleCorrectGuess(){
+        TextView guessText = findViewById(R.id.iSpyClue);
         if (numGuessesForClue == 0){
+            guessText.setText(CHILD_CORRECT_FIRST_TRY);
             voice.speak(CHILD_CORRECT_FIRST_TRY, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT_FIRST_TRY);
         } else {
+            guessText.setText(CHILD_CORRECT);
             voice.speak(CHILD_CORRECT, TextToSpeech.QUEUE_FLUSH, null, CHILD_CORRECT);
         }
     }
@@ -225,6 +228,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
         if (numGuessesForClue < NUM_GUESSES_UNTIL_CHECKIN){
             setUpNextGuess();
         } else {
+            TextView guessText = findViewById(R.id.iSpyClue);
+            guessText.setText(CHECKIN);
             checkinInProgress = true;
             voice.speak(CHECKIN, TextToSpeech.QUEUE_FLUSH, null, CHECKIN);
         }
@@ -235,6 +240,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      */
     private void setUpNextGuess(){
         guess = "";
+        TextView guessText = findViewById(R.id.iSpyClue);
+        guessText.setText(COMPUTER_REMARKS[numGuessesForClue]);
         voice.speak(COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuessesForClue]);
     }
 
@@ -250,11 +257,14 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
      * Returns user to the main screen to choose an image
      */
     private void playAgain(){
+        TextView guessText = findViewById(R.id.iSpyClue);
         if (this.objectPool.size() != 0){
+            guessText.setText(PLAY_AGAIN_PROMPT_A);
             voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_A);
             playAgainRequestInProgress = true;
 
         } else { //Go back to first screen and choose a new image
+            guessText.setText(PLAY_AGAIN_PROMPT_B);
             voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_B);
             playAgainNewImage();
         }
@@ -266,6 +276,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private void playAgainSameImage(){
         setUpPlayForCurrentImage();
         String clue = getClue();
+        TextView guessText = findViewById(R.id.iSpyClue);
+        guessText.setText(COMPUTER_INIT + ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue]);
         voice.speak(COMPUTER_INIT + ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_INIT);
     }
 
@@ -282,6 +294,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
     private void giveClue(){
         String clue = getClue();
         this.numGuessesForClue = 0;
+        TextView guessText = findViewById(R.id.iSpyClue);
+        guessText.setText(ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue]);
         voice.speak(ISPY_PRELUDE + clue + COMPUTER_REMARKS[numGuessesForClue], TextToSpeech.QUEUE_FLUSH, null, ISPY_PRELUDE);
     }
 
@@ -323,7 +337,7 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
             iSpyClue = "out of clues";
         }
 
-        iSpyClueView.setText(ISPY_PRELUDE + iSpyClue);
+        iSpyClueView.setText(ISPY_PRELUDE + iSpyClue + ".");
         numCluesGiven++;
         iSpyClue += ".";
         return iSpyClue;
@@ -371,6 +385,8 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
                     String response = result.get(0);
                     if (response.contains("give up")){
                         checkinInProgress = false;
+                        TextView guessText = findViewById(R.id.iSpyClue);
+                        guessText.setText(COMPUTER_WINS + chosenObject.getPrimaryLabel());
                         voice.speak(COMPUTER_WINS + chosenObject.getPrimaryLabel(), TextToSpeech.QUEUE_FLUSH, null, COMPUTER_WINS);
                     } else if (response.contains("another") || response.contains("clue") || response.contains("keep")){
                         checkinInProgress = false;

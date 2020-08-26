@@ -279,10 +279,13 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         makeRemark();
         determineClueType();
         String guess = makeGuess();
+        TextView guessText = findViewById(R.id.guess);
         if (guess != null) {
+            guessText.setText(COMPUTER_GUESS + guess + "?");
             voice.speak(COMPUTER_GUESS + guess, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_GUESS);
         }
         else {
+            guessText.setText(COMPUTER_LOST_REMARK);
             voice.speak(COMPUTER_LOST_REMARK, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_LOST_REMARK);
         }
     }
@@ -311,11 +314,14 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      * prompts you to play again by returning to the home screen and choosing a new image
      */
     private void playAgain(){
+        TextView guessText = findViewById(R.id.guess);
         if (this.objectPool.size() != 0){
+            guessText.setText(PLAY_AGAIN_PROMPT_A);
             voice.speak(PLAY_AGAIN_PROMPT_A, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_A);
             playAgainRequestInProgress = true;
 
         } else { //Go back to first screen and choose a new image
+            guessText.setText(PLAY_AGAIN_PROMPT_B);
             voice.speak(PLAY_AGAIN_PROMPT_B, TextToSpeech.QUEUE_FLUSH, null, PLAY_AGAIN_PROMPT_B);
             playAgainNewImage();
         }
@@ -326,6 +332,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      */
     private void playAgainSameImage(){
         reset();
+        TextView guessText = findViewById(R.id.guess);
+        guessText.setText(COMPUTER_INIT);
         voice.speak(COMPUTER_INIT, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_INIT);
     }
 
@@ -342,6 +350,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      */
     private void handleCorrectGuess(){
         objectPool.remove(computerGuess);
+        TextView guessText = findViewById(R.id.guess);
+        guessText.setText(COMPUTER_WON_REMARK);
         voice.speak(COMPUTER_WON_REMARK, TextToSpeech.QUEUE_FLUSH, null, COMPUTER_WON_REMARK);
     }
     public void handleCorrectGuess(View view) {
@@ -369,7 +379,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
         } else {
             toSay += (COMPUTER_LOST_REMARK);
         }
-
+        TextView guessText = findViewById(R.id.guess);
+        guessText.setText(toSay);
         voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, toSay);
 
     }
@@ -382,6 +393,8 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
      * Prompts the computer to speak a remark depending on which guess the computer is on.
      */
     private void makeRemark() {
+        TextView guessText = findViewById(R.id.guess);
+        guessText.setText(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
         voice.speak(COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length], TextToSpeech.QUEUE_FLUSH, null, COMPUTER_REMARKS[numGuesses % COMPUTER_REMARKS.length]);
     }
 

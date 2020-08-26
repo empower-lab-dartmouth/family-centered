@@ -60,7 +60,22 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:srcCompat="@drawable/boymic" />
-
+    <TextView
+        android:id="@+id/guess"
+        android:layout_width="wrap_content"
+        android:layout_height="82dp"
+        android:layout_gravity="center"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/gallerybutton_bg"
+        android:padding="20dp"
+        android:text="Great! You do the spying."
+        android:textColor="#000000"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/imageView5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
     <Button
         android:id="@+id/playAgain"
         android:layout_width="109dp"
