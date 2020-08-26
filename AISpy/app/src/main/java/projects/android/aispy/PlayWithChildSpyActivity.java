@@ -380,7 +380,7 @@ public class PlayWithChildSpyActivity extends ConversationActivity {
             toSay += (COMPUTER_LOST_REMARK);
         }
         TextView guessText = findViewById(R.id.guess);
-        guessText.setText(toSay);
+        guessText.setText(toSay + "?");
         voice.speak(toSay, TextToSpeech.QUEUE_FLUSH, null, toSay);
 
     }
