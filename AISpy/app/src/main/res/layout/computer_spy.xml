@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#9DF9EF"
+    android:background="#FFFFFF"
     tools:context=".PlayWithComputerSpyActivity">
 
 
@@ -54,6 +54,7 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/micbutton_bg"
         android:onClick="playAgain"
+        android:elevation="8dp"
         android:text="Play Again"
         android:textSize="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -79,6 +80,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="80dp"
         android:background="@drawable/bkg"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintHorizontal_bias="0.0"
@@ -94,6 +96,7 @@
         android:layout_marginBottom="80dp"
         android:background="@drawable/bkg"
         android:onClick="getSpeechInput"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
