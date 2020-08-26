@@ -33,47 +33,47 @@
 
 
     <ImageView
-        android:id="@+id/feedbackInput"
-        android:layout_width="78dp"
-        android:layout_height="93dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="88dp"
-        android:layout_marginEnd="68dp"
-        android:onClick="getSpeechInput"
-        android:src="@drawable/ic_mic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.927"
-        app:layout_constraintStart_toEndOf="@+id/imageView5"
-        app:layout_constraintTop_toBottomOf="@+id/fullImage" />
-
-    <ImageView
         android:id="@+id/imageView5"
         android:layout_width="0dp"
-        android:layout_height="300dp"
+        android:layout_height="250dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/bkg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline5"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/drachenlooking" />
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/bkg"
+        android:onClick="getSpeechInput"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline5"
+        app:srcCompat="@drawable/boymic" />
 
     <Button
         android:id="@+id/playAgain"
         android:layout_width="109dp"
         android:layout_height="57dp"
         android:layout_gravity="bottom|center"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/micbutton_bg"
         android:onClick="playAgain"
-        android:text="Play Again?"
+        android:text="Play Again"
         android:textSize="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.458"
-        app:layout_constraintStart_toStartOf="@+id/guideline5"
-        app:layout_constraintTop_toBottomOf="@+id/feedbackInput"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline5"
