@@ -369,7 +369,13 @@ public class PlayWithComputerSpyActivity extends ConversationActivity {
                     ArrayList<String> result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                     EditText guessView = findViewById(R.id.guess);
                     guess = result.get(0);
-                    checkGuess(guess);
+
+                    if (guess.contains("another") || guess.contains("clue")){
+                        checkinInProgress = false;
+                        giveClue();
+                    } else {
+                        checkGuess(guess);
+                    }
                 }
                 break;
             case PLAY_AGAIN_REQUEST:
